@@ -1,9 +1,16 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Stack } from "expo-router";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { View } from "react-native";
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import {
+  useFonts,
+  Montserrat_400Regular,
+  Montserrat_500Medium,
+  Montserrat_600SemiBold,
+  Montserrat_700Bold,
+} from '@expo-google-fonts/montserrat';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -12,29 +19,44 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function Layout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [fontsLoaded, fontError] = useFonts({
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded, fontError]);
 
-  if (!loaded) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="not-found"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </View>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
