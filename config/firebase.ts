@@ -14,9 +14,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-auth.languageCode = 'en'; // Set the language for SMS messages
-export { auth };
+export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 export default app; 
