@@ -1,6 +1,6 @@
 // store/slices/agentSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../../config/firebase';
+import { db } from '../../app/config/firebase';
 import { collection, query, where, getDocs, onSnapshot, doc } from 'firebase/firestore';
 import { signOut } from './authSlice';
 import { setAgentListener, clearAgentListener } from './listenerSlice';

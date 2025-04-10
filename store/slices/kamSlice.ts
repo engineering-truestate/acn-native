@@ -1,7 +1,7 @@
 // store/slices/kamSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { db } from '../../app/config/firebase';
 
 export const setKamDataState = createAsyncThunk(
   'kam/setKamDataState',

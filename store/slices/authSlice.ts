@@ -6,8 +6,12 @@ import { clearAgentListener } from './listenerSlice';
 import { resetKamState } from './kamSlice';
 import { setVersionListener, clearVersionListener } from './listenerSlice';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db, auth } from '../../config/firebase';
-import { signOut as firebaseSignOut } from 'firebase/auth';
+import 
+{ 
+  db,
+  // auth
+} from '../../app/config/firebase';
+// import { signOut as firebaseSignOut } from 'firebase/auth';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
 
@@ -79,7 +83,7 @@ export const logOut = () => async (dispatch: AppDispatch, getState: () => RootSt
   dispatch(setLoading(true));
 
   try {
-    await firebaseSignOut(auth);
+    // await firebaseSignOut(auth);
     dispatch(clearAgentListener());
     dispatch(clearVersionListener());
     dispatch(resetAgentState());
