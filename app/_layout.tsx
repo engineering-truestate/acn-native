@@ -15,11 +15,12 @@ import 'react-native-reanimated';
 import '../global.css';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import ReduxProvider from '@/providers/ReduxProvider';
+import FlashMessage from '../components/Toast';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function Layout() {
+export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded, fontError] = useFonts({
     Montserrat_400Regular,
@@ -39,24 +40,25 @@ export default function Layout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
+    <ReduxProvider>
+      <SafeAreaProvider>
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: '#000' },
+              headerTintColor: '#fff',
+              headerTitleAlign: 'center',
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
-          />
-          <Stack.Screen
-            name="not-found"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack>
-      </View>
-      <StatusBar style="auto" />
-    </SafeAreaProvider>
+          >
+            <Stack.Screen name="(tabs)/index" options={{ title: 'ACN' }} />
+            <Stack.Screen name="not-found" options={{ headerShown: false }} />
+          </Stack>
+
+          <FlashMessage position="top" />
+          <StatusBar style="auto" />
+        </View>
+      </SafeAreaProvider>
+    </ReduxProvider>
   );
 }

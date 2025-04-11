@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { useCurrentRefinements, useRefinementList } from 'react-instantsearch';
 import DropdownMoreFilters from './DropdownMoreFilters'
-import { Montserrat_500Medium, Montserrat_600SemiBold } from '@expo-google-fonts/montserrat';
+import LandmarkDropdownFilters from './LandmarkDropdownFilters';
+import { Landmark } from '../(tabs)/properties'; 
 
 interface MoreFiltersProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   handleToggle: () => void;
   isMobile: boolean;
-  selectedLandmark?: any;
-  setSelectedLandmark?: (landmark: any) => void;
+  selectedLandmark: Landmark | null;
+  setSelectedLandmark: (landmark: Landmark | null) => void;
 }
 
-const MoreFilters = ({ 
-  isOpen, 
-  setIsOpen, 
-  handleToggle, 
-  isMobile, 
-  selectedLandmark, 
-  setSelectedLandmark 
+const MoreFilters = ({
+  isOpen,
+  setIsOpen,
+  handleToggle,
+  isMobile,
+  selectedLandmark,
+  setSelectedLandmark
 }: MoreFiltersProps) => {
   const { items, refine } = useCurrentRefinements();
   const [selectedLocationFilter, setSelectedLocationFilter] = useState('micromarket');
+
+  // Debug log to check when selectedLandmark changes in this component
+  console.log("MoreFilters selectedLandmark:", selectedLandmark);
 
   // Micromarket refinement list
   const { items: micromarketItems, refine: refineMicromarket } = useRefinementList({
@@ -54,7 +58,7 @@ const MoreFilters = ({
   useEffect(() => {
     const hasMicromarketFilter = items?.some((item) => item.attribute === 'micromarket');
     setSelectedLocationFilter((hasMicromarketFilter && !selectedLandmark) ? 'micromarket' : 'landmark');
-  }, [items]);
+  }, [items, selectedLandmark]);
 
   const outsideFilters = [
     { title: 'Asset Type', attribute: 'assetType', type: 'dropdown' },
@@ -111,22 +115,22 @@ const MoreFilters = ({
           </View>
 
           <ScrollView style={styles.scrollView}>
-          <View style={styles.mobileFilters}>
-                {outsideFilters.map((filter, idx) => (
-                  <View key={idx} style={styles.filterCard}>
-                    <Text style={styles.filterTitle}>{filter.title}</Text>
-                    {filter.type === 'dropdown' ? (
-                      <DropdownMoreFilters
-                        attribute={filter.attribute}
-                        title="Please Select"
-                        type={filter.type}
-                      />
-                    ) : filter.type === 'range' ? (
-                        <></>
-                    ) : null}
-                  </View>
-                ))}
-              </View>
+            <View style={styles.mobileFilters}>
+              {outsideFilters.map((filter, idx) => (
+                <View key={idx} style={styles.filterCard}>
+                  <Text style={styles.filterTitle}>{filter.title}</Text>
+                  {filter.type === 'dropdown' ? (
+                    <DropdownMoreFilters
+                      attribute={filter.attribute}
+                      title="Please Select"
+                      type={filter.type}
+                    />
+                  ) : filter.type === 'range' ? (
+                    <></>
+                  ) : null}
+                </View>
+              ))}
+            </View>
 
             {/* Location Filter */}
             <View style={styles.locationFilter}>
@@ -155,7 +159,7 @@ const MoreFilters = ({
                   ]}
                   onPress={() => {
                     setSelectedLocationFilter('micromarket');
-                    setSelectedLandmark?.(null);
+                    setSelectedLandmark(null);
                   }}
                 >
                   <Text style={[
@@ -169,6 +173,12 @@ const MoreFilters = ({
 
               {selectedLocationFilter === 'micromarket' && (
                 renderRefinementList(micromarketItems, refineMicromarket)
+              )}
+              {selectedLocationFilter === 'landmark' && (
+                <LandmarkDropdownFilters
+                  selectedLandmark={selectedLandmark}
+                  setSelectedLandmark={setSelectedLandmark}
+                />
               )}
             </View>
 
@@ -338,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MoreFilters; 
+export default MoreFilters;

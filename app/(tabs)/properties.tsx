@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -9,6 +9,8 @@ import { Property } from "../types";
 import MoreFilters from "../components/MoreFilters";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import EnquiryCPModal from "../modals/EnquiryCPModal";
+import ConfirmModal from "../modals/ConfirmModal";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -18,8 +20,16 @@ const searchClient = algoliasearch(
 
 const indexName = "propertyId";
 
+export interface Landmark {
+  name: string;
+  lat: number;
+  lng: number;
+  radius: number;
+}
+
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
+  const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
 
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen((prev) => !prev);
@@ -32,6 +42,12 @@ export default function PropertiesScreen() {
           analytics={true}
           hitsPerPage={20}
           filters={`status:'Available'`}
+          aroundLatLng={
+            selectedLandmark?.lat && selectedLandmark?.lng
+              ? `${selectedLandmark.lat},${selectedLandmark.lng}`
+              : undefined
+          }
+          aroundRadius={selectedLandmark?.radius || undefined}
         />
         <View className="flex-1">
           <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} />
@@ -40,7 +56,14 @@ export default function PropertiesScreen() {
           </ScrollView>
           <CustomPagination />
         </View>
-        <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={null} setSelectedLandmark={null} />
+        <MoreFilters 
+          isOpen={isMoreFiltersModalOpen} 
+          setIsOpen={setIsMoreFiltersModalOpen} 
+          handleToggle={handleToggleMoreFilters} 
+          isMobile={true} 
+          selectedLandmark={selectedLandmark} 
+          setSelectedLandmark={setSelectedLandmark} 
+        />
       </InstantSearch>
 
     </View>
@@ -79,14 +102,33 @@ function MobileHits() {
 const PropertyCard = ({ property }: { property: Property }) => {
   const router = useRouter();
 
+  const [selectedCPID, setSelectedCPID] = useState("");
+  const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
+  const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
+
   const handlePress = () => {
     console.log(property)
     router.push(`/property/${property.propertyId}`);
 
   };
 
+  const handleCancel = () => {
+    setIsConfirmModelOpen(false)
+  };
+
+  const handleConfirm = () => {
+    console.log("Confirmed")
+    setIsEnquiryCPModelOpen(true)
+    setIsConfirmModelOpen(false)
+  };
+
+  const handleEnquiryClick = () => {
+    setSelectedCPID(property.cpCode)
+    setIsConfirmModelOpen(true)
+  }
+
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.card}
       onPress={handlePress}
     >
@@ -110,6 +152,26 @@ const PropertyCard = ({ property }: { property: Property }) => {
             <Ionicons name="location-outline" size={16} color="#374151" />
             <Text style={styles.detailText}>{property.micromarket}</Text>
           </View>
+          <EnquiryCPModal
+            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+            generatingEnquiry={false}
+            visible={isEnquiryModelOpen}
+            selectedCPID={selectedCPID}
+          />
+          <ConfirmModal
+            title="Confirm Enquiry"
+            message="Are you sure you want to enquire? You have 3 credits remaining for this month."
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            generatingEnquiry={false}
+            visible={isConfirmModelOpen}
+          />
+          <Button
+            onPress={handleEnquiryClick}
+            title="Enquire now"
+            color="#000FFF"
+            accessibilityLabel="Enquiry button."
+          />
         </View>
       </View>
     </TouchableOpacity>

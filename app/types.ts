@@ -16,4 +16,5 @@ export interface Property {
   carpet: number;
   askPricePerSqft: number;
   area: string;
+  cpCode: string;
 } 
