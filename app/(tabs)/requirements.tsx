@@ -1,24 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
 import CustomPagination from '../components/CustomPagination';
-import DetailsModal from '../components/requirement/DetailsModal';
 import MoreFiltersRequirement from '../components/requirement/MoreFiltersRequirement';
-import { InstantSearch } from 'react-instantsearch';
+import { InstantSearch, useHits } from 'react-instantsearch';
 import algoliasearch from 'algoliasearch';
 
 const searchClient = algoliasearch(
-    "J150UQXDLH",
-    "146a46f31a26226786751f663e88ae33"
-  );
+  "J150UQXDLH",
+  "146a46f31a26226786751f663e88ae33"
+);
 
+interface Requirement {
+  requirementId: string;
+  title: string;
+  location: string;
+  assetType: string;
+  configuration: string;
+  budget: number;
+  timeline: string;
+  status: string;
+  createdAt: string;
+  description: string;
+}
+
+const RequirementsList = () => {
+  const { hits } = useHits<Requirement>();
+  console.log(hits);
+
+  return (
+    <ScrollView style={styles.mobileContent}>
+      {hits.map((requirement) => (
+        <RequirementCard 
+          key={requirement.requirementId}
+          requirement={requirement}
+        />
+      ))}
+    </ScrollView>
+  );
+};
 
 const RequirementsPage = () => {
-  const [isPropertyDetailsModalOpen, setPropertyDetailsModalOpen] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState(null);
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
-
 
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen(prev => !prev);
@@ -31,30 +55,17 @@ const RequirementsPage = () => {
         indexName="acn-agent-requirement"
       >
         <View style={styles.content}>
-          {/* Sticky filters */}
+          {/* Filters */}
           <View style={styles.filtersContainer}>
             <RequirementFilters handleToggleMoreFilters={handleToggleMoreFilters} />
           </View>
 
-            <View style={styles.mobileContent}>
-              <RequirementCard onPress={() => {}} />
-            </View>
+          <RequirementsList />
 
-          {/* Sticky pagination at the bottom */}
+          {/* Pagination */}
           <View style={styles.paginationContainer}>
             <CustomPagination />
           </View>
-
-          {/* Modal for displaying details */}
-          {isPropertyDetailsModalOpen && (
-            <DetailsModal
-              onClose={() => {
-                setPropertyDetailsModalOpen(false);
-                setSelectedProperty(null);
-              }}
-              requirement={selectedProperty}
-            />
-          )}
 
           <MoreFiltersRequirement
             isOpen={isMoreFiltersModalOpen}
@@ -76,34 +87,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   filtersContainer: {
-    position: 'sticky',
+    position: 'absolute',
     top: 0,
-    zIndex: 30,
-    backgroundColor: '#F5F6F7',
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
   mobileContent: {
     flex: 1,
-    width: '100%',
-    maxHeight: Dimensions.get('window').height - 190,
-  },
-  desktopContent: {
-    width: '100%',
-    paddingHorizontal: 16,
-    marginTop: 16,
-  },
-  tableContainer: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#CFCECE',
-    backgroundColor: '#F5F6F7',
+    padding: 16,
+    marginTop: 60, // Add margin to account for the fixed filters
   },
   paginationContainer: {
-    position: 'sticky',
+    position: 'absolute',
     bottom: 0,
-    zIndex: 10,
-    backgroundColor: '#F5F6F7',
-    paddingBottom: 16,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    padding: 16,
   },
 });
 

@@ -80,7 +80,6 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const router = useRouter();
 
   const handlePress = () => {
-    console.log(property)
     router.push(`/property/${property.propertyId}`);
 
   };
