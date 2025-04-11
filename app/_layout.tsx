@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { View } from "react-native";
@@ -22,20 +22,20 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [fontsLoaded, fontError] = useFonts({
+  const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_500Medium,
     Montserrat_600SemiBold,
     Montserrat_700Bold,
   });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded]);
 
-  if (!fontsLoaded && !fontError) {
+  if (!fontsLoaded) {
     return null;
   }
 
@@ -53,6 +53,18 @@ export default function RootLayout() {
           >
             <Stack.Screen name="(tabs)/index" options={{ title: 'ACN' }} />
             <Stack.Screen name="not-found" options={{ headerShown: false }} />
+            <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="property/[id]"
+        options={{
+          headerShown: false,
+        }}
+      />
           </Stack>
 
           <FlashMessage position="top" />

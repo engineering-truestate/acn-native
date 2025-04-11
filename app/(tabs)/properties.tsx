@@ -107,7 +107,6 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
 
   const handlePress = () => {
-    console.log(property)
     router.push(`/property/${property.propertyId}`);
 
   };
