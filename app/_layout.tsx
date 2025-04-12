@@ -17,12 +17,9 @@ import '../global.css';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ReduxProvider from '@/providers/ReduxProvider';
 import FlashMessage from '../components/Toast';
-import ReduxProvider from '@/providers/ReduxProvider';
-import FlashMessage from '../components/Toast';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
@@ -45,7 +42,7 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <SafeAreaProvider>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <View style={{ flex: 1 }}>
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: '#000' },
@@ -68,26 +65,6 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
-          </Stack>
-
-          <FlashMessage position="top" />
-          <StatusBar style="auto" />
-        </View>
-      </SafeAreaProvider>
-    </ReduxProvider>
-    <ReduxProvider>
-      <SafeAreaProvider>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: '#000' },
-              headerTintColor: '#fff',
-              headerTitleAlign: 'center',
-              headerTitleStyle: { fontWeight: 'bold' },
-            }}
-          >
-            <Stack.Screen name="(tabs)/index" options={{ title: 'ACN' }} />
-            <Stack.Screen name="not-found" options={{ headerShown: false }} />
           </Stack>
 
           <FlashMessage position="top" />

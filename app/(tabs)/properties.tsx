@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -11,8 +9,6 @@ import { Property } from "../types";
 import MoreFilters from "../components/MoreFilters";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import EnquiryCPModal from "../modals/EnquiryCPModal";
-import ConfirmModal from "../modals/ConfirmModal";
 import EnquiryCPModal from "../modals/EnquiryCPModal";
 import ConfirmModal from "../modals/ConfirmModal";
 import ShareModal from "../modals/ShareModal";
