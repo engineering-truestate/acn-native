@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-<<<<<<< Updated upstream
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
-=======
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
->>>>>>> Stashed changes
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
