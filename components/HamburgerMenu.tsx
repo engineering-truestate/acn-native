@@ -16,7 +16,7 @@ const menuItems: MenuItem[] = [
 
   { title: 'Add Requirements', path: '/+not-found' },
   { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38'},
-  { title: 'Billing', path: '/+not-found' },
+  { title: 'Billing', path: '/billings' },
   { title: 'Help', path: '/+not-found' },
   { title: 'Credits', path: '/+not-found' },
   { title: 'Profile', path: '/+not-found' },
