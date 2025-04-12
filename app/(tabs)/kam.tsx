@@ -2,14 +2,38 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import KamModal from '../modal/KamModal';
+import ProfileModal from '../modal/ProfileModal';
 
 export default function KamScreen() {
   const [isKamModalOpen, setKamModalOpen] = useState(false);
+  const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+
+  // Debug logs
+  console.log('KamScreen - KamModal Open:', isKamModalOpen);
+  console.log('KamScreen - ProfileModal Open:', isProfileModalOpen);
+
+  const handleProfilePress = () => {
+    console.log('Profile button pressed');
+    setProfileModalOpen(true);
+  };
+
+  const handleKamPress = () => {
+    console.log('KAM button pressed');
+    setKamModalOpen(true);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Account Manager</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Account Manager</Text>
+          <TouchableOpacity 
+            style={styles.profileButton}
+            onPress={handleProfilePress}
+          >
+            <Ionicons name="person-circle" size={32} color="#007AFF" />
+          </TouchableOpacity>
+        </View>
         
         <View style={styles.infoContainer}>
           <Ionicons name="person-circle-outline" size={60} color="#007AFF" />
@@ -20,7 +44,7 @@ export default function KamScreen() {
 
         <TouchableOpacity 
           style={styles.contactButton}
-          onPress={() => setKamModalOpen(true)}
+          onPress={handleKamPress}
         >
           <Ionicons name="call" size={24} color="white" style={styles.buttonIcon} />
           <Text style={styles.buttonText}>Contact Account Manager</Text>
@@ -52,10 +76,9 @@ export default function KamScreen() {
         </View>
       </View>
 
-      {/* KamModal */}
-      {isKamModalOpen && (
-        <KamModal setKamModalOpen={setKamModalOpen} />
-      )}
+      {/* Modals */}
+      {isKamModalOpen && <KamModal setKamModalOpen={setKamModalOpen} />}
+      {isProfileModalOpen && <ProfileModal setProfileModalOpen={setProfileModalOpen} />}
     </SafeAreaView>
   );
 }
@@ -69,11 +92,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#1a1a1a',
+  },
+  profileButton: {
+    padding: 4,
   },
   infoContainer: {
     alignItems: 'center',

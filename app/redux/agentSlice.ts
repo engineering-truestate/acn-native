@@ -166,9 +166,16 @@ export const {
   updateAgentDocData,
 } = agentSlice.actions;
 
-// 👇 Typed selectors
-export const selectVerified = (state: { agent: AgentState }) =>
-  state.agent.docData?.verified ?? false;
+// 👇 Typed selectors with memoization
+export const selectVerified = (state: { agent: AgentState }) => {
+    const verified = state.agent.docData?.verified;
+    console.log('🔍 Verification selector:', {
+        hasDocData: !!state.agent.docData,
+        verified,
+        isAgentInDb: state.agent.isAgentInDb
+    });
+    return verified ?? false;
+};
 export const selectAdmin = (state: { agent: AgentState }) =>
   state.agent.docData?.admin ?? false;
 export const selectBlacklisted = (state: { agent: AgentState }) =>

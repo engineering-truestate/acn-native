@@ -5,7 +5,7 @@ import analytics from '@react-native-firebase/analytics';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../redux/store';
-import { signIn, handleSessionTimeout, logOut } from '../redux/authSlice';
+import { signIn, handleSessionTimeout, logOut ,} from '../redux/authSlice';
 import {
     setPhonenumber,
     setAgentDataState,
@@ -13,9 +13,9 @@ import {
     selectVerified,
     selectBlacklisted,
 } from '../redux/agentSlice';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';7
 import { db } from '../config/firebase';
-
+//import appCheck from '@react-native-firebase/app-check';
 interface CountryCode {
     value: string;
     label: string;
@@ -45,6 +45,7 @@ export default function SignIn() {
     const dispatch = useDispatch<AppDispatch>();
     const isVerified = useSelector(selectVerified);
     const isBlacklisted = useSelector(selectBlacklisted);
+    //const isAuthenticated = useSelector((state) => state?.auth?.isAuthenticated)
     const [errorMessage, setErrorMessage] = useState('');
     const [isAgentInDb, setIsAgentInDb] = useState(false);
     
@@ -65,6 +66,13 @@ export default function SignIn() {
     const [isSendingOTP, setIsSendingOTP] = useState(false);
     const [addingNewAgent, setAddingNewAgent] = useState(false);
     const [appCheckInitialized, setAppCheckInitialized] = useState(false);
+
+    const handleSignOut = () => {
+        auth().signOut();
+        dispatch(logOut());
+        setConfirm(null);
+        setCode('');
+    };
 
     useEffect(() => {
         const fetchCountryCodes = async () => {
@@ -105,6 +113,11 @@ export default function SignIn() {
 
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
+            console.log('🔐 Auth State Changed:', {
+                userId: firebaseUser?.uid,
+                phoneNumber: firebaseUser?.phoneNumber,
+                isNewUser: firebaseUser?.metadata.creationTime === firebaseUser?.metadata.lastSignInTime
+            });
             setUser(firebaseUser);
         });
         return unsubscribe;
@@ -125,78 +138,105 @@ export default function SignIn() {
     useEffect(() => {
         // Listen to agent changes when user is authenticated
         if (user) {
+            console.log('🔄 Setting up agent listener for:', user.phoneNumber);
             dispatch(listenToAgentChanges(user.phoneNumber));
         }
     }, [user, dispatch]);
 
+    // Separate useEffect for verification checks to avoid race conditions
     useEffect(() => {
-        // Check verification and blacklist status
-        if (user) {
-            if (isBlacklisted) {
-                Alert.alert(
-                    'Account Blocked',
-                    'Your account has been blacklisted. Please contact support for assistance.',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                handleSignOut();
-                            }
-                        }
-                    ]
-                );
-            } else if (!isVerified) {
+        if (!user) {
+            console.log('⏳ No user, skipping verification check');
+            return;
+        }
+
+        // Wait for agent data to be loaded
+        if (!isAgentInDb) {
+            console.log('⏳ Waiting for agent data to load...');
+            return;
+        }
+
+        console.log('👤 Verification Check:', {
+            isVerified,
+            isBlacklisted,
+            isAgentInDb,
+            hasUser: !!user,
+            phoneNumber: user?.phoneNumber
+        });
+
+        // Only proceed with checks if we have all required data
+        if (isBlacklisted) {
+            console.log('❌ User is blacklisted');
+            Alert.alert(
+                'Account Blocked',
+                'Your account has been blacklisted. Please contact support for assistance.',
+                [{ text: 'OK', onPress: handleSignOut }]
+            );
+            return;
+        }
+
+        // Skip verification check for new users
+        if (!isVerified) {
+            // Double check with agent data before showing the alert
+            const agentState = (window as any)?.__reduxStore?.getState()?.agent;
+            const isActuallyVerified = agentState?.docData?.verified;
+            
+            console.log('🔍 Double checking verification:', {
+                reduxVerified: isVerified,
+                firestoreVerified: isActuallyVerified
+            });
+
+            if (!isActuallyVerified) {
+                console.log('⚠️ User not verified (confirmed)');
                 Alert.alert(
                     'Verification Required',
                     'Your account is not yet verified. Please wait for verification or contact support.',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                handleSignOut();
-                            }
-                        }
-                    ]
+                    [{ text: 'OK', onPress: handleSignOut }]
                 );
+            } else {
+                console.log('✅ User is actually verified, ignoring false negative');
             }
+        } else {
+            console.log('✅ User is verified');
         }
-    }, [user, isVerified, isBlacklisted]);
+    }, [user, isVerified, isBlacklisted, isAgentInDb]);
 
-    useEffect(() => {
-        // Initialize App Check
-        const initializeAppCheck = async () => {
-            try {
-                const appCheck = require('@react-native-firebase/app-check').default;
-                // Enable App Check debug mode in development
-                if (__DEV__) {
-                    await appCheck().activate('debug');
-                } else {
-                    // In production, use your reCAPTCHA v3 site key
-                    await appCheck().activate('YOUR_RECAPTCHA_V3_SITE_KEY');
-                }
-                console.log('App Check initialized successfully');
-                setAppCheckInitialized(true);
-            } catch (error) {
-                console.error('Error initializing App Check:', error);
-                // Continue without App Check in case of error
-                setAppCheckInitialized(true);
-            }
-        };
+    // useEffect(() => {
+    //     // Initialize App Check
+    //     const initializeAppCheck = async () => {
+    //         try {
+    //             console.log('Initializing App Check');
+            
+    //             // Enable App Check debug mode in development
+    //             if (__DEV__) {
+    //                 await appCheck().activate('debug');
+    //             } else {
+    //                 // In production, use your reCAPTCHA v3 site key
+    //                 await appCheck().activate('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI');
+    //             }
+    //             console.log('App Check initialized successfully');
+    //             setAppCheckInitialized(true);
+    //         } catch (error) {
+    //             console.error('Error initializing App Check:', error);
+    //             // Continue without App Check in case of error
+    //             setAppCheckInitialized(true);
+    //         }
+    //     };
 
-        initializeAppCheck();
-    }, []);
+    //     initializeAppCheck();
+    // }, []);
 
-    const verifyAppCheck = async () => {
-        try {
-            const appCheck = require('@react-native-firebase/app-check').default;
-            const token = await appCheck().getToken(true);
-            console.log('App Check token:', token);
-            return !!token;
-        } catch (error) {
-            console.error('App Check verification failed:', error);
-            return true; // Continue without App Check in case of error
-        }
-    };
+    // const verifyAppCheck = async () => {
+    //     try {
+            
+    //         const token = await appCheck().getToken(true);
+    //         console.log('App Check token:', token);
+    //         return !!token;
+    //     } catch (error) {
+    //         console.error('App Check verification failed:', error);
+    //         return true; // Continue without App Check in case of error
+    //     }
+    // };
 
     const handlePhoneInputChange = (value: string) => {
         const regex = /^[0-9\b]+$/;
@@ -222,28 +262,31 @@ export default function SignIn() {
 
     const handleNewAgent = async () => {
         if (phoneNumber && isValid && !isAgentInDb && !addingNewAgent) {
+            console.log('📝 Creating new agent:', { phoneNumber, isValid });
             setAddingNewAgent(true);
             try {
                 const newAgent: NewAgent = {
                     phonenumber: phoneNumber,
                     admin: false,
                     blacklisted: false,
-                    verified: false,
+                    verified: true,
                     added: getUnixDateTime(),
                     lastModified: getUnixDateTime(),
                 };
 
                 const docRef = await addDoc(collection(db, 'agents'), newAgent);
-                console.log("New agent added with ID:", docRef.id);
+                console.log("✅ New agent added with ID:", docRef.id, newAgent);
                 
                 const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();
+                console.log("📊 Agent data state result:", result);
+                
                 if (result?.docId) {
                     setIsAgentInDb(true);
                     dispatch(listenToAgentChanges(result.docId));
                     await signInWithPhoneNumber();
                 }
             } catch (error: any) {
-                console.error("Error adding new agent:", error);
+                console.error("❌ Error adding new agent:", error);
                 setErrorMessage("There was an error adding the agent. Please try again.");
             } finally {
                 setAddingNewAgent(false);
@@ -253,26 +296,53 @@ export default function SignIn() {
 
     const handleCheckUser = async () => {
         try {
-            await analytics().logEvent('sign_in_button_clicked');
+            console.log('🔍 Checking user:', { phoneNumber, isValid });
             
             if (!isValid) {
                 setErrorMessage("Please enter a valid phone number and country code.");
                 return;
             }
 
+            // Log analytics event
+            try {
+                await analytics().logEvent('sign_in_button_clicked');
+            } catch (analyticsError) {
+                console.warn('Analytics error:', analyticsError);
+            }
+
+            // First check if user exists in database
+            console.log('📊 Checking if user exists in database...');
             const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();
-            console.log("result", result);
+            console.log("📱 User check result:", {
+                found: !!result?.docId,
+                docId: result?.docId,
+                phoneNumber
+            });
             
             if (result?.docId) {
+                console.log('✅ Existing user found, setting up listener');
                 setIsAgentInDb(true);
                 dispatch(listenToAgentChanges(result.docId));
+                
+                // Check if user is blacklisted before sending OTP
+                if (result.docData?.blacklisted) {
+                    Alert.alert(
+                        'Account Blocked',
+                        'Your account has been blacklisted. Please contact support for assistance.'
+                    );
+                    return;
+                }
+                
+                // Proceed with OTP
+                console.log('📤 Proceeding to send OTP...');
                 await signInWithPhoneNumber();
             } else {
+                console.log('🆕 New user, creating agent');
                 setIsAgentInDb(false);
                 await handleNewAgent();
             }
         } catch (error: any) {
-            console.error("Error checking user:", error);
+            console.error("❌ Error checking user:", error);
             setErrorMessage(error?.message || "An error occurred while checking user status.");
         } finally {
             dispatch(setPhonenumber(phoneNumber));
@@ -284,23 +354,45 @@ export default function SignIn() {
         setErrorMessage(""); // Reset any previous errors
 
         try {
+            console.log('📱 Attempting to send OTP to:', phoneNumber);
+            
+            // Configure reCAPTCHA verifier if needed
+            if (!auth().settings.appVerificationDisabledForTesting) {
+                console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
+            }
+
             // Send OTP using Firebase
-            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+            const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
+            console.log('✅ OTP sent successfully, confirmation received');
+            
             setConfirm(confirmation);
-
-            // Reset resend timer and disable button after sending OTP
-            setResendTimer(60);
+            setResendTimer(30);
             setCanResend(false);
-            setErrorMessage(''); // Clear any previous errors
+            setErrorMessage('');
 
-            console.log('OTP sent successfully');
+            // Show success message to user
+            Alert.alert('Success', 'OTP has been sent to your phone number.');
+
         } catch (error: any) {
-            console.error("Error during OTP send:", error);
-            setErrorMessage(error.message || "Failed to send OTP. Please try again.");
+            console.error("❌ Error during OTP send:", {
+                message: error.message,
+                code: error.code,
+                nativeErrorMessage: error.nativeErrorMessage
+            });
+            
+            // Handle specific error cases
+            if (error.code === 'auth/invalid-phone-number') {
+                setErrorMessage("Please enter a valid phone number.");
+            } else if (error.code === 'auth/too-many-requests') {
+                setErrorMessage("Too many attempts. Please try again later.");
+            } else if (error.code === 'auth/operation-not-allowed') {
+                setErrorMessage("Phone authentication is not enabled. Please contact support.");
+            } else {
+                setErrorMessage(error.message || "Failed to send OTP. Please try again.");
+            }
         } finally {
-            // Start resend timer after OTP has been sent
             startResendTimer();
-            setIsSendingOTP(false); // Reset the sending state
+            setIsSendingOTP(false);
         }
     };
 
@@ -324,20 +416,44 @@ export default function SignIn() {
             return;
         }
         try {
-            await confirm?.confirm(code);
-            console.log('OTP confirmed successfully');
-            dispatch(signIn());
-            setErrorMessage(''); // Clear any previous errors
+            console.log('🔑 Confirming OTP code');
+            const credential = await confirm?.confirm(code);
+            console.log('✅ OTP confirmed successfully');
+            
+            if (credential?.user?.phoneNumber) {
+                console.log('👤 User authenticated:', {
+                    uid: credential.user.uid,
+                    phoneNumber: credential.user.phoneNumber
+                });
+                
+                // First update auth state
+                setUser(credential.user);
+                dispatch(signIn());
+                
+                // Then fetch agent data
+                const result = await dispatch(setAgentDataState(credential.user.phoneNumber)).unwrap();
+                console.log('📊 Agent data after OTP:', {
+                    hasDocId: !!result?.docId,
+                    docData: result?.docData,
+                    verified: result?.docData?.verified
+                });
+
+                if (result?.docId) {
+                    dispatch(listenToAgentChanges(result.docId));
+                    setErrorMessage('');
+                } else {
+                    console.error('❌ No agent document found after OTP confirmation');
+                    setErrorMessage('Failed to load user data. Please try again.');
+                    handleSignOut();
+                }
+            } else {
+                console.error('❌ No user or phone number after OTP confirmation');
+                setErrorMessage('Failed to sign in. Please try again.');
+            }
         } catch (error) {
+            console.error('❌ OTP confirmation error:', error);
             setErrorMessage('Invalid OTP code.');
         }
-    };
-
-    const handleSignOut = () => {
-        auth().signOut();
-        dispatch(logOut());
-        setConfirm(null);
-        setCode('');
     };
 
     const handleCountryCodeSelect = (country: CountryCode) => {
