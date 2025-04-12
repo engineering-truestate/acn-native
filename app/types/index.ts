@@ -4,5 +4,6 @@ export interface Property {
   description: string;
   price: number;
   status: string;
+  cpCode: string;
   // Add other property fields as needed
 } 

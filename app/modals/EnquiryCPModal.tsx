@@ -19,7 +19,6 @@ type EnquiryCPModalProps = {
   setIsEnquiryCPModalOpen: (isOpen: boolean) => void;
   generatingEnquiry?: boolean;
   visible: boolean;
-  agentData?: AgentData;
   selectedCPID: string
 };
 

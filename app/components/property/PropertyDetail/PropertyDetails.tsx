@@ -10,6 +10,7 @@ interface Property {
   carpet: string | number;
   askPricePerSqft: string | number;
   [key: string]: any;
+  cpCode?: string;
 }
 
 interface PropertyDetailsProps {

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
+import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
+import ConfirmModal from '@/app/modals/ConfirmModal';
+import ShareModal from '@/app/modals/ShareModal';
 
 interface PropertyCardProps {
   property: {
@@ -21,8 +24,20 @@ interface PropertyCardProps {
   onCardClick: (property: any) => void;
 }
 
+// Define the AgentData interface separately
+interface AgentData {
+  phonenumber: string;
+  [key: string]: any;
+}
+
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) => {
   // Add state for details modal visibility
+  
+  const [selectedCPID, setSelectedCPID] = useState("");
+  const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
+  const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
+  const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
+  const [ agentData, setAgentData ] = useState<AgentData | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
   // Debug the property data
@@ -55,8 +70,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
   // Handle enquire button click
   const handleEnquireNowBtn = (e: any) => {
-    e.stopPropagation();
-    // Enquire functionality would be implemented later
+    setSelectedCPID(property.cpCode || "")
+    setIsConfirmModelOpen(true)
+  };
+
+  const handleCancel = () => {
+    setIsConfirmModelOpen(false)
+  };
+
+  const handleConfirm = () => {
+    console.log("Confirmed")
+    setIsEnquiryCPModelOpen(true)
+    setIsConfirmModelOpen(false)
+  };
+
+  const handleShareButton = () => {
+    setIsShareModalOpen(true)
   };
 
   // Function to open property details screen
@@ -88,8 +117,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
               <Text className="text-[#FAFBFC] text-xs ml-1">
                 {property.micromarket || "-"}
               </Text>
-              <Ionicons name="share-outline" size={14} color="#FAFBFC" style={{ marginLeft: 5 }} />
             </View>
+            <Ionicons name="share-outline" size={14} color="#000" style={{ marginLeft: 5 }} onPress={handleShareButton} />
           </View>
 
           {/* Property Name */}
@@ -154,6 +183,26 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             <Text className="text-white font-medium text-xs ml-1">Enquire Now</Text>
           </TouchableOpacity>
         </View>
+        <EnquiryCPModal
+            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+            generatingEnquiry={false}
+            visible={isEnquiryModelOpen}
+            selectedCPID={selectedCPID}
+          />
+          <ConfirmModal
+            title="Confirm Enquiry"
+            message="Are you sure you want to enquire? You have 3 credits remaining for this month."
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+            generatingEnquiry={false}
+            visible={isConfirmModelOpen}
+          />
+          <ShareModal
+          property={property}
+          agentData={agentData}
+          setProfileModalOpen={setIsShareModalOpen}
+          visible = {isShareModalOpen}
+        />
       </TouchableOpacity>
 
       {/* Property Details Screen */}
