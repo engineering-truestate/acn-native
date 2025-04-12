@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+<<<<<<< Updated upstream
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
+=======
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
+>>>>>>> Stashed changes
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -184,20 +188,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
           color="#000FFF"
           accessibilityLabel="Share button"
         />
-        <View style={styles.details}>
-          <View style={styles.detailItem}>
-            <Ionicons name="bed-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.unitType}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="resize-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.sbua} sqft</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="location-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.micromarket}</Text>
-          </View>
-          <EnquiryCPModal
+        <EnquiryCPModal
             setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
             generatingEnquiry={false}
             visible={isEnquiryModelOpen}
@@ -217,6 +208,19 @@ const PropertyCard = ({ property }: { property: Property }) => {
             color="#000FFF"
             accessibilityLabel="Enquiry button."
           />
+        <View style={styles.details}>
+          <View style={styles.detailItem}>
+            <Ionicons name="bed-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.unitType}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="resize-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.sbua} sqft</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="location-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.micromarket}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>

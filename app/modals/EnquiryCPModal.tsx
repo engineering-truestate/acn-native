@@ -57,15 +57,14 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   }, [selectedCPID]);
 
   const handleWhatsAppEnquiry = (): void => {
-    if (agentData?.phonenumber) return;
+    if (!agentData?.phonenumber) return;
 
 
     // Open WhatsApp chat in a new tab
     if ( agentData != null ) {
       console.log("clicked whatsapp")
       console.log(agentData.phonenumber)
-      let url = `https://wa.me/${agentData.phonenumber}` + "_black";
-      Linking.openURL(url)
+      Linking.openURL(`whatsapp://send?phone=${agentData.phonenumber}`)
     }
   };
 
