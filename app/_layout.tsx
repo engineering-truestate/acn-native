@@ -13,6 +13,9 @@ import {
 } from '@expo-google-fonts/montserrat';
 import 'react-native-reanimated';
 import '../global.css';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './redux/store';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -39,19 +42,23 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="property/[id]"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="property/[id]"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </PersistGate>
+    </Provider>
   );
 }
