@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RequirementDetailsScreen from './RequirementDetailsScreen';
+import { useRouter } from 'expo-router';
 
 interface RequirementCardProps {
   requirement: {
@@ -21,6 +22,16 @@ interface RequirementCardProps {
   };
   onCardClick: (requirement: any) => void;
 }
+
+// Helper function to capitalize the first letter of each word
+const capitalize = (text: string): string => {
+  if (!text) return '';
+  
+  return text
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 // Use React.memo to optimize rendering and fix the static flag issue
 const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCardProps) => {
@@ -57,8 +68,8 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
 
   // Format property type and configuration
   const formatPropertyInfo = () => {
-    const assetType = requirement.assetType;
-    const config = requirement.configuration;
+    const assetType = capitalize(requirement.assetType);
+    const config = capitalize(requirement.configuration);
     const area = requirement.area ? `${requirement.area} sqft` : '';
     
     if (config && area) {
@@ -101,7 +112,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
         activeOpacity={0.7}
       >
         {/* ID and name */}
-        <View className="flex-col gap-2 mb-4">
+        <View className="flex-col gap-2 mb-2">
           {/* Requirement ID */}
           <View className="flex-row">
             <Text className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
@@ -111,7 +122,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
 
           {/* Project Name */}
           <Text className="text-black font-bold text-base">
-            {(requirement.propertyName || requirement.title || '').charAt(0).toUpperCase() + (requirement.propertyName || requirement.title || '').slice(1)}
+            {capitalize(requirement.propertyName || requirement.title || '')}
           </Text>
         </View>
 
@@ -140,7 +151,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
             className="text-neutral-600 text-sm font-medium mt-4 mb-0"
             numberOfLines={2}
           >
-            {requirement.requirementDetails}
+            {capitalize(requirement.requirementDetails)}
           </Text>
         )}
       </TouchableOpacity>
