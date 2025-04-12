@@ -29,6 +29,12 @@ export default function RootLayout() {
     Montserrat_700Bold,
   });
 
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
@@ -54,17 +60,17 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)/index" options={{ title: 'ACN' }} />
             <Stack.Screen name="not-found" options={{ headerShown: false }} />
             <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="property/[id]"
-        options={{
-          headerShown: false,
-        }}
-      />
+              name="(tabs)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="property/[id]"
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
 
           <FlashMessage position="top" />
