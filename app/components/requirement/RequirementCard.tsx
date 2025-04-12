@@ -1,125 +1,162 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import RequirementDetailsScreen from './RequirementDetailsScreen';
 import { useRouter } from 'expo-router';
 
 interface RequirementCardProps {
   requirement: {
     requirementId: string;
     title: string;
+    propertyName?: string;
     location: string;
     assetType: string;
     configuration: string;
-    budget: number;
+    area?: number;
+    budget: number | { from?: number; to?: number };
+    marketValue?: string;
     status: string;
     createdAt: string;
+    requirementDetails?: string;
+    added?: number; // timestamp for when requirement was added
   };
+  onCardClick: (requirement: any) => void;
 }
 
-const RequirementCard: React.FC<RequirementCardProps> = ({ requirement }) => {
-  const router = useRouter();
+// Use React.memo to optimize rendering and fix the static flag issue
+const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCardProps) => {
+  // State to control the display of the details modal
+  const [showDetails, setShowDetails] = useState(false);
+  
+  // Format budget display
+  const formatBudget = () => {
+    if (requirement.marketValue === "Market Value") {
+      return "Market Price";
+    }
+    
+    if (typeof requirement.budget === 'number') {
+      return `₹${requirement.budget.toLocaleString()} Cr`;
+    }
+    
+    if (requirement.budget && typeof requirement.budget === 'object') {
+      const from = requirement.budget.from || 0;
+      const to = requirement.budget.to || 0;
+      
+      if (from === 0) {
+        return `₹${to} Cr`;
+      }
+      
+      if (from === to) {
+        return `₹${to} Cr`;
+      }
+      
+      return `₹${from} Cr - ₹${to} Cr`;
+    }
+    
+    return `₹${(typeof requirement.budget === 'number' ? requirement.budget : 0).toLocaleString()} Cr`;
+  };
 
-  const handlePress = () => {
-    router.push({
-      pathname: '/requirement/[id]',
-      params: { id: requirement.requirementId }
-    });
+  // Format property type and configuration
+  const formatPropertyInfo = () => {
+    const assetType = requirement.assetType;
+    const config = requirement.configuration;
+    const area = requirement.area ? `${requirement.area} sqft` : '';
+    
+    if (config && area) {
+      return `${assetType} - ${config} / ${area}`;
+    }
+    
+    if (config) {
+      return `${assetType} - ${config}`;
+    }
+    
+    if (area) {
+      return `${assetType} - ${area}`;
+    }
+    
+    return assetType;
+  };
+
+  // Handle card click to show details
+  const handleCardPress = () => {
+    console.log("Card pressed, showing details for:", requirement.requirementId);
+    
+    // Call the original onCardClick for analytics or other purposes
+    //onCardClick(requirement);
+    
+    // Show the details modal
+    setShowDetails(true);
+  };
+
+  // Handle closing the details
+  const handleCloseDetails = () => {
+    console.log("Closing details for:", requirement.requirementId);
+    setShowDetails(false);
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{requirement.title}</Text>
-        <Text style={styles.location}>{requirement.location}</Text>
-      </View>
+    <>
+      <TouchableOpacity 
+        className="border border-[#CCCBCB] rounded-lg p-4 bg-white mb-4 flex-col"
+        onPress={handleCardPress}
+        activeOpacity={0.7}
+      >
+        {/* ID and name */}
+        <View className="flex-col gap-2 mb-4">
+          {/* Requirement ID */}
+          <View className="flex-row">
+            <Text className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
+              {requirement.requirementId}
+            </Text>
+          </View>
 
-      <View style={styles.details}>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Asset Type:</Text>
-          <Text style={styles.value}>{requirement.assetType}</Text>
+          {/* Project Name */}
+          <Text className="text-black font-bold text-base">
+            {(requirement.propertyName || requirement.title || '').charAt(0).toUpperCase() + (requirement.propertyName || requirement.title || '').slice(1)}
+          </Text>
         </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Configuration:</Text>
-          <Text style={styles.value}>{requirement.configuration}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Budget:</Text>
-          <Text style={styles.value}>₹{requirement.budget.toLocaleString()}</Text>
-        </View>
-      </View>
 
-      <View style={styles.footer}>
-        <View style={styles.statusContainer}>
-          <Text style={styles.status}>{requirement.status}</Text>
+        {/* Budget and type */}
+        <View className="flex-col gap-1 mb-0">
+          {/* Budget Section */}
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="cash-outline" size={20} color="#4B5563" />
+            <Text className="text-neutral-600 text-sm font-medium">
+              {formatBudget()}
+            </Text>
+          </View>
+
+          {/* Configuration and Area Section */}
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="home-outline" size={20} color="#4B5563" />
+            <Text className="text-neutral-600 text-sm font-medium">
+              {formatPropertyInfo()}
+            </Text>
+          </View>
         </View>
-        <Text style={styles.date}>{requirement.createdAt}</Text>
-      </View>
-    </TouchableOpacity>
+
+        {/* Requirement Details */}
+        {requirement.requirementDetails && (
+          <Text 
+            className="text-neutral-600 text-sm font-medium mt-4 mb-0"
+            numberOfLines={2}
+          >
+            {requirement.requirementDetails}
+          </Text>
+        )}
+      </TouchableOpacity>
+
+      {/* Requirement Details Modal */}
+      <RequirementDetailsScreen
+        requirement={requirement}
+        onClose={handleCloseDetails}
+        visible={showDetails}
+      />
+    </>
   );
-};
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  header: {
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  location: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  details: {
-    marginBottom: 12,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  label: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  value: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1F2937',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  statusContainer: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  status: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#4B5563',
-  },
-  date: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
 });
+
+// Set display name for debugging
+RequirementCard.displayName = 'RequirementCard';
 
 export default RequirementCard; 

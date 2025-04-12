@@ -39,19 +39,23 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="property/[id]"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    <SafeAreaProvider>
+      <View className="flex-1">
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="property/[id]"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </View>
+    </SafeAreaProvider>
   );
 }
