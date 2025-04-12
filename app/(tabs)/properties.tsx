@@ -196,6 +196,58 @@ function MobileHits() {
             />
           );
         })}
+        </View>
+      
+      <PropertyDetailsModal
+        isOpen={!!selectedProperty}
+        onClose={() => setSelectedProperty(null)}
+        property={selectedProperty}
+      />
+    </>
+<!--     <View className="grid grid-cols-1 gap-4 p-4 pb-12">
+      {hits.map((property) => (
+        <PropertyCard key={property.objectID} property={property} />
+      ))}
+    </View> -->
+  );
+}
+
+// Property Card Component
+<!-- const PropertyCard = ({ property }: { property: Property }) => {
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push(`/property/${property.propertyId}`);
+
+  };
+
+  return (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={handlePress}
+    >
+      <Image
+        source={{ uri: property.image || 'https://via.placeholder.com/300x200' }}
+        style={styles.image}
+      />
+      <View style={styles.content}>
+        <Text style={styles.title}>{property.title}</Text>
+        <Text style={styles.price}>₹ {property.totalAskPrice} Lacs</Text>
+        <View style={styles.details}>
+          <View style={styles.detailItem}>
+            <Ionicons name="bed-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.unitType}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="resize-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.sbua} sqft</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="location-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.micromarket}</Text>
+          </View>
+        </View>
+
       </View>
       
       <PropertyDetailsModal
@@ -205,7 +257,7 @@ function MobileHits() {
       />
     </>
   );
-}
+} -->
 
 const styles = StyleSheet.create({
   text: {
