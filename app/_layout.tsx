@@ -13,7 +13,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 import 'react-native-reanimated';
 import '../global.css';
-
+import { HamburgerMenu } from '@/components/HamburgerMenu';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -39,19 +39,24 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="property/[id]"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }}>
+        <HamburgerMenu />
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="property/[id]"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </View>
+    </SafeAreaProvider>
   );
 }
