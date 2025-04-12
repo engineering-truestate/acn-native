@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import * as Clipboard from 'expo-clipboard';
+import PropertyCard from "../components/property/PropertyCard";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -39,6 +40,64 @@ export interface Landmark {
 }
 
 
+// PropertyDetailsModal component
+interface PropertyDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  property: any;
+}
+
+// Use React.memo to fix the static flag issue
+const PropertyDetailsModal = React.memo(({ isOpen, onClose, property }: PropertyDetailsModalProps) => {
+  if (!property) return null;
+  
+  // Log all properties to help debug
+  React.useEffect(() => {
+    if (property) {
+      console.log("PropertyDetailsModal - Property object keys:", Object.keys(property));
+      console.log("PropertyDetailsModal - Complete property:", JSON.stringify(property, null, 2));
+    }
+  }, [property]);
+  
+  return (
+    
+      <View className="flex-1 bg-black bg-opacity-50 justify-end">
+        <View className="bg-white rounded-t-lg max-h-[80%]">
+          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+            <Text className="text-lg font-bold">Property Details</Text>
+            <TouchableOpacity onPress={onClose} className="p-2">
+              <Ionicons name="close" size={24} color="#374151" />
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView className="p-4">
+            <Text className="text-lg font-bold mb-2">
+              {property.title || property.nameOfTheProperty || "Unnamed Property"}
+            </Text>
+            {property.propertyId && (
+              <Text className="text-gray-500">ID: {property.propertyId}</Text>
+            )}
+            
+            <View className="mt-4">
+              <Text className="text-gray-700 font-bold">Available Properties:</Text>
+              {Object.entries(property).map(([key, value]) => (
+                value && typeof value !== 'object' && key !== 'objectID' ? (
+                  <Text key={key} className="text-gray-600 mt-1">
+                    {key}: {value.toString()}
+                  </Text>
+                ) : null
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    
+  );
+});
+
+// Set display name for debugging
+PropertyDetailsModal.displayName = 'PropertyDetailsModal';
+
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
@@ -48,7 +107,7 @@ export default function PropertiesScreen() {
   };
 
   return (
-    <View className="bg-[#F5F6F7] h-[60vh]">
+    <View className="flex-1 bg-[#F5F6F7]">
       <InstantSearch searchClient={searchClient} indexName={indexName}>
         <Configure
           analytics={true}
@@ -61,12 +120,21 @@ export default function PropertiesScreen() {
           }
           aroundRadius={selectedLandmark?.radius || undefined}
         />
-        <View className="flex-1">
-          <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} />
-          <ScrollView className="flex-1">
+        <View className="flex-1 relative">
+          {/* Filters at the top */}
+          <View className="absolute top-2 left-0 right-0 z-10 bg-white border-b border-gray-200">
+            <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} />
+          </View>
+          
+          {/* Main content area with padding to account for filters and pagination */}
+          <ScrollView className="flex-1 py-6 mt-20" contentContainerStyle={{ paddingBottom: 100 }}>
             <MobileHits />
           </ScrollView>
-          <CustomPagination />
+          
+          {/* Pagination at the bottom */}
+          <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+            <CustomPagination />
+          </View>
         </View>
         <MoreFilters 
           isOpen={isMoreFiltersModalOpen} 
@@ -76,9 +144,8 @@ export default function PropertiesScreen() {
           selectedLandmark={selectedLandmark} 
           setSelectedLandmark={setSelectedLandmark} 
         />
-        <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
+        {/* <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} /> */}
       </InstantSearch>
-
     </View>
   );
 }
@@ -87,6 +154,31 @@ export default function PropertiesScreen() {
 function MobileHits() {
   const { hits } = useHits<Property>();
   const { query } = useSearchBox();
+  const router = useRouter();
+  const [selectedProperty, setSelectedProperty] = useState<any>(null);
+
+  const handleCardClick = (property: any) => {
+    console.log("Property clicked:", property);
+    setSelectedProperty(property);
+  };
+
+  // Debug the first hit if available
+  React.useEffect(() => {
+    if (hits && hits.length > 0) {
+      console.log("First hit data (all properties):", JSON.stringify(hits[0], null, 2));
+      
+      // Check all possible name properties
+      const firstHit = hits[0];
+      console.log("Possible name properties:");
+      console.log("- title:", firstHit.title);
+      console.log("- name:", (firstHit as any).name);
+      console.log("- propertyName:", (firstHit as any).propertyName);
+      console.log("- nameOfTheProperty:", (firstHit as any).nameOfTheProperty);
+      console.log("- nameOfProperty:", (firstHit as any).nameOfProperty);
+      console.log("- property_name:", (firstHit as any).property_name);
+      console.log("- description:", firstHit.description);
+    }
+  }, [hits]);
 
   if (hits?.length === 0 && query?.length !== 0) {
     return (
@@ -103,125 +195,98 @@ function MobileHits() {
   }
 
   return (
-    <View className="grid grid-cols-1 gap-4 p-4 pb-12">
-      {hits.map((property) => (
-        <PropertyCard key={property.objectID} property={property} />
-      ))}
-    </View>
+    <>
+      <View className="w-full p-4">
+        {hits.map((property) => {
+          // Try different possible field names for the property name
+          const propertyName = 
+            property.title || 
+            (property as any).name || 
+            (property as any).propertyName ||
+            (property as any).nameOfTheProperty ||
+            (property as any).nameOfProperty ||
+            (property as any).property_name ||
+            property.description ||
+            'Unnamed Property';
+          
+          // Debug individual property data transformation
+          const transformedProperty = {
+            propertyId: property.propertyId || '',
+            title: propertyName,
+            nameOfTheProperty: propertyName,
+            micromarket: property.micromarket,
+            assetType: property.assetType,
+            unitType: property.unitType,
+            facing: property.facing,
+            totalAskPrice: property.totalAskPrice,
+            sbua: property.sbua
+          };
+          
+          console.log("Using property name:", propertyName);
+          
+          return (
+            <PropertyCard 
+              key={property.objectID} 
+              property={transformedProperty}
+              onCardClick={handleCardClick} 
+            />
+          );
+        })}
+        </View>
+      
+      <PropertyDetailsModal
+        isOpen={!!selectedProperty}
+        onClose={() => setSelectedProperty(null)}
+        property={selectedProperty}
+      />
+    </>
+    // <View className="grid grid-cols-1 gap-4 p-4 pb-12">
+    //   {hits.map((property) => (
+    //     <PropertyCard key={property.objectID} property={property} />
+    //   ))}
+    // </View>
   );
 }
 
 // Property Card Component
-const PropertyCard = ({ property }: { property: Property }) => {
-  const router = useRouter();
+// const PropertyCard = ({ property }: { property: Property }) => {
+//   const router = useRouter();
 
-  const [selectedCPID, setSelectedCPID] = useState("");
-  const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
-  const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
-  const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
-  const [ agentData, setAgentData ] = useState<AgentData | null>(null);
+//   const handlePress = () => {
+//     router.push(`/property/${property.propertyId}`);
 
-  const handlePress = () => {
-    router.push(`/property/${property.propertyId}`);
+//   };
 
-  };
-
-
-  const handleCancel = () => {
-    setIsConfirmModelOpen(false)
-  };
-
-  const handleConfirm = () => {
-    console.log("Confirmed")
-    setIsEnquiryCPModelOpen(true)
-    setIsConfirmModelOpen(false)
-  };
-
-  const handleEnquiryClick = () => {
-    setSelectedCPID(property.cpCode)
-    setIsConfirmModelOpen(true)
-  }
-
-  const handleShareButton = () => {
-    setIsShareModalOpen(true)
-  }
-
-  const handleCopy = async (): Promise<void> => {
-      if (!agentData?.phonenumber) return;
-    
-      try {
-        await Clipboard.setStringAsync(agentData.phonenumber);
-        Alert.alert('Success', 'Phone number copied!');
-        console.log("Agent's Phone Number",agentData.phonenumber);
-      } catch (err) {
-        console.error("Failed to copy phone number:", err);
-      }
-    };
-
-
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={handlePress}
-    >
-      <Image
-        source={{ uri: property.image || 'https://via.placeholder.com/300x200' }}
-        style={styles.image}
-      />
-      <View style={styles.content}>
-        <Text style={styles.title}>{property.title}</Text>
-        <Text style={styles.price}>₹ {property.totalAskPrice} Lacs</Text>
-        <ShareModal
-          property={property}
-          agentData={agentData}
-          setProfileModalOpen={setIsShareModalOpen}
-          visible = {isShareModalOpen}
-        />
-
-        <Button
-          onPress={handleShareButton}
-          title="Share"
-          color="#000FFF"
-          accessibilityLabel="Share button"
-        />
-        <EnquiryCPModal
-            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
-            generatingEnquiry={false}
-            visible={isEnquiryModelOpen}
-            selectedCPID={selectedCPID}
-          />
-          <ConfirmModal
-            title="Confirm Enquiry"
-            message="Are you sure you want to enquire? You have 3 credits remaining for this month."
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            generatingEnquiry={false}
-            visible={isConfirmModelOpen}
-          />
-          <Button
-            onPress={handleEnquiryClick}
-            title="Enquire now"
-            color="#000FFF"
-            accessibilityLabel="Enquiry button."
-          />
-        <View style={styles.details}>
-          <View style={styles.detailItem}>
-            <Ionicons name="bed-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.unitType}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="resize-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.sbua} sqft</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="location-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.micromarket}</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
+  // return (
+  //   <TouchableOpacity 
+  //     style={styles.card}
+  //     onPress={handlePress}
+  //   >
+  //     <Image
+  //       source={{ uri: property.image || 'https://via.placeholder.com/300x200' }}
+  //       style={styles.image}
+  //     />
+  //     <View style={styles.content}>
+  //       <Text style={styles.title}>{property.title}</Text>
+  //       <Text style={styles.price}>₹ {property.totalAskPrice} Lacs</Text>
+  //       <View style={styles.details}>
+  //         <View style={styles.detailItem}>
+  //           <Ionicons name="bed-outline" size={16} color="#374151" />
+  //           <Text style={styles.detailText}>{property.unitType}</Text>
+  //         </View>
+  //         <View style={styles.detailItem}>
+  //           <Ionicons name="resize-outline" size={16} color="#374151" />
+  //           <Text style={styles.detailText}>{property.sbua} sqft</Text>
+  //         </View>
+  //         <View style={styles.detailItem}>
+  //           <Ionicons name="location-outline" size={16} color="#374151" />
+  //           <Text style={styles.detailText}>{property.micromarket}</Text>
+  //         </View>
+  //       </View>
+  //     </View>
+  //   </TouchableOpacity>
+  // );
+// };
 
 const styles = StyleSheet.create({
   text: {

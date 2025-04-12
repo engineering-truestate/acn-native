@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Property } from '../../../../types';
+import { Property } from '../../../types';
 
 interface PropertyInfoProps {
   property: Property;

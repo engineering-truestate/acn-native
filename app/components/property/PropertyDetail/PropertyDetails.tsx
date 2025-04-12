@@ -1,12 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Property } from '../../../../types';
+
+// Define Property interface locally to fix the import error
+interface Property {
+  assetType: string;
+  facing: string;
+  floorNo: string | number;
+  plotSize: string | number;
+  carpet: string | number;
+  askPricePerSqft: string | number;
+  [key: string]: any;
+}
 
 interface PropertyDetailsProps {
   property: Property;
 }
 
-const PropertyDetails = ({ property }: PropertyDetailsProps) => {
+// Use React.memo to optimize rendering and fix the static flag issue
+const PropertyDetails = React.memo(({ property }: PropertyDetailsProps) => {
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Property Details</Text>
@@ -38,7 +49,10 @@ const PropertyDetails = ({ property }: PropertyDetailsProps) => {
       </View>
     </View>
   );
-};
+});
+
+// Set display name for debugging
+PropertyDetails.displayName = 'PropertyDetails';
 
 const styles = StyleSheet.create({
   section: {

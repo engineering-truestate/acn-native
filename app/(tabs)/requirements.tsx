@@ -6,6 +6,7 @@ import CustomPagination from '../components/CustomPagination';
 import MoreFiltersRequirement from '../components/requirement/MoreFiltersRequirement';
 import { InstantSearch, useHits } from 'react-instantsearch';
 import algoliasearch from 'algoliasearch';
+import RequirementDetailsModal from '../components/requirement/RequirementDetailsModal';
 
 const searchClient = algoliasearch(
   "J150UQXDLH",
@@ -27,17 +28,30 @@ interface Requirement {
 
 const RequirementsList = () => {
   const { hits } = useHits<Requirement>();
-  console.log(hits);
+  const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
+
+  const handleCardClick = (requirement: Requirement) => {
+    setSelectedRequirement(requirement);
+  };
 
   return (
-    <ScrollView style={styles.mobileContent}>
-      {hits.map((requirement) => (
-        <RequirementCard 
-          key={requirement.requirementId}
-          requirement={requirement}
-        />
-      ))}
-    </ScrollView>
+    <>
+      <ScrollView style={[styles.mobileContent, { marginTop: '35%' }]} contentContainerStyle={{ paddingBottom: 100 }}>
+        {hits.map((requirement) => (
+          <RequirementCard 
+            key={requirement.requirementId}
+            requirement={requirement}
+            onCardClick={handleCardClick}
+          />
+        ))}
+      </ScrollView>
+
+      <RequirementDetailsModal
+        isOpen={!!selectedRequirement}
+        onClose={() => setSelectedRequirement(null)}
+        requirement={selectedRequirement}
+      />
+    </>
   );
 };
 
