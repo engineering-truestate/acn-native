@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
@@ -65,7 +65,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Handle opening drive details
   const handleOpenDriveDetails = (e: any) => {
     e.stopPropagation();
-    // Drive link functionality would be implemented later
+    if (!property.driveLink) {
+        return;
+    }
+
+    Linking.openURL(property.driveLink);
   };
 
   // Handle enquire button click

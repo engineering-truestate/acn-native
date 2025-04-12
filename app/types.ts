@@ -17,4 +17,5 @@ export interface Property {
   askPricePerSqft: number;
   area: string;
   cpCode: string;
+  driveLink: string;
 } 

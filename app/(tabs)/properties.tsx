@@ -25,7 +25,7 @@ const searchClient = algoliasearch(
 );
 
 // Define the AgentData interface separately
-interface AgentData {
+export interface AgentData {
   phonenumber: string;
   [key: string]: any;
 }
@@ -219,7 +219,9 @@ function MobileHits() {
             unitType: property.unitType,
             facing: property.facing,
             totalAskPrice: property.totalAskPrice,
-            sbua: property.sbua
+            sbua: property.sbua,
+            cpCode: property.cpCode,
+            driveLink: property.driveLink
           };
           
           console.log("Using property name:", propertyName);

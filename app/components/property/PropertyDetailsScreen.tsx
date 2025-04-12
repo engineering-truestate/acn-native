@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
+import { AgentData } from '@/app/(tabs)/properties';
+import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
+import ConfirmModal from '@/app/modals/ConfirmModal';
+import ShareModal from '@/app/modals/ShareModal';
 
 // Define Property interface based on available data
 interface Property {
@@ -43,7 +47,7 @@ interface PropertyDetailsScreenProps {
 // Helper function to format currency similar to web implementation
 const formatCost = (value: number) => {
   if (!value) return "N/A";
-  
+
   if (value >= 100) {
     return `₹${(value / 100).toFixed(2)} Cr`;
   } else {
@@ -67,7 +71,12 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   const router = useRouter();
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+  const [selectedCPID, setSelectedCPID] = useState("");
+  const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
+  const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [agentData, setAgentData] = useState<AgentData | null>(null);
+
   // Log property data for debugging
   console.log("PropertyDetailsScreen received:", property);
 
@@ -89,16 +98,40 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     console.log("Opening map location:", property.mapLocation);
   };
 
-  const handleOpenDriveDetails = () => {
-    if (!property.driveLink) return;
-    // Implementation would open drive link
-    console.log("Opening drive details:", property.driveLink);
+  const handleOpenDriveDetails = (e: any) => {
+      e.stopPropagation();
+      if (!property.driveLink) {
+          return;
+      }
+  
+      Linking.openURL(property.driveLink);
+      // Drive link functionality would be implemented later
+    };
+
+  // const handleOpenDriveDetails = () => {
+  //   if (!property.driveLink) return;
+  //   // Implementation would open drive link
+  //   console.log("Opening drive details:", property.driveLink);
+  // };
+
+  const handleCancel = () => {
+    setIsConfirmModelOpen(false)
   };
 
-  const handleEnquireNow = () => {
-    // Implementation would handle enquiry
-    console.log("Enquiring about property:", property.propertyId);
+  const handleConfirm = () => {
+    console.log("Confirmed")
+    setIsEnquiryCPModelOpen(true)
+    setIsConfirmModelOpen(false)
   };
+
+  const handleEnquiryClick = () => {
+    setSelectedCPID(property.cpCode || "")
+    setIsConfirmModelOpen(true)
+  }
+
+  const handleShareButton = () => {
+    setIsShareModalOpen(true)
+  }
 
   // InfoRow component for property details
   const InfoRow = ({ label, value }: { label: string, value: any }) => (
@@ -130,7 +163,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
               <Ionicons name="close" size={24} color="#374151" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.locationInfo}>
             <View style={styles.infoItem}>
               <Ionicons name="location-outline" size={16} color="#374151" />
@@ -154,8 +187,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
         {/* Main Content */}
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           {/* Image carousel */}
-          <ImageCarousel 
-            images={localImages} 
+          <ImageCarousel
+            images={localImages}
             onImagePress={() => {
               setCurrentImageIndex(0);
               setIsImageViewerVisible(true);
@@ -220,7 +253,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
         </ScrollView>
 
         {/* Fixed share button */}
-        <TouchableOpacity style={styles.shareButton}>
+        <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
           <Ionicons name="share-social" size={24} color="white" />
         </TouchableOpacity>
 
@@ -230,67 +263,87 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <Ionicons name="folder-outline" size={20} color="#153E3B" />
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNow}>
+
+          <TouchableOpacity style={styles.primaryButton} onPress={handleEnquiryClick}>
             <Ionicons name="call-outline" size={20} color="white" />
             <Text style={styles.primaryButtonText}>Enquire Now</Text>
           </TouchableOpacity>
         </View>
 
         {/* Image Viewer Modal */}
-        <Modal 
-          visible={isImageViewerVisible} 
+        <Modal
+          visible={isImageViewerVisible}
           transparent={true}
           animationType="fade"
           onRequestClose={() => setIsImageViewerVisible(false)}
         >
           <View style={styles.imageViewerContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeImageViewer}
               onPress={() => setIsImageViewerVisible(false)}
             >
               <Ionicons name="close" size={28} color="white" />
             </TouchableOpacity>
-            
+
             {localImages.length > 0 && (
-              <Image 
-                source={{ uri: localImages[currentImageIndex] }} 
-                style={styles.fullImage} 
+              <Image
+                source={{ uri: localImages[currentImageIndex] }}
+                style={styles.fullImage}
                 resizeMode="contain"
               />
             )}
-            
+
             <View style={styles.imageNavigation}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.navButton}
                 disabled={currentImageIndex === 0}
                 onPress={() => setCurrentImageIndex(prev => prev - 1)}
               >
-                <Ionicons 
-                  name="chevron-back" 
-                  size={28} 
-                  color={currentImageIndex === 0 ? "#999999" : "white"} 
+                <Ionicons
+                  name="chevron-back"
+                  size={28}
+                  color={currentImageIndex === 0 ? "#999999" : "white"}
                 />
               </TouchableOpacity>
-              
+
               <Text style={styles.imageCounter}>
                 {currentImageIndex + 1}/{localImages.length}
               </Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={styles.navButton}
                 disabled={currentImageIndex === localImages.length - 1}
                 onPress={() => setCurrentImageIndex(prev => prev + 1)}
               >
-                <Ionicons 
-                  name="chevron-forward" 
-                  size={28} 
-                  color={currentImageIndex === localImages.length - 1 ? "#999999" : "white"} 
+                <Ionicons
+                  name="chevron-forward"
+                  size={28}
+                  color={currentImageIndex === localImages.length - 1 ? "#999999" : "white"}
                 />
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
+        <EnquiryCPModal
+          setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+          generatingEnquiry={false}
+          visible={isEnquiryModelOpen}
+          selectedCPID={selectedCPID}
+        />
+        <ConfirmModal
+          title="Confirm Enquiry"
+          message="Are you sure you want to enquire? You have 3 credits remaining for this month."
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          generatingEnquiry={false}
+          visible={isConfirmModelOpen}
+        />
+        <ShareModal
+          property={property}
+          agentData={agentData}
+          setProfileModalOpen={setIsShareModalOpen}
+          visible = {isShareModalOpen}
+        />
       </View>
     </Modal>
   );
