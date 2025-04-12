@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Alert,  ActivityIndicator } from 'react-native';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { showMessage } from 'react-native-flash-message';
 import { showToast } from '../helpers/toastUtils';
+import * as Linking from 'expo-linking';
+
 
 // Define the AgentData interface separately
 interface AgentData {
@@ -54,31 +57,34 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   }, [selectedCPID]);
 
   const handleWhatsAppEnquiry = (): void => {
-    if (agentData?.phonenumber) return;
+    if (!agentData?.phonenumber) return;
 
 
     // Open WhatsApp chat in a new tab
-    window.open(`https://wa.me/${agentData.phonenumber}`, "_blank");
+    if ( agentData != null ) {
+      console.log("clicked whatsapp")
+      console.log(agentData.phonenumber)
+      Linking.openURL(`whatsapp://send?phone=${agentData.phonenumber}`)
+    }
   };
 
-  const handleCopy = (): void => {
+  const handleCopy = async (): Promise<void> => {
     if (!agentData?.phonenumber) return;
-
-    navigator.clipboard
-      .writeText(agentData.phonenumber)
-      .then(() => showToast('Phone number copied!', '', 'success'))
-      // .then(() => toast.success("Phone number copied!"))
-      .catch((err: unknown) => {
-        console.error("Failed to copy phone number:", err);
-      });
-    console.log(agentData?.phonenumber)
+  
+    try {
+      await Clipboard.setStringAsync(agentData.phonenumber);
+      Alert.alert('Success', 'Phone number copied!');
+      console.log("Agent's Phone Number",agentData.phonenumber);
+    } catch (err) {
+      console.error("Failed to copy phone number:", err);
+    }
   };
 
   const handleCall = (): void => {
     if (!agentData?.phonenumber) return;
 
     // Redirect to dialer with the phone number
-    window.location.href = `tel:${agentData.phonenumber}`;
+    Linking.openURL(`tel:${agentData.phonenumber}`);
   };
 
   const onClose = () => {

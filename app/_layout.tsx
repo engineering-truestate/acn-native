@@ -48,7 +48,7 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <SafeAreaProvider>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <View style={{ flex: 1 }}>
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: '#000' },
