@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
 import algoliasearch from "algoliasearch";
@@ -9,6 +11,8 @@ import { Property } from "../types";
 import MoreFilters from "../components/MoreFilters";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import EnquiryCPModal from "../modals/EnquiryCPModal";
+import ConfirmModal from "../modals/ConfirmModal";
 import EnquiryCPModal from "../modals/EnquiryCPModal";
 import ConfirmModal from "../modals/ConfirmModal";
 import ShareModal from "../modals/ShareModal";
@@ -31,13 +35,13 @@ interface AgentData {
 
 const indexName = "propertyId";
 
-
-interface Landmark {
+export interface Landmark {
   name: string;
   lat: number;
   lng: number;
   radius: number;
 }
+
 
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
@@ -54,6 +58,12 @@ export default function PropertiesScreen() {
           analytics={true}
           hitsPerPage={20}
           filters={`status:'Available'`}
+          aroundLatLng={
+            selectedLandmark?.lat && selectedLandmark?.lng
+              ? `${selectedLandmark.lat},${selectedLandmark.lng}`
+              : undefined
+          }
+          aroundRadius={selectedLandmark?.radius || undefined}
         />
         <View className="flex-1">
           <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} />
@@ -62,6 +72,14 @@ export default function PropertiesScreen() {
           </ScrollView>
           <CustomPagination />
         </View>
+        <MoreFilters 
+          isOpen={isMoreFiltersModalOpen} 
+          setIsOpen={setIsMoreFiltersModalOpen} 
+          handleToggle={handleToggleMoreFilters} 
+          isMobile={true} 
+          selectedLandmark={selectedLandmark} 
+          setSelectedLandmark={setSelectedLandmark} 
+        />
         <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
       </InstantSearch>
 
@@ -108,12 +126,10 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const [ agentData, setAgentData ] = useState<AgentData | null>(null);
 
   const handlePress = () => {
-    console.log(property)
     router.push(`/property/${property.propertyId}`);
 
   };
 
-  
 
   const handleCancel = () => {
     setIsConfirmModelOpen(false)

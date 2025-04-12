@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { usePagination } from 'react-instantsearch';
 
 interface CustomPaginationProps {
-  isMobile?: boolean;
+  isSticky?: boolean;
 }
 
-export default function CustomPagination({ isMobile = false }: CustomPaginationProps) {
+export default function CustomPagination({ isSticky = false }: CustomPaginationProps) {
   const {
     currentRefinement,
     nbPages,
@@ -15,13 +15,15 @@ export default function CustomPagination({ isMobile = false }: CustomPaginationP
   } = usePagination();
 
   return (
-    <View className={`flex-row justify-center items-center p-4 ${isMobile ? 'fixed bottom-0 w-full bg-white' : ''}`}>
+    <View style={[styles.container, isSticky && styles.stickyContainer]}>
       <TouchableOpacity
         onPress={() => refine(currentRefinement - 1)}
         disabled={currentRefinement === 0}
-        className={`px-4 py-2 rounded-l-lg ${
-          currentRefinement === 0 ? 'bg-gray-200' : 'bg-blue-500'
-        }`}
+        style={[
+          styles.button,
+          styles.leftButton,
+          currentRefinement === 0 && styles.disabledButton
+        ]}
       >
         <Text style={[
           styles.buttonText,
@@ -31,7 +33,7 @@ export default function CustomPagination({ isMobile = false }: CustomPaginationP
         </Text>
       </TouchableOpacity>
 
-      <View className="px-4 py-2 bg-gray-100">
+      <View style={styles.pageInfo}>
         <Text style={styles.pageText}>
           Page {currentRefinement + 1} of {nbPages}
         </Text>
@@ -40,9 +42,11 @@ export default function CustomPagination({ isMobile = false }: CustomPaginationP
       <TouchableOpacity
         onPress={() => refine(currentRefinement + 1)}
         disabled={currentRefinement === nbPages - 1}
-        className={`px-4 py-2 rounded-r-lg ${
-          currentRefinement === nbPages - 1 ? 'bg-gray-200' : 'bg-blue-500'
-        }`}
+        style={[
+          styles.button,
+          styles.rightButton,
+          currentRefinement === nbPages - 1 && styles.disabledButton
+        ]}
       >
         <Text style={[
           styles.buttonText,
@@ -56,6 +60,42 @@ export default function CustomPagination({ isMobile = false }: CustomPaginationP
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  stickyContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#10B981',
+  },
+  leftButton: {
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  rightButton: {
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  disabledButton: {
+    backgroundColor: '#E5E7EB',
+  },
+  pageInfo: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#F3F4F6',
+  },
   buttonText: {
     fontFamily: 'Montserrat_500Medium',
     fontSize: 14,

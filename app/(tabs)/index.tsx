@@ -1,11 +1,10 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text } from 'react-native';
 import PropertiesScreen from './properties';
 import LandmarkDropdownFilters from '../components/LandmarkDropdownFilters';
 
-export default function HomeScreen() {
+export default function TabOneScreen() {
   return (
-    <View className="p-4 bg-white dark:bg-black">
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <PropertiesScreen />
     </View>
   );

@@ -3,13 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'rea
 import { useCurrentRefinements, useRefinementList } from 'react-instantsearch';
 import DropdownMoreFilters from './DropdownMoreFilters'
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
-
-interface Landmark {
-  name: string;
-  lat: number;
-  lng: number;
-  radius: number;
-}
+import { Landmark } from '../(tabs)/properties'; 
 
 interface MoreFiltersProps {
   isOpen: boolean;
@@ -30,6 +24,9 @@ const MoreFilters = ({
 }: MoreFiltersProps) => {
   const { items, refine } = useCurrentRefinements();
   const [selectedLocationFilter, setSelectedLocationFilter] = useState('micromarket');
+
+  // Debug log to check when selectedLandmark changes in this component
+  console.log("MoreFilters selectedLandmark:", selectedLandmark);
 
   // Micromarket refinement list
   const { items: micromarketItems, refine: refineMicromarket } = useRefinementList({
