@@ -13,7 +13,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 import 'react-native-reanimated';
 import '../global.css';
-
+import { HamburgerMenu } from '@/components/HamburgerMenu';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ReduxProvider from '@/providers/ReduxProvider';
 import FlashMessage from '../components/Toast';
@@ -49,10 +49,11 @@ export default function RootLayout() {
     <ReduxProvider>
       <SafeAreaProvider>
         <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <HamburgerMenu />
           <Stack
             screenOptions={{
-              headerStyle: { backgroundColor: '#000' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: '#fff' },
+              headerTintColor: '#000',
               headerTitleAlign: 'center',
               headerTitleStyle: { fontWeight: 'bold' },
             }}
