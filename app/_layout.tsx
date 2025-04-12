@@ -59,8 +59,16 @@ export default function RootLayout() {
               headerTitleStyle: { fontWeight: 'bold' },
             }}
           >
-            <Stack.Screen name="(tabs)/index" options={{ title: 'Resale Inventories' }} />
+            <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)/properties" options={{ title: 'Properties' }} />
             <Stack.Screen name="(tabs)/requirements" options={{ title: 'Requirements' }} />
+
+            {/* <Stack.Screen name="LandingPage" /> */}
+            <Stack.Screen name="components/Auth" options={{ headerShown: false }}/>
+            <Stack.Screen name="components/Auth/Signin" options={{ headerShown: false }}/>
+            <Stack.Screen name="components/Auth/OTPage" options={{ headerShown: false }}/>
+            <Stack.Screen name="components/Auth/VerificationPage" options={{ headerShown: false }}/>
+            <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }}/>
             <Stack.Screen name="not-found" options={{ headerShown: false }} />
             <Stack.Screen
               name="(tabs)"

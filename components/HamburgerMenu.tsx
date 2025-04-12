@@ -11,7 +11,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { title: 'Dashboard', path: '/settings' },
-  { title: 'Properties', path: '/' },
+  { title: 'Properties', path: '/properties' },
   { title: 'Requirements', path: '/requirements' },
 
   { title: 'Add Requirements', path: '/+not-found' },
