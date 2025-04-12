@@ -15,7 +15,7 @@ const menuItems: MenuItem[] = [
   { title: 'Requirements', path: '/requirements' },
 
   { title: 'Add Requirements', path: '/+not-found' },
-  { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38'},
+  { title: 'Join Community', path: '/+not-found' },
   { title: 'Billing', path: '/+not-found' },
   { title: 'Help', path: '/+not-found' },
   { title: 'Credits', path: '/+not-found' },
@@ -23,7 +23,7 @@ const menuItems: MenuItem[] = [
   // Add more menu items as needed
 ];
 
-export const HamburgerMenu = () => {
+export const KamModalButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -60,9 +60,10 @@ export const HamburgerMenu = () => {
     <>
       <TouchableOpacity onPress={toggleMenu} style={styles.hamburgerButton}>
         <View style={styles.hamburgerIcon}>
+          {/* <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} /> */}
+          <Text>KAM Modal</Text>
         </View>
       </TouchableOpacity>
 
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   hamburgerButton: {
     position: 'absolute',
     top: 40,
-    left: 20,
+    right: 20,
     zIndex: 2,
   },
   hamburgerIcon: {

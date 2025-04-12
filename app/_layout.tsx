@@ -17,6 +17,7 @@ import { HamburgerMenu } from '@/components/HamburgerMenu';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ReduxProvider from '@/providers/ReduxProvider';
 import FlashMessage from '../components/Toast';
+import { KamModalButton } from "@/components/KamModalButton";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,7 +50,7 @@ export default function RootLayout() {
     <ReduxProvider>
       <SafeAreaProvider>
         <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-        <HamburgerMenu />
+          <HamburgerMenu />
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: '#fff' },
@@ -74,7 +75,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
-
+          <KamModalButton />
           <FlashMessage position="top" />
           <StatusBar style="auto" />
         </View>
