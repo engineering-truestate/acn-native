@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+<<<<<<< Updated upstream
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button } from "react-native";
+=======
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert } from "react-native";
+>>>>>>> Stashed changes
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -11,12 +15,23 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import EnquiryCPModal from "../modals/EnquiryCPModal";
 import ConfirmModal from "../modals/ConfirmModal";
+import ShareModal from "../modals/ShareModal";
+import { useSelector } from "react-redux";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
+import * as Clipboard from 'expo-clipboard';
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
   "IX7SWC1B42",
   "72106b08028d186542a82eafa570fc88"
 );
+
+// Define the AgentData interface separately
+interface AgentData {
+  phonenumber: string;
+  [key: string]: any;
+}
 
 const indexName = "propertyId";
 
@@ -26,6 +41,7 @@ export interface Landmark {
   lng: number;
   radius: number;
 }
+
 
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
@@ -64,6 +80,7 @@ export default function PropertiesScreen() {
           selectedLandmark={selectedLandmark} 
           setSelectedLandmark={setSelectedLandmark} 
         />
+        <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
       </InstantSearch>
 
     </View>
@@ -105,11 +122,14 @@ const PropertyCard = ({ property }: { property: Property }) => {
   const [selectedCPID, setSelectedCPID] = useState("");
   const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
   const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
+  const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
+  const [ agentData, setAgentData ] = useState<AgentData | null>(null);
 
   const handlePress = () => {
     router.push(`/property/${property.propertyId}`);
 
   };
+
 
   const handleCancel = () => {
     setIsConfirmModelOpen(false)
@@ -126,6 +146,23 @@ const PropertyCard = ({ property }: { property: Property }) => {
     setIsConfirmModelOpen(true)
   }
 
+  const handleShareButton = () => {
+    setIsShareModalOpen(true)
+  }
+
+  const handleCopy = async (): Promise<void> => {
+      if (!agentData?.phonenumber) return;
+    
+      try {
+        await Clipboard.setStringAsync(agentData.phonenumber);
+        Alert.alert('Success', 'Phone number copied!');
+        console.log("Agent's Phone Number",agentData.phonenumber);
+      } catch (err) {
+        console.error("Failed to copy phone number:", err);
+      }
+    };
+
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -138,20 +175,20 @@ const PropertyCard = ({ property }: { property: Property }) => {
       <View style={styles.content}>
         <Text style={styles.title}>{property.title}</Text>
         <Text style={styles.price}>₹ {property.totalAskPrice} Lacs</Text>
-        <View style={styles.details}>
-          <View style={styles.detailItem}>
-            <Ionicons name="bed-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.unitType}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="resize-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.sbua} sqft</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Ionicons name="location-outline" size={16} color="#374151" />
-            <Text style={styles.detailText}>{property.micromarket}</Text>
-          </View>
-          <EnquiryCPModal
+        <ShareModal
+          property={property}
+          agentData={agentData}
+          setProfileModalOpen={setIsShareModalOpen}
+          visible = {isShareModalOpen}
+        />
+
+        <Button
+          onPress={handleShareButton}
+          title="Share"
+          color="#000FFF"
+          accessibilityLabel="Share button"
+        />
+        <EnquiryCPModal
             setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
             generatingEnquiry={false}
             visible={isEnquiryModelOpen}
@@ -171,6 +208,19 @@ const PropertyCard = ({ property }: { property: Property }) => {
             color="#000FFF"
             accessibilityLabel="Enquiry button."
           />
+        <View style={styles.details}>
+          <View style={styles.detailItem}>
+            <Ionicons name="bed-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.unitType}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="resize-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.sbua} sqft</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="location-outline" size={16} color="#374151" />
+            <Text style={styles.detailText}>{property.micromarket}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>

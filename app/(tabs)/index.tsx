@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import PropertiesScreen from './properties';
+import LandmarkDropdownFilters from '../components/LandmarkDropdownFilters';
 
 export default function TabOneScreen() {
   return (
