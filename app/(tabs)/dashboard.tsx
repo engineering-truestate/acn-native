@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal
 import { db } from '../config/firebase';
 import { useSelector } from 'react-redux';
 import { Property } from '../types';
+import Dashboard from '../components/dashboard/Dashboard';
 
 // interface Property {
 //   id: string;
@@ -428,233 +429,238 @@ const RequirementDetailsModal: React.FC<{
   );
 };
 
-const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'properties' | 'requirements' | 'enquiries'>('properties');
-  const [isMobile, setIsMobile] = useState<boolean>(Dimensions.get('window').width <= 768);
+export default function DashboardTab() {
+  // Render Dashboard directly instead of redirecting
+  return <Dashboard />;
+} 
+
+// const Dashboard: React.FC = () => {
+//   const [activeTab, setActiveTab] = useState<'properties' | 'requirements' | 'enquiries'>('properties');
+//   const [isMobile, setIsMobile] = useState<boolean>(Dimensions.get('window').width <= 768);
   
-  const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [isPropertyDetailsModalOpen, setPropertyDetailsModalOpen] = useState<boolean>(false);
+//   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
+//   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+//   const [isPropertyDetailsModalOpen, setPropertyDetailsModalOpen] = useState<boolean>(false);
 
-  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
-  const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryWithProperty | null>(null);
-  const [isEnquiryModalOpen, setEnquiryModalOpen] = useState<boolean>(false);
+//   const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
+//   const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryWithProperty | null>(null);
+//   const [isEnquiryModalOpen, setEnquiryModalOpen] = useState<boolean>(false);
 
-  // Add requirements state and hook
-  const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
-  const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
-  const [isRequirementModalOpen, setRequirementModalOpen] = useState<boolean>(false);
+//   // Add requirements state and hook
+//   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
+//   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
+//   const [isRequirementModalOpen, setRequirementModalOpen] = useState<boolean>(false);
 
-  const cpId = useCpId();
+//   const cpId = useCpId();
 
-  // Effect to set active tab when cpId changes
-  useEffect(() => {
-    setActiveTab('properties');
-  }, [cpId]);
+//   // Effect to set active tab when cpId changes
+//   useEffect(() => {
+//     setActiveTab('properties');
+//   }, [cpId]);
 
-  // console.log('Properties:', properties);
-  // console.log('My Enquiries:', myEnquiries.length);
-  // console.log('Requirements:', requirements.length);
-  console.log("HELLOOOOOO", myEnquiries);
+//   // console.log('Properties:', properties);
+//   // console.log('My Enquiries:', myEnquiries.length);
+//   // console.log('Requirements:', requirements.length);
+//   console.log("HELLOOOOOO", myEnquiries);
 
-  useEffect(() => {
-    const handleDimensionChange = ({ window }: { window: { width: number; height: number } }) => {
-      setIsMobile(window.width <= 768);
-    };
+//   useEffect(() => {
+//     const handleDimensionChange = ({ window }: { window: { width: number; height: number } }) => {
+//       setIsMobile(window.width <= 768);
+//     };
 
-    const subscription = Dimensions.addEventListener('change', handleDimensionChange);
+//     const subscription = Dimensions.addEventListener('change', handleDimensionChange);
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+//     return () => {
+//       subscription.remove();
+//     };
+//   }, []);
 
-  const renderError = (error: string | null) => {
-    if (!error) return null;
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
-    );
-  };
+//   const renderError = (error: string | null) => {
+//     if (!error) return null;
+//     return (
+//       <View style={styles.errorContainer}>
+//         <Text style={styles.errorText}>{error}</Text>
+//       </View>
+//     );
+//   };
 
-  const renderLoading = () => (
-    <View style={styles.loadingContainer}>
-      <Text>Loading...</Text>
-    </View>
-  );
+//   const renderLoading = () => (
+//     <View style={styles.loadingContainer}>
+//       <Text>Loading...</Text>
+//     </View>
+//   );
 
-  const renderProperties = () => {
-    if (propertiesLoading) return renderLoading();
-    if (propertiesError) return renderError(propertiesError);
+//   const renderProperties = () => {
+//     if (propertiesLoading) return renderLoading();
+//     if (propertiesError) return renderError(propertiesError);
     
-    return (
-      <View style={styles.listContainer}>
-        <Text style={styles.listTitle}>My Properties ({properties.length})</Text>
-        {properties.length === 0 ? (
-          <Text style={styles.emptyMessage}>No properties found.</Text>
-        ) : (
-          properties.map((property) => (
-            <TouchableOpacity
-              key={property.id}
-              style={styles.listItem}
-              onPress={() => {
-                setSelectedProperty(property);
-                setPropertyDetailsModalOpen(true);
-              }}
-            >
-              <Text style={styles.itemTitle}>{property.address || 'Property ' + property.id}</Text>
-              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(property.status) }]}>
-                <Text style={styles.statusBadgeText}>{property.status}</Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
-      </View>
-    );
-  };
+//     return (
+//       <View style={styles.listContainer}>
+//         <Text style={styles.listTitle}>My Properties ({properties.length})</Text>
+//         {properties.length === 0 ? (
+//           <Text style={styles.emptyMessage}>No properties found.</Text>
+//         ) : (
+//           properties.map((property) => (
+//             <TouchableOpacity
+//               key={property.id}
+//               style={styles.listItem}
+//               onPress={() => {
+//                 setSelectedProperty(property);
+//                 setPropertyDetailsModalOpen(true);
+//               }}
+//             >
+//               <Text style={styles.itemTitle}>{property.address || 'Property ' + property.id}</Text>
+//               <View style={[styles.statusBadge, { backgroundColor: getStatusColor(property.status) }]}>
+//                 <Text style={styles.statusBadgeText}>{property.status}</Text>
+//               </View>
+//             </TouchableOpacity>
+//           ))
+//         )}
+//       </View>
+//     );
+//   };
 
-  const renderEnquiries = () => {
-    if (enquiriesLoading) return renderLoading();
-    if (enquiriesError) return renderError(enquiriesError);
+//   const renderEnquiries = () => {
+//     if (enquiriesLoading) return renderLoading();
+//     if (enquiriesError) return renderError(enquiriesError);
 
-    return (
-      <View style={styles.listContainer}>
-        <Text style={styles.listTitle}>My Enquiries ({myEnquiries.length})</Text>
-        {myEnquiries.length === 0 ? (
-          <Text style={styles.emptyMessage}>No enquiries found.</Text>
-        ) : (
-          myEnquiries.map((enquiry) => (
-            <TouchableOpacity
-              key={enquiry.id}
-              style={styles.listItem}
-              onPress={() => {
-                setSelectedEnquiry(enquiry);
-                setEnquiryModalOpen(true);
-              }}
-            >
-              <Text style={styles.itemTitle}>
-                {enquiry.property?.address || `Enquiry ${enquiry.id.substring(0, 8)}...`}
-              </Text>
-              {enquiry.status && (
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(enquiry.status) }]}>
-                  <Text style={styles.statusBadgeText}>{enquiry.status}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))
-        )}
-      </View>
-    );
-  };
+//     return (
+//       <View style={styles.listContainer}>
+//         <Text style={styles.listTitle}>My Enquiries ({myEnquiries.length})</Text>
+//         {myEnquiries.length === 0 ? (
+//           <Text style={styles.emptyMessage}>No enquiries found.</Text>
+//         ) : (
+//           myEnquiries.map((enquiry) => (
+//             <TouchableOpacity
+//               key={enquiry.id}
+//               style={styles.listItem}
+//               onPress={() => {
+//                 setSelectedEnquiry(enquiry);
+//                 setEnquiryModalOpen(true);
+//               }}
+//             >
+//               <Text style={styles.itemTitle}>
+//                 {enquiry.property?.address || `Enquiry ${enquiry.id.substring(0, 8)}...`}
+//               </Text>
+//               {enquiry.status && (
+//                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(enquiry.status) }]}>
+//                   <Text style={styles.statusBadgeText}>{enquiry.status}</Text>
+//                 </View>
+//               )}
+//             </TouchableOpacity>
+//           ))
+//         )}
+//       </View>
+//     );
+//   };
 
-  // New function to render requirements
-  const renderRequirements = () => {
-    if (requirementsLoading) return renderLoading();
-    if (requirementsError) return renderError(requirementsError);
+//   // New function to render requirements
+//   const renderRequirements = () => {
+//     if (requirementsLoading) return renderLoading();
+//     if (requirementsError) return renderError(requirementsError);
 
-    return (
-      <View style={styles.listContainer}>
-        <Text style={styles.listTitle}>My Requirements ({requirements.length})</Text>
-        {requirements.length === 0 ? (
-          <Text style={styles.emptyMessage}>No requirements found.</Text>
-        ) : (
-          requirements.map((requirement) => (
-            <TouchableOpacity
-              key={requirement.id}
-              style={styles.listItem}
-              onPress={() => {
-                setSelectedRequirement(requirement);
-                setRequirementModalOpen(true);
-              }}
-            >
-              <Text style={styles.itemTitle}>
-                {requirement.title || `Requirement ${requirement.id.substring(0, 8)}...`}
-              </Text>
-              {requirement.status && (
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(requirement.status) }]}>
-                  <Text style={styles.statusBadgeText}>{requirement.status}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))
-        )}
-      </View>
-    );
-  };
+//     return (
+//       <View style={styles.listContainer}>
+//         <Text style={styles.listTitle}>My Requirements ({requirements.length})</Text>
+//         {requirements.length === 0 ? (
+//           <Text style={styles.emptyMessage}>No requirements found.</Text>
+//         ) : (
+//           requirements.map((requirement) => (
+//             <TouchableOpacity
+//               key={requirement.id}
+//               style={styles.listItem}
+//               onPress={() => {
+//                 setSelectedRequirement(requirement);
+//                 setRequirementModalOpen(true);
+//               }}
+//             >
+//               <Text style={styles.itemTitle}>
+//                 {requirement.title || `Requirement ${requirement.id.substring(0, 8)}...`}
+//               </Text>
+//               {requirement.status && (
+//                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(requirement.status) }]}>
+//                   <Text style={styles.statusBadgeText}>{requirement.status}</Text>
+//                 </View>
+//               )}
+//             </TouchableOpacity>
+//           ))
+//         )}
+//       </View>
+//     );
+//   };
 
-  // Render the active tab content
-  const renderActiveTabContent = () => {
-    switch (activeTab) {
-      case 'properties':
-        return renderProperties();
-      case 'requirements':
-        return renderRequirements();
-      case 'enquiries':
-        return renderEnquiries();
-      default:
-        return renderProperties();
-    }
-  };
+//   // Render the active tab content
+//   const renderActiveTabContent = () => {
+//     switch (activeTab) {
+//       case 'properties':
+//         return renderProperties();
+//       case 'requirements':
+//         return renderRequirements();
+//       case 'enquiries':
+//         return renderEnquiries();
+//       default:
+//         return renderProperties();
+//     }
+//   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Agent Dashboard</Text>
+//   return (
+//     <ScrollView contentContainerStyle={styles.container}>
+//       <Text style={styles.title}>Agent Dashboard</Text>
       
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'properties' && styles.activeTab]}
-          onPress={() => setActiveTab('properties')}
-        >
-          <Text style={[styles.tabText, activeTab === 'properties' && styles.activeTabText]}>
-            Properties
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'requirements' && styles.activeTab]}
-          onPress={() => setActiveTab('requirements')}
-        >
-          <Text style={[styles.tabText, activeTab === 'requirements' && styles.activeTabText]}>
-            Requirements
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'enquiries' && styles.activeTab]}
-          onPress={() => setActiveTab('enquiries')}
-        >
-          <Text style={[styles.tabText, activeTab === 'enquiries' && styles.activeTabText]}>
-            Enquiries
-          </Text>
-        </TouchableOpacity>
-      </View>
+//       <View style={styles.tabContainer}>
+//         <TouchableOpacity
+//           style={[styles.tab, activeTab === 'properties' && styles.activeTab]}
+//           onPress={() => setActiveTab('properties')}
+//         >
+//           <Text style={[styles.tabText, activeTab === 'properties' && styles.activeTabText]}>
+//             Properties
+//           </Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity
+//           style={[styles.tab, activeTab === 'requirements' && styles.activeTab]}
+//           onPress={() => setActiveTab('requirements')}
+//         >
+//           <Text style={[styles.tabText, activeTab === 'requirements' && styles.activeTabText]}>
+//             Requirements
+//           </Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity
+//           style={[styles.tab, activeTab === 'enquiries' && styles.activeTab]}
+//           onPress={() => setActiveTab('enquiries')}
+//         >
+//           <Text style={[styles.tabText, activeTab === 'enquiries' && styles.activeTabText]}>
+//             Enquiries
+//           </Text>
+//         </TouchableOpacity>
+//       </View>
       
-      {renderActiveTabContent()}
+//       {renderActiveTabContent()}
       
-      <PropertyDetailsModal
-        isVisible={isPropertyDetailsModalOpen}
-        property={selectedProperty}
-        onClose={() => setPropertyDetailsModalOpen(false)}
-        onUpdateStatus={(status) => {
-          if (selectedProperty) {
-            handlePropertyStatusChange(status, selectedProperty.id || "");
-          }
-        }}
-      />
+//       <PropertyDetailsModal
+//         isVisible={isPropertyDetailsModalOpen}
+//         property={selectedProperty}
+//         onClose={() => setPropertyDetailsModalOpen(false)}
+//         onUpdateStatus={(status) => {
+//           if (selectedProperty) {
+//             handlePropertyStatusChange(status, selectedProperty.id || "");
+//           }
+//         }}
+//       />
       
-      <EnquiryDetailsModal
-        isVisible={isEnquiryModalOpen}
-        enquiry={selectedEnquiry}
-        onClose={() => setEnquiryModalOpen(false)}
-      />
+//       <EnquiryDetailsModal
+//         isVisible={isEnquiryModalOpen}
+//         enquiry={selectedEnquiry}
+//         onClose={() => setEnquiryModalOpen(false)}
+//       />
 
-      <RequirementDetailsModal
-        isVisible={isRequirementModalOpen}
-        requirement={selectedRequirement}
-        onClose={() => setRequirementModalOpen(false)}
-      />
-    </ScrollView>
-  );
-};
+//       <RequirementDetailsModal
+//         isVisible={isRequirementModalOpen}
+//         requirement={selectedRequirement}
+//         onClose={() => setRequirementModalOpen(false)}
+//       />
+//     </ScrollView>
+//   );
+// };
 
 const getStatusColor = (status: string): string => {
   switch (status.toLowerCase()) {
@@ -860,4 +866,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Dashboard;
+// export default Dashboard;
