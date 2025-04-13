@@ -1,8 +1,8 @@
 import { Stack } from "expo-router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View } from "react-native";
+import { View, Dimensions, Platform } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -23,12 +23,46 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [topMargin, setTopMargin] = useState(10);
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_500Medium,
     Montserrat_600SemiBold,
     Montserrat_700Bold,
   });
+
+  // Function to calculate dynamic top margin based on screen dimensions and orientation
+  const calculateTopMargin = () => {
+    const { height, width } = Dimensions.get('window');
+    const isLandscape = width > height;
+    
+    // Different margins based on device type and orientation
+    if (Platform.OS === 'ios') {
+      // iOS specific margins
+      return isLandscape ? 0.01*height : 0.06*height;
+    } else {
+      // Android specific margins
+      return isLandscape ? 0.01*height : 0.06*height;
+    }
+  };
+
+  // Update top margin when dimensions change (e.g., rotation)
+  useEffect(() => {
+    const updateMargin = () => {
+      setTopMargin(calculateTopMargin());
+    };
+    
+    // Set initial margin
+    updateMargin();
+    
+    // Add event listener for dimension changes
+    const dimensionsSubscription = Dimensions.addEventListener('change', updateMargin);
+    
+    // Clean up
+    return () => {
+      dimensionsSubscription.remove();
+    };
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -49,7 +83,7 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <SafeAreaProvider>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <View style={{top: topMargin, flex: 1 }} onLayout={onLayoutRootView}>
           <HamburgerMenu />
           <Stack
             screenOptions={{

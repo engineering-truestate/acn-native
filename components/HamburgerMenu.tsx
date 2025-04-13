@@ -10,14 +10,14 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/settings' },
+  { title: 'Dashboard', path: '/dashboard' },
   { title: 'Properties', path: '/properties' },
   { title: 'Requirements', path: '/requirements' },
 
   { title: 'Add Requirements', path: '/+not-found' },
   { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38'},
   { title: 'Billing', path: '/billings' },
-  { title: 'Help', path: '/+not-found' },
+  { title: 'Help', path: '/help' },
   { title: 'Credits', path: '/+not-found' },
   { title: 'Profile', path: '/+not-found' },
   // Add more menu items as needed
