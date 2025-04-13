@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Link } from 'expo-router';
+import ProfileModal from '@/app/modals/ProfileModal';
+import { Button } from 'react-native-elements/dist/buttons/Button';
 
 const { width } = Dimensions.get('window');
 
@@ -18,8 +20,8 @@ const menuItems: MenuItem[] = [
   { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38'},
   { title: 'Billing', path: '/billings' },
   { title: 'Help', path: '/help' },
+  // this is not to be done like this, it has to be a design elimante not a route
   { title: 'Credits', path: '/+not-found' },
-  { title: 'Profile', path: '/+not-found' },
   // Add more menu items as needed
 ];
 
@@ -27,6 +29,7 @@ export const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const  [profileModalVisible, setProfileModalVisible] = useState(false);
 
   const toggleMenu = () => {
     const toValue = isOpen ? 0 : 1;
@@ -99,6 +102,19 @@ export const HamburgerMenu = () => {
               </TouchableOpacity>
             </Link>
           ))}
+          <ProfileModal
+            visible={profileModalVisible}
+            setVisible={setProfileModalVisible}
+          />
+          <Button
+            title="Profile"
+            onPress={() => {
+              setProfileModalVisible(true);
+              toggleMenu();
+            }}
+            containerStyle={{ marginVertical: 10 }}
+            buttonStyle={{ backgroundColor: '#007BFF' }}
+          />
         </View>
       </Animated.View>
     </>
