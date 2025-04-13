@@ -35,7 +35,7 @@ export default async function submitRequirement(userRequirement) {
                 from: userRequirement.budget.from || "", // Convert budgetFrom to a number
                 to: userRequirement.budget.to || "", // Convert budgetTo to a number
             },
-            configuration: userRequirement.configuration,
+            configuration: userRequirement.configuration || "",
             marketValue: userRequirement.marketValue,
             propertyName: userRequirement.propertyName,
             requirementDetails: userRequirement.requirementDetails,

@@ -110,7 +110,7 @@ const UserRequirementForm = () => {
       newErrors.assetType = "Asset type is required";
     }
 
-    if (!configuration.trim()) {
+    if (assetType!= "plot" && !configuration.trim()) {
       newErrors.configuration = "Configuration is required";
     }
 
@@ -433,7 +433,7 @@ const UserRequirementForm = () => {
 
             {/* Submit Button */}
             <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
-              Submit
+              {saving ? "Submitting..." : "Submit"}
             </ARPrimaryButton>
           </View>
         </View>
