@@ -2,8 +2,9 @@ import { Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View, Dimensions, Platform } from "react-native";
+import { View, Dimensions, Platform, SafeAreaView } from "react-native";
 import { StatusBar } from 'expo-status-bar';
+import DeviceInfo from 'react-native-device-info';
 import {
   useFonts,
   Montserrat_400Regular,
@@ -42,14 +43,14 @@ export default function RootLayout() {
       return isLandscape ? 0.01*height : 0.06*height;
     } else {
       // Android specific margins
-      return isLandscape ? 0.01*height : 0.06*height;
+      return isLandscape ? 0.01*height : 0.04*height;
     }
   };
 
   // Update top margin when dimensions change (e.g., rotation)
   useEffect(() => {
     const updateMargin = () => {
-      setTopMargin(calculateTopMargin());
+      // setTopMargin(calculateTopMargin());
     };
     
     // Set initial margin
@@ -83,7 +84,8 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <SafeAreaProvider>
-        <View style={{top: topMargin, flex: 1 }} onLayout={onLayoutRootView}>
+        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
           <HamburgerMenu />
           <Stack
             screenOptions={{
@@ -122,6 +124,7 @@ export default function RootLayout() {
           <FlashMessage position="top" />
           <StatusBar style="auto" />
         </View>
+        </SafeAreaView>
       </SafeAreaProvider>
     </ReduxProvider>
   );
