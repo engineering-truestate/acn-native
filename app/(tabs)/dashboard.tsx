@@ -1,15 +1,16 @@
-import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { db } from '../config/firebase';
 import { useSelector } from 'react-redux';
+import { Property } from '../types';
 
-interface Property {
-  id: string;
-  status: string;
-  address?: string;
-  [key: string]: any; // For any additional dynamic fields in the property
-}
+// interface Property {
+//   id: string;
+//   status: string;
+//   address?: string;
+//   [key: string]: any; // For any additional dynamic fields in the property
+// }
 
 interface UsePropertiesResult {
   properties: Property[];
@@ -18,19 +19,23 @@ interface UsePropertiesResult {
   handlePropertyStatusChange: (value: string, propertyId: string) => Promise<void>;
 }
 
+interface EnquiryWithProperty extends Enquiry {
+  property?: Property | null;
+}
+
 interface Enquiry {
   id: string;
+  added?: number;
   cpId?: string;
+  enquiryId?: string;
+  lastModified?: number;
   propertyId?: string;
   status?: string;
-  message?: string;
-  createdAt?: number;
   [key: string]: any; // for additional dynamic fields
 }
 
 interface UseEnquiriesResult {
-  enquiries: Enquiry[];
-  myEnquiries: Enquiry[];
+  myEnquiries: EnquiryWithProperty[];
   loading: boolean;
   error: string | null;
 }
@@ -43,18 +48,41 @@ interface RootState {
   };
 }
 
+interface Budget{
+  from?: string;
+  to?: string;
+}
+
+interface Requirement {
+  id: string;
+  added: number;
+  agentCpid: string;
+  area?: number;
+  assetType?: string;
+  budget: Budget;
+  configuration?: string;
+  lastModified: number;
+  marketValue?: string;
+  propertyName: string, 
+  requirementDetails?: string;
+  requirementId: string;
+  [key: string]: any;
+}
+
 const useCpId = (): string | null => {
-  const [cpId, setCpId] = useState<string | null>(null);
+  // const [cpId, setCpId] = useState<string | null>(null);
 
   const reduxCpId = useSelector((state: RootState) => state.agent?.docData?.cpId);
 
-  useEffect(() => {
-    // In React Native, we usually don't get query params from URL like in web
-    // If you're deep linking, you'd need to extract cpId from the navigation params
-    // For now, we fallback to reduxCpId
-    setCpId(reduxCpId || null);
-  }, [reduxCpId]);
+  // useEffect(() => {
+  //   // In React Native, we usually don't get query params from URL like in web
+  //   // If you're deep linking, you'd need to extract cpId from the navigation params
+  //   // For now, we fallback to reduxCpId
+  //   setCpId(reduxCpId || null);
+  // }, [reduxCpId]);
 
+  // return reduxCpId;
+  //Test cpId
   return "CPA537";
 };
 
@@ -63,8 +91,7 @@ const getUnixDateTime = (): number => {
 };
 
 const useEnquiries = (): UseEnquiriesResult => {
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [myEnquiries, setMyEnquiries] = useState<Enquiry[]>([]);
+  const [myEnquiries, setMyEnquiries] = useState<EnquiryWithProperty[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +99,7 @@ const useEnquiries = (): UseEnquiriesResult => {
   console.log('cpId:', cpId);
 
   useEffect(() => {
-    const fetchEnquiries = async () => {
+    const fetchEnquiriesWithProperties = async () => {
       if (!cpId) {
         setError('No channel partner ID found. Please login again.');
         return;
@@ -89,8 +116,35 @@ const useEnquiries = (): UseEnquiriesResult => {
           ...docSnap.data(),
         }));
 
-        setEnquiries(enquiriesData);
-        setMyEnquiries(enquiriesData);
+        // Now fetch property details for each enquiry
+        const enquiriesWithPropertyPromises = enquiriesData.map(async (enquiry) => {
+          if (enquiry.propertyId) {
+            try {
+              const propertyDoc = await getDoc(doc(db, 'ACN123', enquiry.propertyId));
+              
+              if (propertyDoc.exists()) {
+                return {
+                  ...enquiry,
+                  property: {
+                    id: propertyDoc.id,
+                    ...propertyDoc.data(),
+                  } as Property,
+                };
+              }
+            } catch (propertyErr) {
+              console.error(`Error fetching property for enquiry ${enquiry.id}:`, propertyErr);
+            }
+          }
+          
+          // Return the enquiry without property if propertyId doesn't exist or fetch fails
+          return {
+            ...enquiry,
+            property: null,
+          };
+        });
+
+        const enquiriesWithProperties = await Promise.all(enquiriesWithPropertyPromises);
+        setMyEnquiries(enquiriesWithProperties);
       } catch (err: any) {
         setError(err.message || 'Error fetching enquiries');
         console.error('Fetch error:', err);
@@ -99,10 +153,10 @@ const useEnquiries = (): UseEnquiriesResult => {
       }
     };
 
-    fetchEnquiries();
+    fetchEnquiriesWithProperties();
   }, [cpId]);
 
-  return { enquiries, myEnquiries, loading, error };
+  return { myEnquiries, loading, error };
 };
 
 const useProperties = (): UsePropertiesResult => {
@@ -167,6 +221,49 @@ const useProperties = (): UsePropertiesResult => {
   };
 
   return { properties, loading, error, handlePropertyStatusChange };
+};
+
+// New hook for requirements
+const useRequirements = () => {
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const cpId = useCpId();
+
+  useEffect(() => {
+    const fetchRequirements = async () => {
+      if (!cpId) {
+        setError('No channel partner ID found. Please login again.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const q = query(
+          collection(db, "requirements"),
+          where("agentCpid", "==", cpId)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const requirementsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Requirement[];
+
+        setRequirements(requirementsData);
+      } catch (err: any) {
+        setError(err.message || 'Error fetching requirements');
+        console.error('Fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequirements();
+  }, [cpId]);
+
+  return { requirements, loading, error };
 };
 
 const PropertyDetailsModal: React.FC<{
@@ -238,7 +335,7 @@ const PropertyDetailsModal: React.FC<{
 
 const EnquiryDetailsModal: React.FC<{
   isVisible: boolean;
-  enquiry: Enquiry | null;
+  enquiry: EnquiryWithProperty | null;
   onClose: () => void;
 }> = ({ isVisible, enquiry, onClose }) => {
   if (!enquiry) return null;
@@ -265,6 +362,63 @@ const EnquiryDetailsModal: React.FC<{
             </Text>
           )}
           
+          {/* Display property details if available */}
+          {enquiry.property && (
+            <View style={styles.propertySection}>
+              <Text style={styles.sectionTitle}>Property Details</Text>
+              <Text style={styles.propertyDetail}>Status: {enquiry.property.status}</Text>
+              {enquiry.property.address && (
+                <Text style={styles.propertyDetail}>Address: {enquiry.property.address}</Text>
+              )}
+              {/* Add other property details you want to display */}
+            </View>
+          )}
+          
+          <TouchableOpacity style={styles.button} onPress={onClose}>
+            <Text style={styles.buttonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// New Modal for Requirement Details
+const RequirementDetailsModal: React.FC<{
+  isVisible: boolean;
+  requirement: Requirement | null;
+  onClose: () => void;
+}> = ({ isVisible, requirement, onClose }) => {
+  if (!requirement) return null;
+
+  return (
+    <Modal visible={isVisible} animationType="slide" transparent>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Requirement Details</Text>
+          
+          <Text style={styles.propertyDetail}>Requirement ID: {requirement.id}</Text>
+          {requirement.title && (
+            <Text style={styles.propertyDetail}>Title: {requirement.title}</Text>
+          )}
+          {requirement.description && (
+            <Text style={styles.propertyDetail}>Description: {requirement.description}</Text>
+          )}
+          {requirement.budget && (
+            <Text style={styles.propertyDetail}>Budget: {requirement.budget.from}</Text>
+          )}
+          {requirement.location && (
+            <Text style={styles.propertyDetail}>Location: {requirement.location}</Text>
+          )}
+          {requirement.status && (
+            <Text style={styles.propertyDetail}>Status: {requirement.status}</Text>
+          )}
+          {requirement.createdAt && (
+            <Text style={styles.propertyDetail}>
+              Date: {new Date(requirement.createdAt * 1000).toLocaleString()}
+            </Text>
+          )}
+          
           <TouchableOpacity style={styles.button} onPress={onClose}>
             <Text style={styles.buttonText}>Close</Text>
           </TouchableOpacity>
@@ -275,7 +429,7 @@ const EnquiryDetailsModal: React.FC<{
 };
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'properties' | 'requirements' |  'enquiries'>('properties');
+  const [activeTab, setActiveTab] = useState<'properties' | 'requirements' | 'enquiries'>('properties');
   const [isMobile, setIsMobile] = useState<boolean>(Dimensions.get('window').width <= 768);
   
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
@@ -283,11 +437,25 @@ const Dashboard: React.FC = () => {
   const [isPropertyDetailsModalOpen, setPropertyDetailsModalOpen] = useState<boolean>(false);
 
   const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
-  const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+  const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryWithProperty | null>(null);
   const [isEnquiryModalOpen, setEnquiryModalOpen] = useState<boolean>(false);
 
-  console.log('Properties:', properties);
-  console.log('My Enquiries:', myEnquiries.length);
+  // Add requirements state and hook
+  const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
+  const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
+  const [isRequirementModalOpen, setRequirementModalOpen] = useState<boolean>(false);
+
+  const cpId = useCpId();
+
+  // Effect to set active tab when cpId changes
+  useEffect(() => {
+    setActiveTab('properties');
+  }, [cpId]);
+
+  // console.log('Properties:', properties);
+  // console.log('My Enquiries:', myEnquiries.length);
+  // console.log('Requirements:', requirements.length);
+  console.log("HELLOOOOOO", myEnquiries);
 
   useEffect(() => {
     const handleDimensionChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -366,7 +534,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Text style={styles.itemTitle}>
-                Enquiry {enquiry.id.substring(0, 8)}...
+                {enquiry.property?.address || `Enquiry ${enquiry.id.substring(0, 8)}...`}
               </Text>
               {enquiry.status && (
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(enquiry.status) }]}>
@@ -378,6 +546,55 @@ const Dashboard: React.FC = () => {
         )}
       </View>
     );
+  };
+
+  // New function to render requirements
+  const renderRequirements = () => {
+    if (requirementsLoading) return renderLoading();
+    if (requirementsError) return renderError(requirementsError);
+
+    return (
+      <View style={styles.listContainer}>
+        <Text style={styles.listTitle}>My Requirements ({requirements.length})</Text>
+        {requirements.length === 0 ? (
+          <Text style={styles.emptyMessage}>No requirements found.</Text>
+        ) : (
+          requirements.map((requirement) => (
+            <TouchableOpacity
+              key={requirement.id}
+              style={styles.listItem}
+              onPress={() => {
+                setSelectedRequirement(requirement);
+                setRequirementModalOpen(true);
+              }}
+            >
+              <Text style={styles.itemTitle}>
+                {requirement.title || `Requirement ${requirement.id.substring(0, 8)}...`}
+              </Text>
+              {requirement.status && (
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(requirement.status) }]}>
+                  <Text style={styles.statusBadgeText}>{requirement.status}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          ))
+        )}
+      </View>
+    );
+  };
+
+  // Render the active tab content
+  const renderActiveTabContent = () => {
+    switch (activeTab) {
+      case 'properties':
+        return renderProperties();
+      case 'requirements':
+        return renderRequirements();
+      case 'enquiries':
+        return renderEnquiries();
+      default:
+        return renderProperties();
+    }
   };
 
   return (
@@ -393,7 +610,7 @@ const Dashboard: React.FC = () => {
             Properties
           </Text>
         </TouchableOpacity>
-         <TouchableOpacity
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'requirements' && styles.activeTab]}
           onPress={() => setActiveTab('requirements')}
         >
@@ -411,7 +628,7 @@ const Dashboard: React.FC = () => {
         </TouchableOpacity>
       </View>
       
-      {activeTab === 'properties' ? renderProperties() : renderEnquiries()}
+      {renderActiveTabContent()}
       
       <PropertyDetailsModal
         isVisible={isPropertyDetailsModalOpen}
@@ -419,7 +636,7 @@ const Dashboard: React.FC = () => {
         onClose={() => setPropertyDetailsModalOpen(false)}
         onUpdateStatus={(status) => {
           if (selectedProperty) {
-            handlePropertyStatusChange(status, selectedProperty.id);
+            handlePropertyStatusChange(status, selectedProperty.id || "");
           }
         }}
       />
@@ -428,6 +645,12 @@ const Dashboard: React.FC = () => {
         isVisible={isEnquiryModalOpen}
         enquiry={selectedEnquiry}
         onClose={() => setEnquiryModalOpen(false)}
+      />
+
+      <RequirementDetailsModal
+        isVisible={isRequirementModalOpen}
+        requirement={selectedRequirement}
+        onClose={() => setRequirementModalOpen(false)}
       />
     </ScrollView>
   );
@@ -623,6 +846,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+  },
+  propertySection: {
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
 });
 
