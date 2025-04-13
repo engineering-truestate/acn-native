@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { db } from '../config/firebase';
 import { useSelector } from 'react-redux';
-import { Property } from '../types';
+import { Property, Requirement } from '../types';
 
 // interface Property {
 //   id: string;
@@ -48,26 +48,26 @@ interface RootState {
   };
 }
 
-interface Budget{
-  from?: string;
-  to?: string;
-}
+// interface Budget{
+//   from?: number;
+//   to?: number;
+// }
 
-interface Requirement {
-  id: string;
-  added: number;
-  agentCpid: string;
-  area?: number;
-  assetType?: string;
-  budget: Budget;
-  configuration?: string;
-  lastModified: number;
-  marketValue?: string;
-  propertyName: string, 
-  requirementDetails?: string;
-  requirementId: string;
-  [key: string]: any;
-}
+// interface Requirement {
+//   id: string;
+//   added: number;
+//   agentCpid: string;
+//   area?: number;
+//   assetType?: string;
+//   budget: Budget;
+//   configuration?: string;
+//   lastModified: number;
+//   marketValue?: string;
+//   propertyName: string, 
+//   requirementDetails?: string;
+//   requirementId: string;
+//   [key: string]: any;
+// }
 
 const useCpId = (): string | null => {
   // const [cpId, setCpId] = useState<string | null>(null);
@@ -569,7 +569,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Text style={styles.itemTitle}>
-                {requirement.title || `Requirement ${requirement.id.substring(0, 8)}...`}
+                {`Requirement ${requirement.requirementId}...`}
               </Text>
               {requirement.status && (
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(requirement.status) }]}>

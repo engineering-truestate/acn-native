@@ -21,3 +21,24 @@ export interface Property {
   driveLink?: string;
   [key: string]: any; // for additional dynamic fields
 } 
+
+export interface Budget{
+  from?: number;
+  to?: number;
+}
+
+export interface Requirement {
+  id?: string;
+  added?: number;
+  agentCpid?: string;
+  area?: number;
+  assetType?: string;
+  budget: Budget;
+  configuration?: string;
+  lastModified?: number;
+  marketValue?: string;
+  propertyName?: string, 
+  requirementDetails?: string;
+  requirementId?: string;
+  [key: string]: any;
+}

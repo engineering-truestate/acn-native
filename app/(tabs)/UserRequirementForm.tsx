@@ -4,13 +4,10 @@ import { Picker } from '@react-native-picker/picker';
 import ARSecondaryButton from '../components/Button/ARSecondaryButton';
 import ARPrimaryButton from '../components/Button/ARPrimaryButton';
 import { FontAwesome } from '@expo/vector-icons';
+import { Requirement } from '../types';
+import submitRequirement from '../helpers/submitRequirement';
 
-type UserRequirementFormProps = {
-  setAddRequirement: React.Dispatch<React.SetStateAction<boolean>>;
-  onClose: () => void;
-};
-
-const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequirement, onClose }) => {
+const UserRequirementForm = () => {
   const [focusedFields, setFocusedFields] = useState<{ [key: string]: boolean }>({});
   const handleFocus = (fieldName: string) => {
     setFocusedFields((prev) => ({ ...prev, [fieldName]: true }));
@@ -22,10 +19,10 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
   const [propertyName, setPropertyName] = useState('');
   const [requirementDetails, setRequirementDetails] = useState('');
   const [assetType, setAssetType] = useState('');
-  const [area, setArea] = useState('');
+  const [area, setArea] = useState<number | null>(null);
   const [configuration, setConfiguration] = useState('');
-  const [budgetFrom, setBudgetFrom] = useState('');
-  const [budgetTo, setBudgetTo] = useState('');
+  const [budgetFrom, setBudgetFrom] = useState<number | null>(null);
+  const [budgetTo, setBudgetTo] = useState<number | null>(null);
   const [marketValue, setMarketValue] = useState(false);
 
   const [error, setError] = useState<{
@@ -75,8 +72,12 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
   };
 
   const handleMarketValueCheckbox = () => {
-    if (marketValue) setMarketValue(false);
-    else setMarketValue(true)
+    if (marketValue)
+      setMarketValue(false);
+    else
+      setMarketValue(true);
+    setBudgetFrom(null);
+    setBudgetTo(null);
   };
 
   const clearForm = () => {
@@ -84,10 +85,10 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
     setPropertyName('');
     setRequirementDetails('');
     setAssetType('');
-    setArea('');
+    setArea(null);
     setConfiguration('');
-    setBudgetFrom('');
-    setBudgetTo('');
+    setBudgetFrom(null);
+    setBudgetTo(null);
     setMarketValue(false); // Reset to default value
 
     // Clear errors
@@ -98,7 +99,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
   };
 
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors: any = {};
 
     if (!propertyName.trim()) {
@@ -109,44 +110,57 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
       newErrors.assetType = "Asset type is required";
     }
 
+    if (!configuration.trim()) {
+      newErrors.configuration = "Configuration is required";
+    }
 
-    if (!(budgetFrom.trim() && budgetTo.trimEnd()) && !marketValue) {
+    if (!(budgetFrom && budgetTo) && !marketValue) {
       newErrors.budget = "Either budget range or market value is required";
     }
 
-    if (marketValue) {
-      setBudgetFrom("");
-      setBudgetTo("");
-    }
-
-    if (budgetTo < budgetFrom) {
+    if (budgetTo && budgetFrom && (budgetTo < budgetFrom)) {
       newErrors.budget = "Invalid range provided";
     }
 
     setError(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      console.log({
+
+    if (Object.keys(newErrors).length != 0) {
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const userRequirement: Requirement = {
         propertyName,
         requirementDetails,
         assetType,
-        area,
+        area: area || undefined,
         configuration,
-        budgetFrom,
-        budgetTo,
-        marketValue,
-      });
-      onClose();
+        budget: {
+          from: budgetFrom || undefined,
+          to: budgetTo || undefined,
+        },
+        marketValue: marketValue === true ? "Market Value" : "",
+      }
+
+      await submitRequirement(userRequirement);
+
+    } catch (error) {
+      console.error("An error occurred:", error);
+    } finally {
+      clearForm();
+      setSaving(false);
+      console.log("requirement submitted");
     }
   };
 
   const [saving, setSaving] = useState(false);
   return (
-    // <Modal visible={true} animationType="fade" transparent={true}>
     <View style={styles.overlay}>
       <View style={styles.modalContainer} >
 
         {/* Fixed Header */}
-        {/* <FormModalHeader headerTitle='Requirement Form' onClose={onClose} /> */}
         <View style={styles.contentContainer}>
 
           {/* Scrollable Content */}
@@ -208,8 +222,8 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                 <View className="space-y-2 ">
                   <View
                     className={`rounded-xl px-2  bg-gray-100 ${focusedFields['assetType']
-                        ? 'border-2 border-yellow-600'
-                        : 'border border-gray-300'
+                      ? 'border-2 border-yellow-600'
+                      : 'border border-gray-300'
                       }`}
                   >
                     <Picker
@@ -253,8 +267,8 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                   <View className="space-y-2">
                     <View
                       className={`rounded-xl px-2 bg-gray-100 ${focusedFields['configuration']
-                          ? 'border-2 border-yellow-600'
-                          : 'border border-gray-300'
+                        ? 'border-2 border-yellow-600'
+                        : 'border border-gray-300'
                         } ${getConfigurations().length == 0 ? 'opacity-50' : ''}`}
                     >
                       <Picker
@@ -291,11 +305,11 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                     Area (Sqft)
                   </Text>
                   <TextInput
-                    value={area}
+                    value={area !== null ? area.toString() : ''}
                     onChange={(e) => {
                       const text = e.nativeEvent.text;
                       if (/^\d*$/.test(text)) {
-                        setArea(text);
+                        setArea(text === '' ? null : parseInt(text, 10));
                       }
                     }}
                     onFocus={() => handleFocus('area')}
@@ -323,7 +337,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                   {/* Budget From */}
                   <TextInput
                     placeholder="From"
-                    value={budgetFrom}
+                    value={budgetFrom !== null ? budgetFrom.toString() : ''}
                     onFocus={() => handleFocus('budgetFrom')}
                     onBlur={() => handleBlur('budgetFrom')}
                     onChangeText={(text) => {
@@ -336,7 +350,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                         parts[1] = parts[1].slice(0, 2);
                         numericValue = `${parts[0]}.${parts[1]}`;
                       }
-                      setBudgetFrom(numericValue);
+                      setBudgetFrom(numericValue === '' ? null : parseFloat(numericValue));
                     }}
                     className={`
                             flex-1 rounded-lg px-3 py-3 text-lg
@@ -353,7 +367,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                   {/* Budget To */}
                   <TextInput
                     placeholder="To"
-                    value={budgetTo}
+                    value={budgetTo !== null ? budgetTo.toString() : ''}
                     onFocus={() => handleFocus('budgetTo')}
                     onBlur={() => handleBlur('budgetTo')}
                     onChangeText={(text) => {
@@ -366,7 +380,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
                         parts[1] = parts[1].slice(0, 2);
                         numericValue = `${parts[0]}.${parts[1]}`;
                       }
-                      setBudgetTo(numericValue);
+                      setBudgetTo(numericValue === '' ? null : parseFloat(numericValue));
                     }}
                     className={`
                             flex-1 rounded-lg px-3 py-3 text-lg
@@ -418,14 +432,13 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
             </ARSecondaryButton>
 
             {/* Submit Button */}
-            <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} >
+            <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
               Submit
             </ARPrimaryButton>
           </View>
         </View>
       </View>
     </View>
-    // </Modal>
   );
 };
 

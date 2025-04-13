@@ -33,7 +33,7 @@ const ARPrimaryButton: React.FC<ARPrimaryButtonProps> = ({
         {IconFirst && <Image source={IconFirst} style={styles.icon} resizeMode="contain" />}
         
         <Text numberOfLines={1} ellipsizeMode="tail" style={styles.text}>
-          {children}
+          {disabled ? "Submiting..." : children}
         </Text>
         
         {IconSecond && <Image source={IconSecond} style={styles.icon} resizeMode="contain" />}
