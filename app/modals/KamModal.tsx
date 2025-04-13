@@ -1,0 +1,184 @@
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+  Linking,
+  Image,
+} from "react-native";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Avatar } from 'react-native-elements';
+
+type KamManagerProps = {
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+};
+
+const getInitials = (name: string) => {
+  const names = name.trim().split(' ');
+  const initials = names.length >= 2
+    ? names[0][0] + names[1][0]
+    : names[0].slice(0, 2);
+  return initials.toUpperCase();
+};
+
+const getRandomColor = () => {
+  const colors = ['#3d4db7', '#e67e22', '#2ecc71', '#9b59b6', '#e74c3c'];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
+  const kamName = "John Doe";
+  const kamNumber = "+919876543210";
+  
+  const profilePicUrl = `https://ui-avatars.com/api/?name=${kamName.replace(" ", "+")}`;
+
+  const handleOutsidePress = () => {
+    setVisible(false);
+  };
+
+  const handleCallPress = () => {
+    const url = `tel:${kamNumber}`;
+    Linking.openURL(url);
+  };
+
+  const handleWhatsAppPress = () => {
+    const url = `https://wa.me/${kamNumber}`;
+    Linking.openURL(url);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableWithoutFeedback onPress={handleOutsidePress}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modal}>
+              <View style={styles.headerRow}>
+                <Avatar
+                  rounded
+                  title={getInitials(kamName)}
+                  overlayContainerStyle={{ backgroundColor: getRandomColor() }}
+                  size="medium"
+                />
+                <View style={styles.textContainer}>
+                  <Text style={styles.nameText}>{kamName}</Text>
+                  <Text style={styles.roleText}>Account Manager</Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.callButton} onPress={handleCallPress}>
+                  <Ionicons name="call" size={20} color="#0A0B0A" style={styles.iconMargin} />
+                  <Text style={styles.callText}>
+                    {kamNumber.slice(0, 3)} {kamNumber.slice(3)}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
+                  <FontAwesome name="whatsapp" size={24} color="#FAFBFC" style={styles.iconMargin} />
+                  <Text style={styles.whatsappText}>Whatsapp</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.closeButton} onPress={() => setVisible(false)}>
+                <Ionicons name="close" size={20} color="black" />
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+};
+
+export default KamManager;
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 24,
+    paddingVertical: 36,
+    borderRadius: 12,
+    borderColor: "#E5E5E5",
+    borderWidth: 2,
+    width: "85%",
+    maxWidth: 360,
+    position: "relative",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  textContainer: {
+    flexDirection: "column",
+    marginLeft:12,
+  },
+  nameText: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#2B2928",
+  },
+  roleText: {
+    fontSize: 14,
+    color: "#2B2928",
+    marginTop: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#CCCBCB",
+    marginVertical: 12,
+  },
+  buttonContainer: {
+    gap: 12,
+  },
+  callButton: {
+    marginTop:12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    borderColor: "#153E3B",
+    backgroundColor:"#FFFFFF",
+    borderWidth: 2,
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  whatsappButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    backgroundColor: "#153E3B",
+    borderRadius: 4,
+  },
+  callText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0A0B0A",
+  },
+  whatsappText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FAFBFC",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+  },
+  iconMargin: {
+    marginRight: 8,
+  },
+});
