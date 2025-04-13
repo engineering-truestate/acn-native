@@ -195,7 +195,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
           />
           <ConfirmModal
             title="Confirm Enquiry"
-            message="Are you sure you want to enquire? You have 3 credits remaining for this month."
+            message={`Are you sure you want to enquire? You have ${3} credits remaining for this month.`}
             onConfirm={handleConfirm}
             onCancel={handleCancel}
             generatingEnquiry={false}

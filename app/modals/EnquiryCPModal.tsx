@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Alert,  ActivityIndicator } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { showMessage } from 'react-native-flash-message';
 import { showToast } from '../helpers/toastUtils';
 import * as Linking from 'expo-linking';
-
+import { Ionicons } from '@expo/vector-icons';
 
 // Define the AgentData interface separately
 interface AgentData {
@@ -28,7 +28,6 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   visible,
   selectedCPID
 }) => {
-
   const [agentData, setAgentData] = useState<AgentData | null>(null);
 
   useEffect(() => {
@@ -58,9 +57,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   const handleWhatsAppEnquiry = (): void => {
     if (!agentData?.phonenumber) return;
 
-
-    // Open WhatsApp chat in a new tab
-    if ( agentData != null ) {
+    if (agentData != null) {
       console.log("clicked whatsapp")
       console.log(agentData.phonenumber)
       Linking.openURL(`whatsapp://send?phone=${agentData.phonenumber}`)
@@ -69,11 +66,11 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
 
   const handleCopy = async (): Promise<void> => {
     if (!agentData?.phonenumber) return;
-  
+
     try {
       await Clipboard.setStringAsync(agentData.phonenumber);
       Alert.alert('Success', 'Phone number copied!');
-      console.log("Agent's Phone Number",agentData.phonenumber);
+      console.log("Agent's Phone Number", agentData.phonenumber);
     } catch (err) {
       console.error("Failed to copy phone number:", err);
     }
@@ -81,8 +78,6 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
 
   const handleCall = (): void => {
     if (!agentData?.phonenumber) return;
-
-    // Redirect to dialer with the phone number
     Linking.openURL(`tel:${agentData.phonenumber}`);
   };
 
@@ -90,88 +85,189 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
     setIsEnquiryCPModalOpen(false)
   }
 
+  const toCapitalizedWords = (name: string) => {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   return (
     <Modal transparent visible={visible} animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Contact Agent</Text>
-          <Text style={styles.message}>
-            You can reach the agent via WhatsApp, Call, or simply copy the number.
-          </Text>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleCopy} style={styles.actionButton}>
-              <Text style={styles.buttonText}>Copy</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleCall} style={styles.actionButton}>
-              <Text style={styles.buttonText}>Call</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleWhatsAppEnquiry} style={styles.actionButton}>
-              <Text style={styles.buttonText}>WhatsApp</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeText}>Close</Text>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setIsEnquiryCPModalOpen(false)}
+          >
+            <Ionicons name="close" size={24} color="#000" />
           </TouchableOpacity>
+          
+          <View style={styles.contentContainer}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Enquire Now</Text>
+              <Text style={styles.description}>
+                {agentData ? (
+                  <>
+                    Connect directly with{" "}
+                    <Text style={styles.boldText}>
+                      {toCapitalizedWords(agentData.name)}
+                    </Text>{" "}
+                    for this property.
+                  </>
+                ) : (
+                  "Loading agent details..."
+                )}
+              </Text>
+            </View>
+
+            <View style={styles.actionsContainer}>
+              {agentData && (
+                <View style={styles.phoneContainer}>
+                  <View style={styles.phoneNumberContainer}>
+                    <Text style={styles.phoneNumber}>
+                      {agentData.phonenumber}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleCopy}
+                    style={styles.copyButton}
+                  >
+                    <Ionicons name='copy' size={24} color="#000" />
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={handleWhatsAppEnquiry}
+                  style={styles.actionButton}
+                >
+                  <View style={styles.buttonIconContainer}>
+                    <Ionicons name='logo-whatsapp' size={24} color="#25D366" />
+                  </View>
+                  <Text style={styles.buttonText}>
+                    WhatsApp
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleCall}
+                  style={styles.actionButton}
+                >
+                  <Ionicons name='call-outline' size={24} color="#313131" />
+                  <Text style={styles.buttonText}>
+                    Call Agent
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
   );
 };
-export default EnquiryCPModal;
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  modalContainer: {
-    backgroundColor: "#fff",
+  modalContent: {
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 20,
-    width: "85%",
-    elevation: 5,
+    width: '100%',
+    maxWidth: 440,
+    borderWidth: 2,
+    borderColor: '#E5E5E5',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 12,
+    right: 16,
+  },
+  contentContainer: {
+    alignItems: 'center',
+    gap: 24,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    gap: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#153E3B",
-    marginBottom: 8,
-    textAlign: "center",
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#153E3B',
   },
-  message: {
+  description: {
     fontSize: 14,
-    color: "#333",
-    marginBottom: 16,
-    textAlign: "center",
+    color: '#313131',
+    textAlign: 'center',
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  actionsContainer: {
+    width: '100%',
+    gap: 12,
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E3E3E3',
+    borderRadius: 20,
+    backgroundColor: 'white',
+  },
+  phoneNumberContainer: {
+    padding: 12,
+    width: 136,
+  },
+  phoneNumber: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#313131',
+  },
+  copyButton: {
+    backgroundColor: '#F5F6F7',
+    padding: 12,
+    borderRadius: 20,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
   },
   actionButton: {
-    backgroundColor: "#F1F5F9",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#E3E3E3',
+    borderRadius: 20,
+    padding: 12,
+    backgroundColor: 'white',
+  },
+  buttonIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     fontSize: 14,
-    color: "#153E3B",
-    fontWeight: "600",
-  },
-  closeButton: {
-    alignSelf: "center",
-    marginTop: 10,
-  },
-  closeText: {
-    color: "#FF5A5F",
-    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#313131',
   },
 });
+
+export default EnquiryCPModal;
