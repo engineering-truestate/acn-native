@@ -299,7 +299,6 @@ export default function LandingPage() {
   const router = useRouter();
 
   const handleNavigate = () => {
-    console.log("Yayyyyyyyyyyyyyyyyyyyyyyyyyyyy")
     router.push('/components/Auth/Signin'); 
   };
 

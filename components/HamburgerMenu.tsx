@@ -1,8 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import ProfileModal from '@/app/modals/ProfileModal';
 import { Button } from 'react-native-elements/dist/buttons/Button';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { useDispatch } from 'react-redux';
+import { signIn } from '@/store/slices/authSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +33,23 @@ export const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const  [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
+  // In your component
+const authState = useSelector((state: RootState) => state.auth);
+console.log('Full auth state:', JSON.stringify(authState));
+
+const isAuthenticated = authState?.isAuthenticated;
+console.log('Is authenticated:', isAuthenticated);
+
+// const dispatch = useDispatch();
+// useEffect(() => {
+//   if(!isAuthenticated) {
+//       setTimeout (() => {
+//         dispatch(signIn());
+//       }, 3000);
+    
+//   }
+// }, [isAuthenticated])
 
   const toggleMenu = () => {
     const toValue = isOpen ? 0 : 1;
@@ -61,76 +81,80 @@ export const HamburgerMenu = () => {
 
   return (
     <>
-      <TouchableOpacity onPress={toggleMenu} className="absolute top-10 left-5 z-20">
-        <View className="w-7 h-5 flex justify-between">
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-        </View>
-      </TouchableOpacity>
-  
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(107, 107, 107, 0.64)',
-            zIndex: 1,
-          },
-          { opacity: overlayOpacity, display: isOpen ? 'flex' : 'none' },
-        ]}
-      >
-        <Pressable style={{ flex: 1 }} onPress={handleOverlayPress} />
-      </Animated.View>
-  
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: width * 0.8,
-            height: '100%',
-            backgroundColor: '#fff',
-            zIndex: 2,
-          },
-          { transform: [{ translateX }] },
-        ]}
-      >
-        <View className="pt-24 pl-5">
-          {menuItems.map((item, index) => (
-            <Link key={index} href={item.path} asChild>
-              <TouchableOpacity
-                className="py-4 border-b border-[#444]"
+      {!isAuthenticated &&
+        <>
+          <TouchableOpacity onPress={toggleMenu} className="absolute top-10 left-5 z-20">
+            <View className="w-7 h-5 flex justify-between">
+              <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+              <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+              <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+            </View>
+          </TouchableOpacity>
+
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(107, 107, 107, 0.64)',
+                zIndex: 1,
+              },
+              { opacity: overlayOpacity, display: isOpen ? 'flex' : 'none' },
+            ]}
+          >
+            <Pressable style={{ flex: 1 }} onPress={handleOverlayPress} />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: width * 0.8,
+                height: '100%',
+                backgroundColor: '#fff',
+                zIndex: 2,
+              },
+              { transform: [{ translateX }] },
+            ]}
+          >
+            <View className="pt-24 pl-5">
+              {menuItems.map((item, index) => (
+                <Link key={index} href={item.path} asChild>
+                  <TouchableOpacity
+                    className="py-4 border-b border-[#444]"
+                    onPress={() => {
+                      toggleMenu();
+                    }}
+                  >
+                    <Text className="text-xl text-black">{item.title}</Text>
+                  </TouchableOpacity>
+                </Link>
+              ))}
+              <ProfileModal
+                visible={profileModalVisible}
+                setVisible={setProfileModalVisible}
+              />
+              <Button
+                title="Profile"
                 onPress={() => {
+                  setProfileModalVisible(true);
                   toggleMenu();
                 }}
-              >
-                <Text className="text-xl text-black">{item.title}</Text>
-              </TouchableOpacity>
-            </Link>
-          ))}
-          <ProfileModal
-            visible={profileModalVisible}
-            setVisible={setProfileModalVisible}
-          />
-          <Button
-            title="Profile"
-            onPress={() => {
-              setProfileModalVisible(true);
-              toggleMenu();
-            }}
-            containerStyle={{ marginVertical: 10 }}
-            buttonStyle={{ backgroundColor: '#007BFF' }}
-          />
-        </View>
-      </Animated.View>
+                containerStyle={{ marginVertical: 10 }}
+                buttonStyle={{ backgroundColor: '#007BFF' }}
+              />
+            </View>
+          </Animated.View>
+        </>
+      }
     </>
   );
-}  
+}
 
 
 
