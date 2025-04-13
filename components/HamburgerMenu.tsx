@@ -1,55 +1,117 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import React, { useState, useRef, useEffect, forwardRef } from 'react';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable, ScrollView, Alert, Image, Linking } from 'react-native';
+import { Link, useRouter, usePathname } from 'expo-router';
 import ProfileModal from '@/app/modals/ProfileModal';
 import { Button } from 'react-native-elements/dist/buttons/Button';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
-import { useDispatch } from 'react-redux';
-import { signIn } from '@/store/slices/authSlice';
+import { logOut } from '@/store/slices/authSlice';
+import { MaterialIcons, FontAwesome5, Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import Tooltip from 'react-native-elements/dist/tooltip/Tooltip';
+
+// Define the types for our selectors
+const selectAdmin = (state: RootState) => state.agent?.docData?.isAdmin || false;
+const selectName = (state: RootState) => state.agent?.docData?.name || '';
+const selectSelectedItem = (state: RootState) => state.agent?.docData?.selectedItem || '';
+const selectMonthlyCredits = (state: RootState) => state.agent?.docData?.monthlyCredits || 0;
+
+// Mock helper function for now
+const toCapitalizedWords = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 const { width } = Dimensions.get('window');
 
 interface MenuItem {
   title: string;
   path: string;
+  icon: string;
+  iconType: 'MaterialIcons' | 'FontAwesome5' | 'Ionicons' | 'MaterialCommunityIcons' | 'Feather';
+}
+
+interface SidebarItemProps {
+  onClick: () => void;
+  icon: string;
+  label?: string;
+  selected: boolean;
+  iconType: MenuItem['iconType'];
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/dashboard' },
-  { title: 'Properties', path: '/properties' },
-  { title: 'Requirements', path: '/requirements' },
-
-  { title: 'Add Requirements', path: '/UserRequirementForm' },
-  { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38' },
-  { title: 'Billing', path: '/billings' },
-  { title: 'Help', path: '/help' },
-  // this is not to be done like this, it has to be a design elimante not a route
-  { title: 'Credits', path: '/+not-found' },
-  // Add more menu items as needed
+  { title: 'Dashboard', path: '/dashboard', icon: 'dashboard', iconType: 'MaterialIcons' },
+  { title: 'Properties', path: '/properties', icon: 'home', iconType: 'MaterialIcons' },
+  { title: 'Requirements', path: '/requirements', icon: 'list-alt', iconType: 'MaterialIcons' },
 ];
+
+const adminMenuItems: MenuItem[] = [
+  { title: 'KAM Dashboard', path: '/kyc', icon: 'shield-check', iconType: 'MaterialCommunityIcons' },
+  { title: 'Verified Agents', path: '/verified', icon: 'user-check', iconType: 'FontAwesome5' },
+];
+
+const bottomMenuItems: MenuItem[] = [
+  { title: 'Billing', path: '/billing', icon: 'dollar-sign', iconType: 'Feather' },
+  { title: 'Help', path: '/help', icon: 'help-circle', iconType: 'Feather' },
+];
+
+const getIconComponent = (type: MenuItem['iconType'], name: string, size: number = 24, color: string = '#252626') => {
+  switch (type) {
+    case 'MaterialIcons':
+      return <MaterialIcons name={name as any} size={size} color={color} />;
+    case 'FontAwesome5':
+      return <FontAwesome5 name={name as any} size={size} color={color} />;
+    case 'Ionicons':
+      return <Ionicons name={name as any} size={size} color={color} />;
+    case 'MaterialCommunityIcons':
+      return <MaterialCommunityIcons name={name as any} size={size} color={color} />;
+    case 'Feather':
+      return <Feather name={name as any} size={size} color={color} />;
+    default:
+      return <MaterialIcons name="error" size={size} color={color} />;
+  }
+};
+
+const SidebarItem = forwardRef<View, SidebarItemProps>(({ onClick, icon, label, selected, iconType }, ref) => (
+  <TouchableOpacity
+    onPress={onClick}
+    className={`flex flex-row items-center py-2 px-4 gap-2 ${selected ? 'bg-[#B9D7D2] rounded-lg' : ''}`}
+    ref={ref}
+  >
+    {getIconComponent(iconType, icon, 18)}
+    {label && <Text className="mt-1 font-sans text-lg text-[#252626] font-medium">{label}</Text>}
+  </TouchableOpacity>
+));
+
+const ClosedSidebarItem = forwardRef<View, Omit<SidebarItemProps, 'label'>>(({ onClick, icon, selected, iconType }, ref) => (
+  <TouchableOpacity
+    onPress={onClick}
+    className={`w-full flex items-center justify-center py-3 ${selected ? 'bg-[#B9D7D2] rounded-lg' : ''}`}
+    ref={ref}
+  >
+    {getIconComponent(iconType, icon, 20)}
+  </TouchableOpacity>
+));
 
 export const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const [profileModalVisible, setProfileModalVisible] = useState(false);
-  // In your component
-const authState = useSelector((state: RootState) => state.auth);
-console.log('Full auth state:', JSON.stringify(authState));
+  const router = useRouter();
+  const pathname = usePathname();
+  const dispatch = useDispatch();
 
-const isAuthenticated = authState?.isAuthenticated;
-console.log('Is authenticated:', isAuthenticated);
+  const authState = useSelector((state: RootState) => state.auth);
+  const isAdmin = useSelector(selectAdmin);
+  const agentName = useSelector(selectName);
+  const monthlyCredits = useSelector(selectMonthlyCredits);
+  const selectedItem = useSelector(selectSelectedItem);
 
-// const dispatch = useDispatch();
-// useEffect(() => {
-//   if(!isAuthenticated) {
-//       setTimeout (() => {
-//         dispatch(signIn());
-//       }, 3000);
-    
-//   }
-// }, [isAuthenticated])
+  const isAuthenticated = authState?.isAuthenticated;
+
+  useEffect(() => {
+    // Close menu when path changes
+    if (isOpen) {
+      toggleMenu();
+    }
+  }, [pathname]);
 
   const toggleMenu = () => {
     const toValue = isOpen ? 0 : 1;
@@ -79,11 +141,53 @@ console.log('Is authenticated:', isAuthenticated);
     }
   };
 
+  const handleNavigation = (path: string) => {
+    router.push(path as any);
+  };
+
+  const handleOpenProfile = () => {
+    setProfileModalVisible(true);
+    toggleMenu();
+  };
+
+  const handleRequirementSubmit = () => {
+    setProfileModalVisible(true);
+    toggleMenu();
+  };
+
+  const handleHelpClick = () => {
+    router.push('/help' as any);
+  };
+
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
+
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (showTooltip) {
+      timeoutId = setTimeout(() => {
+        setShowTooltip(false);
+      }, 1500);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [showTooltip]);
+
   return (
     <>
-      {!isAuthenticated &&
+      {!isAuthenticated && (
         <>
-          <TouchableOpacity onPress={toggleMenu} className="absolute top-10 left-5 z-20">
+          <TouchableOpacity
+            onPress={toggleMenu}
+            className="absolute top-10 left-5 z-20 p-2"
+            style={styles.hamburgerButton}
+          >
             <View className="w-7 h-5 flex justify-between">
               <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
               <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
@@ -93,83 +197,141 @@ console.log('Is authenticated:', isAuthenticated);
 
           <Animated.View
             style={[
-              {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(107, 107, 107, 0.64)',
-                zIndex: 1,
-              },
+              styles.overlay,
               { opacity: overlayOpacity, display: isOpen ? 'flex' : 'none' },
             ]}
           >
-            <Pressable style={{ flex: 1 }} onPress={handleOverlayPress} />
+            <Pressable style={styles.overlayPressable} onPress={handleOverlayPress} />
           </Animated.View>
 
           <Animated.View
             style={[
-              {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: width * 0.8,
-                height: '100%',
-                backgroundColor: '#fff',
-                zIndex: 2,
-              },
+              styles.menuContainer,
               { transform: [{ translateX }] },
             ]}
           >
-            <View className="pt-24 pl-5">
-              {menuItems.map((item, index) => (
-                <Link key={index} href={item.path} asChild>
+            <ScrollView contentContainerStyle={[styles.menuContent, { flexGrow: 1 }]}>
+              <View className="flex flex-col h-full">
+                {/* Main Menu Items */}
+                <View className="flex flex-col gap-[12px] px-4">
+                  {menuItems.map((item) => (
+                    <SidebarItem
+                      key={item.path}
+                      onClick={() => handleNavigation(item.path)}
+                      icon={item.icon}
+                      label={item.title}
+                      selected={isActive(item.path)}
+                      iconType={item.iconType}
+                    />
+                  ))}
+
+                  {isAdmin &&
+                    adminMenuItems.map((item) => (
+                      <SidebarItem
+                        key={item.path}
+                        onClick={() => handleNavigation(item.path)}
+                        icon={item.icon}
+                        label={item.title}
+                        selected={isActive(item.path)}
+                        iconType={item.iconType}
+                      />
+                    ))}
+
                   <TouchableOpacity
-                    className="py-4 border-b border-[#444]"
-                    onPress={() => {
-                      toggleMenu();
-                    }}
+                    onPress={handleRequirementSubmit}
+                    className="bg-[#153E3B] flex flex-row items-center justify-center gap-2 px-4 py-2 rounded-[6px]"
                   >
-                    <Text className="text-xl text-black">{item.title}</Text>
+                    <MaterialIcons name="post-add" size={20} color="#fff" />
+                    <Text className="text-white">Add Requirement</Text>
                   </TouchableOpacity>
-                </Link>
-              ))}
-              <ProfileModal
-                visible={profileModalVisible}
-                setVisible={setProfileModalVisible}
-              />
-              <Button
-                title="Profile"
-                onPress={() => {
-                  setProfileModalVisible(true);
-                  toggleMenu();
-                }}
-                containerStyle={{ marginVertical: 10 }}
-                buttonStyle={{ backgroundColor: '#007BFF' }}
-              />
-            </View>
+
+                  <TouchableOpacity
+                      onPress={() => {
+                        Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
+                          .catch((err) => console.error('Failed to open URL:', err));
+                      }}
+                    className="flex flex-row items-center justify-center gap-2 border-[1px] border-[#153E3B] px-4 py-2 rounded-[6px]"
+                  >
+                    <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
+                    <Text className="text-[#153E3B] font-semibold">Join Community</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Bottom Menu Items - Fixed at bottom */}
+                <View className="mt-auto px-4 pb-10">
+                  {bottomMenuItems.map((item) => (
+                    <SidebarItem
+                      key={item.path}
+                      onClick={() => handleNavigation(item.path)}
+                      icon={item.icon}
+                      label={item.title}
+                      selected={isActive(item.path)}
+                      iconType={item.iconType}
+                    />
+                  ))}
+
+                  {/* Credits Display */}
+                  <View className="flex flex-row justify-between items-center w-full border border-[#E3E3E3] rounded-[20px] px-4 py-3 mt-3">
+                    <View className="flex flex-row items-center gap-2">
+                      <MaterialIcons name="monetization-on" size={20} color="#FFD700" />
+                      <Text className="font-sans font-medium text-[14px] leading-[21px] text-[#5A5555]">
+                        {monthlyCredits} Credits
+                      </Text>
+                    </View>
+                    <View className="relative">
+                      <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)}>
+                        <MaterialIcons name="info-outline" size={18} color="#5A5555" />
+                      </TouchableOpacity>
+                      {showTooltip && (
+                        <View className="absolute top-[-40px] right-0 bg-[#2B2928] p-2 rounded-lg z-50 min-w-[180px] shadow-lg">
+                          <Text className="text-[12px] text-white">1 Credit is used per enquiry.</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleOpenProfile}
+                    className={`flex flex-row items-center border border-[#E3E3E3] rounded-[6px] py-2 gap-2 mt-3 ${isActive('/profile') ? 'bg-[#B9D7D2]' : ''}`}
+                  >
+                    <View className="w-[28px] h-[28px] rounded-full bg-[#153E3B] items-center justify-center">
+                      <MaterialIcons name="person" size={16} color="#fff" />
+                    </View>
+                    <View className="flex flex-col gap-1">
+                      <Text className="text-[14px] text-[#2B2928] font-bold">{toCapitalizedWords(agentName) || 'Agent Name'}</Text>
+                      <View className="flex flex-row items-center gap-1">
+                        <Text className="text-[12px] text-[#205E59]">Check profile</Text>
+                        <MaterialIcons name="arrow-forward" size={12} color="#205E59" />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
           </Animated.View>
+
+          <ProfileModal
+            visible={profileModalVisible}
+            setVisible={setProfileModalVisible}
+          />
         </>
-      }
+      )}
     </>
   );
-}
-
-
-
+};
 
 const styles = StyleSheet.create({
   hamburgerButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 2,
-  },
-  hamburgerIcon: {
-    width: 30,
-    height: 20,
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 5,
   },
   hamburgerLine: {
     height: 3,
@@ -185,7 +347,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(107, 107, 107, 0.64)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 1,
   },
   overlayPressable: {
@@ -195,22 +357,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: width * 0.8,
+    width: width * 0.6,
     height: '100%',
     backgroundColor: '#fff',
     zIndex: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 5,
   },
   menuContent: {
-    paddingTop: 100,
-    paddingLeft: 20,
-  },
-  menuItem: {
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#444',
-  },
-  menuItemText: {
-    fontSize: 18,
-    color: '#000',
+    paddingTop: 70,
+    paddingBottom: 20,
   },
 });
