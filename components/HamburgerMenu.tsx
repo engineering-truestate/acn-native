@@ -63,9 +63,9 @@ export const HamburgerMenu = () => {
     <>
       <TouchableOpacity onPress={toggleMenu} className="absolute top-10 left-5 z-20">
         <View className="w-7 h-5 flex justify-between">
-          <View className={`h-0.75 bg-black rounded-md ${isOpen ? 'bg-black' : ''}`} />
-          <View className={`h-0.75 bg-black rounded-md ${isOpen ? 'bg-black' : ''}`} />
-          <View className={`h-0.75 bg-black rounded-md ${isOpen ? 'bg-black' : ''}`} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
         </View>
       </TouchableOpacity>
   
@@ -131,3 +131,62 @@ export const HamburgerMenu = () => {
     </>
   );
 }  
+
+
+
+
+const styles = StyleSheet.create({
+  hamburgerButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 2,
+  },
+  hamburgerIcon: {
+    width: 30,
+    height: 20,
+    justifyContent: 'space-between',
+  },
+  hamburgerLine: {
+    height: 3,
+    backgroundColor: '#000',
+    borderRadius: 2,
+  },
+  hamburgerLineOpen: {
+    backgroundColor: '#000',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(107, 107, 107, 0.64)',
+    zIndex: 1,
+  },
+  overlayPressable: {
+    flex: 1,
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: width * 0.8,
+    height: '100%',
+    backgroundColor: '#fff',
+    zIndex: 2,
+  },
+  menuContent: {
+    paddingTop: 100,
+    paddingLeft: 20,
+  },
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  menuItemText: {
+    fontSize: 18,
+    color: '#000',
+  },
+});
