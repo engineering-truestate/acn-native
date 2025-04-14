@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, TextInput, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { arrayUnion, collection, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { db } from '@/app/config/firebase';
+import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  enqId:string
+  enqId: string
 };
 
-const ReviewModal: React.FC<Props> = ({ isOpen, onClose,enqId }) => {
+const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [errors, setErrors] = useState({ rating: false, review: false });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let hasError = false;
     const newErrors = { rating: false, review: false };
 
@@ -35,10 +38,38 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose,enqId }) => {
     console.log('Rating:', rating);
     console.log('Review:', review);
 
-    onClose();
-    setRating(0);
-    setReview('');
-    setErrors({ rating: false, review: false }); // Reset errors on success
+    try {
+      const q = query(
+        collection(db, "enquiries"),
+        where("enquiryId", "==", enqId)
+      )
+
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        console.error("No enquiry found with the specified ID.");
+        return;
+      }
+
+      const docRef = querySnapshot.docs[0].ref;
+
+      const newReview = {
+        stars: rating,
+        review: review,
+        timestamp: getUnixDateTime(),
+      }
+
+      await updateDoc(docRef, {
+        reviews: arrayUnion(newReview),
+      });
+
+    } catch (error) {
+      console.error("Error adding review:", error);
+    } finally {
+      onClose();
+      setRating(0);
+      setReview('');
+      setErrors({ rating: false, review: false }); // Reset errors on success
+    }
   };
 
   return (

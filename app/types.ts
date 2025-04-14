@@ -48,6 +48,21 @@ export interface Requirement {
   marketValue?: string;
   propertyName?: string, 
   requirementDetails?: string;
-  requirementId?: string;
+  requirementId: string;
   [key: string]: any;
+}
+
+export interface Enquiry {
+  id: string;
+  added?: number;
+  cpId?: string;
+  enquiryId?: string;
+  lastModified?: number;
+  propertyId?: string;
+  status?: string;
+  [key: string]: any; // for additional dynamic fields
+}
+
+export interface EnquiryWithProperty extends Enquiry {
+  property?: Property | null;
 }

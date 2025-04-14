@@ -111,7 +111,7 @@ export default function RootLayout() {
             <Stack.Screen name="components/Auth/VerificationPage" options={{ headerShown: false }}/>
             <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }}/>
             <Stack.Screen name="not-found" options={{ headerShown: false }} />
-            <Stack.Screen
+            {/* <Stack.Screen
               name="(tabs)"
               options={{
                 headerShown: false,
@@ -122,7 +122,7 @@ export default function RootLayout() {
               options={{
                 headerShown: false,
               }}
-            />
+            /> */}
           </Stack>
           <KamModalButton />
           <FlashMessage position="top" />

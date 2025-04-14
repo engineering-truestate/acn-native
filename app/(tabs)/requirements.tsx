@@ -7,26 +7,15 @@ import MoreFiltersRequirement from '../components/requirement/MoreFiltersRequire
 import { InstantSearch, useHits } from 'react-instantsearch';
 import algoliasearch from 'algoliasearch';
 import RequirementDetailsModal from '../components/requirement/RequirementDetailsModal';
+import { Requirement } from '../types';
 
 const searchClient = algoliasearch(
   "J150UQXDLH",
   "146a46f31a26226786751f663e88ae33"
 );
 
-interface Requirement {
-  requirementId: string;
-  title: string;
-  location: string;
-  assetType: string;
-  configuration: string;
-  budget: number;
-  timeline: string;
-  status: string;
-  createdAt: string;
-  description: string;
-}
-
 const RequirementsList = () => {
+  // The generic type should be Requirement, not Requirement[]
   const { hits } = useHits<Requirement>();
   const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
 
@@ -37,7 +26,7 @@ const RequirementsList = () => {
   return (
     <>
       <ScrollView style={[styles.mobileContent, { marginTop: '35%' }]} contentContainerStyle={{ paddingBottom: 100 }}>
-        {hits.map((requirement) => (
+        {hits.map((requirement: Requirement) => (
           <RequirementCard 
             key={requirement.requirementId}
             requirement={requirement}
@@ -127,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RequirementsPage; 
+export default RequirementsPage;

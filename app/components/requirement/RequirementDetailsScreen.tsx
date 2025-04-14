@@ -19,21 +19,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Import components and utilities
 import PrimaryButton from '../../../components/ui/PrimaryButton';
+import { Requirement } from '@/app/types';
 
 // Define required types
 interface RequirementDetailsScreenProps {
-  requirement: {
-    requirementId: string;
-    propertyName?: string;
-    assetType: string;
-    configuration: string;
-    area?: number;
-    budget: { from?: number; to?: number } | number;
-    marketValue?: string | boolean;
-    added?: number; // timestamp
-    requirementDetails?: string;
-    [key: string]: any;
-  };
+  requirement: Requirement;
   onClose: () => void;
   visible: boolean;
 }

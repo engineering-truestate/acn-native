@@ -3,23 +3,10 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RequirementDetailsScreen from './RequirementDetailsScreen';
 import { useRouter } from 'expo-router';
+import { Budget, Requirement } from '@/app/types';
 
 interface RequirementCardProps {
-  requirement: {
-    requirementId: string;
-    title: string;
-    propertyName?: string;
-    location: string;
-    assetType: string;
-    configuration: string;
-    area?: number;
-    budget: number | { from?: number; to?: number };
-    marketValue?: string;
-    status: string;
-    createdAt: string;
-    requirementDetails?: string;
-    added?: number; // timestamp for when requirement was added
-  };
+  requirement: Requirement;
   onCardClick: (requirement: any) => void;
 }
 
@@ -29,31 +16,18 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
   const [showDetails, setShowDetails] = useState(false);
   
   // Format budget display
-  const formatBudget = () => {
-    if (requirement.marketValue === "Market Value") {
-      return "Market Price";
+  const formatBudget = (budget: Budget) => {
+    if (!budget) return "N/A";
+
+    if (budget.from === 0) {
+      return `₹${budget.to || 0}`;
     }
-    
-    if (typeof requirement.budget === 'number') {
-      return `₹${requirement.budget.toLocaleString()} Cr`;
+
+    if (budget.from === budget.to) {
+      return `₹${budget.to || 0}`;
     }
-    
-    if (requirement.budget && typeof requirement.budget === 'object') {
-      const from = requirement.budget.from || 0;
-      const to = requirement.budget.to || 0;
-      
-      if (from === 0) {
-        return `₹${to} Cr`;
-      }
-      
-      if (from === to) {
-        return `₹${to} Cr`;
-      }
-      
-      return `₹${from} Cr - ₹${to} Cr`;
-    }
-    
-    return `₹${(typeof requirement.budget === 'number' ? requirement.budget : 0).toLocaleString()} Cr`;
+
+    return `₹${budget.from || 0} - ₹${budget.to || 0}`;
   };
 
   // Format property type and configuration
@@ -122,7 +96,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
           <View className="flex-row items-center gap-2">
             <Ionicons name="cash-outline" size={20} color="#4B5563" />
             <Text className="text-neutral-600 text-sm font-medium">
-              {formatBudget()}
+              {formatBudget(requirement.budget)}
             </Text>
           </View>
 
