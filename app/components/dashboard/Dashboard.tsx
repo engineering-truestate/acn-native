@@ -25,6 +25,7 @@ import RequirementDetailsScreen from '../requirement/RequirementDetailsScreen';
 import ShareModal from '@/app/modals/ShareModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMonths, filterRequirementsByMonth, generateEnquiryMonths, filterEnquiriesByMonth } from '../../helpers/dashboardMonthFiltersHelper';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -325,7 +326,7 @@ const RequirementCard = React.memo(({ requirement, onStatusChange }: {
                   { label: "Open", value: "Pending" },
                   { label: "Closed", value: "Closed" },
                 ]}
-                setValue={(val) => onStatusChange(requirement.requirementId, val)}
+                setValue={(val) => onStatusChange(requirement.requirementId || "", val)}
                 type={"requirement"}
               />
             </StyledView>
@@ -373,13 +374,45 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
     }
   }, [myProperties, myRequirements, myEnquiries])
 
-  // Month filter options
-  const monthOptions = [
-    { label: "All", value: "" },
-    { label: "Last 30 days", value: "30" },
-    { label: "Last 60 days", value: "60" },
-    { label: "Last 90 days", value: "90" }
-  ];
+
+  const [selectedPropertyMonth, setSelectedPropertyMonth] = useState("");
+  const propertyMonthOptions = generatePropertyMonths(myProperties);
+
+  const [selectedRequirementMonth, setSelectedRequirementMonth] = useState("");
+  const requirementMonthOptions = generateRequirementMonths(myRequirements);
+
+  const [selectedEnquiryMonth, setSelectedEnquiryMonth] = useState("");
+  const enquiryMonthOptions = generateEnquiryMonths(myEnquiries);
+
+
+  useEffect(() => {
+    if (activeTab === 'inventories') {
+      if (selectedPropertyMonth === "") {
+        setProperties(myProperties);
+      }
+      else {
+        const filteredProps = filterPropertiesByMonth(myProperties, selectedPropertyMonth);
+        setProperties(filteredProps);
+      }
+    } else if (activeTab === 'requirements') {
+      if (selectedRequirementMonth === "") {
+        setRequirements(myRequirements);
+      }
+      else {
+        const filteredReqs = filterRequirementsByMonth(myRequirements, selectedRequirementMonth);
+        setRequirements(filteredReqs);
+      }
+    } else if (activeTab === 'enquiries'){
+      if (selectedEnquiryMonth === "") {
+        setEnquiries(myEnquiries);
+      }
+      else {
+        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, selectedEnquiryMonth);
+        setEnquiries(filteredEnqs);
+      }
+    }
+
+  }, [activeTab, selectedPropertyMonth, selectedEnquiryMonth, selectedRequirementMonth])
 
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
@@ -436,11 +469,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
     }
   }, []);
 
-  // Use useCallback for tab change to prevent re-creation on each render
-  const handleTabChange = useCallback((tab: string) => {
-    setActiveTab(tab);
-  }, []);
-
   // Memoize the tab rendering to prevent unnecessary re-renders
   const renderTabContent = useMemo(() => {
     if (activeTab === 'inventories') {
@@ -448,9 +476,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
         <StyledView className="flex-1 p-4">
           <StyledView className="mb-4">
             <MonthFilterDropdown
-              options={monthOptions}
-              value={propertyMonthFilter}
-              setValue={setPropertyMonthFilter}
+              options={propertyMonthOptions}
+              value={selectedPropertyMonth}
+              setValue={setSelectedPropertyMonth}
             />
           </StyledView>
 
@@ -481,9 +509,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
         <StyledView className="flex-1 p-4">
           <StyledView className="mb-4">
             <MonthFilterDropdown
-              options={monthOptions}
-              value={requirementMonthFilter}
-              setValue={setRequirementMonthFilter}
+              options={requirementMonthOptions}
+              value={selectedRequirementMonth}
+              setValue={setSelectedRequirementMonth}
             />
           </StyledView>
 
@@ -511,9 +539,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
         <StyledView className="flex-1 p-4 ">
           <StyledView className="mb-3">
             <MonthFilterDropdown
-              options={monthOptions}
-              value={enquiryMonthFilter}
-              setValue={setEnquiryMonthFilter}
+              options={enquiryMonthOptions}
+              value={selectedEnquiryMonth}
+              setValue={setSelectedEnquiryMonth}
             />
           </StyledView>
 
@@ -536,7 +564,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
         </StyledView>
       );
     }
-  }, [activeTab, properties, requirements, handlePropertyStatusChange, handleRequirementStatusChange, propertyMonthFilter, requirementMonthFilter, enquiryMonthFilter, monthOptions]);
+  }, [activeTab, properties, requirements, handlePropertyStatusChange, handleRequirementStatusChange, propertyMonthFilter, requirementMonthFilter, enquiryMonthFilter, propertyMonthOptions, requirementMonthOptions, enquiryMonthOptions]);
 
 
 
@@ -560,6 +588,13 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
       count: myEnquiries.length,
     },
   ];
+
+  useEffect(() => {
+    console.log("Changed");
+    setSelectedPropertyMonth("");
+    setSelectedRequirementMonth("");
+    setSelectedEnquiryMonth("");
+  }, [activeTab]);
 
   return (
     <StyledView className="flex-1 bg-gray-50">

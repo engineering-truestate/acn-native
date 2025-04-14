@@ -48,7 +48,7 @@ export interface Requirement {
   marketValue?: string;
   propertyName?: string, 
   requirementDetails?: string;
-  requirementId: string;
+  requirementId?: string;
   [key: string]: any;
 }
 
