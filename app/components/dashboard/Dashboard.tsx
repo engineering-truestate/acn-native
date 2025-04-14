@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -15,7 +15,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import ShareModal from '../../components/ShareModal';
 import MonthFilterDropdown from '../../components/MonthFilterDropdown';
 import PropertyDetailsScreen from '../../components/property/PropertyDetailsScreen';
+import { doc, getDoc, DocumentData, DocumentReference } from "firebase/firestore";
+import { db } from "../../config/firebase"; // adjust the path to your Firebase config
 import { styled } from 'nativewind';
+import EnquiryCard from '../Enquiries/EnquiryCard';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -568,8 +571,22 @@ const RequirementCard = React.memo(({ requirement, onStatusChange }: {
   );
 });
 
+interface Enquiry {
+  id: string;
+  added?: number;
+  cpId?: string;
+  enquiryId?: string;
+  lastModified?: number;
+  propertyId?: string;
+  status?: string;
+  [key: string]: any; // for additional dynamic fields
+}
 
-export default function Dashboard() {
+type DashboardProps = {
+  myEnquiries: Enquiry[];
+};
+
+export default function Dashboard({ myEnquiries }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState(MOCK_PROPERTIES);
   const [requirements, setRequirements] = useState(MOCK_REQUIREMENTS);
@@ -612,7 +629,6 @@ export default function Dashboard() {
       return (
         <StyledView className="flex-1 p-4">
           <StyledView className="mb-4">
-            <StyledText className="text-xl font-bold text-gray-800 mb-3">Inventories</StyledText>
             <MonthFilterDropdown 
               options={monthOptions}
               value={propertyMonthFilter}
@@ -639,7 +655,6 @@ export default function Dashboard() {
       return (
         <StyledView className="flex-1 p-4">
           <StyledView className="mb-4">
-            <StyledText className="text-xl font-bold text-gray-800 mb-3">Requirements</StyledText>
             <MonthFilterDropdown 
               options={monthOptions}
               value={requirementMonthFilter}
@@ -668,14 +683,37 @@ export default function Dashboard() {
       );
     } else {
       return (
-        <StyledView className="flex-1 p-4">
-          <StyledView className="flex-1 items-center justify-center">
-            <StyledText className="text-gray-500 text-base">No enquiries found</StyledText>
+        <StyledView className="flex-1 p-4 ">
+          <StyledView className="mb-3">
+            <MonthFilterDropdown 
+              options={monthOptions}
+              value={propertyMonthFilter}
+              setValue={setPropertyMonthFilter}
+            />
           </StyledView>
+          
+          {myEnquiries.length === 0 ? (
+            <StyledView className="flex-1 items-center justify-center">
+              <StyledText className="text-gray-500 text-base">No Enquiries found</StyledText>
+            </StyledView>
+          ) : (
+            <View className='mr-4'>
+              { myEnquiries.map((enquiry,index) => (
+                <EnquiryCard
+                  key={enquiry.id}
+                  index={index}
+                  enquiry={enquiry}
+                  handleGiveReview={()=>{console.log("Review")}}
+                />
+              ))}
+            </View>
+          )}
         </StyledView>
       );
     }
   }, [activeTab, properties, requirements, handlePropertyStatusChange, handleRequirementStatusChange, propertyMonthFilter, requirementMonthFilter, monthOptions]);
+
+  
 
   return (
     <StyledView className="flex-1 bg-gray-50">
@@ -730,7 +768,8 @@ export default function Dashboard() {
         {/* Enquiries Tab */}
         <StyledTouchableOpacity
           className={`flex-1 p-3 ${activeTab === 'enquiries' ? 'bg-[#153E3B]' : 'bg-white'}`}
-          onPress={() => handleTabChange('enquiries')}
+          onPress={() => {handleTabChange('enquiries');}}
+          
         >
           <StyledView className="items-center">
             <MaterialCommunityIcons 
@@ -743,7 +782,7 @@ export default function Dashboard() {
                 My Enquiries
               </StyledText>
               <StyledText className={`text-xl font-bold ${activeTab === 'enquiries' ? 'text-white' : 'text-gray-800'}`}>
-                0
+                {myEnquiries.length}
               </StyledText>
             </StyledView>
           </StyledView>

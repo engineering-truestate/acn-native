@@ -430,8 +430,11 @@ const RequirementDetailsModal: React.FC<{
 };
 
 export default function DashboardTab() {
+  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
   // Render Dashboard directly instead of redirecting
-  return <Dashboard />;
+  return( 
+    <Dashboard  myEnquiries={myEnquiries}/>
+  );
 } 
 
 // const Dashboard: React.FC = () => {
