@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View, Dimensions, Platform, SafeAreaView } from "react-native";
+import { View, Dimensions, Platform, SafeAreaView, StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import DeviceInfo from 'react-native-device-info';
 import {
@@ -33,32 +33,32 @@ export default function RootLayout() {
   });
 
   // Function to calculate dynamic top margin based on screen dimensions and orientation
-  const calculateTopMargin = () => {
-    const { height, width } = Dimensions.get('window');
-    const isLandscape = width > height;
-    
-    // Different margins based on device type and orientation
-    if (Platform.OS === 'ios') {
-      // iOS specific margins
-      return isLandscape ? 0.01*height : 0.06*height;
-    } else {
-      // Android specific margins
-      return isLandscape ? 0.01*height : 0.04*height;
-    }
-  };
+  // const calculateTopMargin = () => {
+  //   const { height, width } = Dimensions.get('window');
+  //   const isLandscape = width > height;
+
+  //   // Different margins based on device type and orientation
+  //   if (Platform.OS === 'ios') {
+  //     // iOS specific margins
+  //     return isLandscape ? 0.01*height : 0.06*height;
+  //   } else {
+  //     // Android specific margins
+  //     return isLandscape ? 0.01*height : 0.04*height;
+  //   }
+  // };
 
   // Update top margin when dimensions change (e.g., rotation)
   useEffect(() => {
     const updateMargin = () => {
       // setTopMargin(calculateTopMargin());
     };
-    
+
     // Set initial margin
     updateMargin();
-    
+
     // Add event listener for dimension changes
     const dimensionsSubscription = Dimensions.addEventListener('change', updateMargin);
-    
+
     // Clean up
     return () => {
       dimensionsSubscription.remove();
@@ -85,24 +85,25 @@ export default function RootLayout() {
     <ReduxProvider>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <HamburgerMenu />
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: '#fff' },
-              headerTintColor: '#000',
-              headerTitleAlign: 'center',
-              headerTitleStyle: { fontWeight: 'bold' },
-              headerBackVisible: false,
-            }}
-          >
-            <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)/properties" options={{ title: 'Resale Inventories' }} />
-            <Stack.Screen name="(tabs)/requirements" options={{ title: 'Requirements' }} />
-            <Stack.Screen name="(tabs)/UserRequirementForm" options={{ title: 'Add Requirement' }}/>
-            <Stack.Screen name="(tabs)/billings" options={{ title: 'Billing' }}/>
-            <Stack.Screen name="(tabs)/help" options={{ title: 'Help' }}/>
-            <Stack.Screen name="(tabs)/dashboardTab" options={{ title: 'Dashboard' }}/>
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            {/* <View style={styles.navContainer} > */}
+            <HamburgerMenu />
+            <Stack
+              screenOptions={{
+                headerStyle: { backgroundColor: '#fff' },
+                headerTintColor: '#000',
+                headerTitleAlign: 'center',
+                headerTitleStyle: { fontWeight: 'bold' },
+                headerBackVisible: false,
+              }}
+            >
+              <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)/properties" options={{ title: 'Resale Inventories' }} />
+              <Stack.Screen name="(tabs)/requirements" options={{ title: 'Requirements' }} />
+              <Stack.Screen name="(tabs)/UserRequirementForm" options={{ title: 'Add Requirement' }} />
+              <Stack.Screen name="(tabs)/billings" options={{ title: 'Billing' }} />
+              <Stack.Screen name="(tabs)/help" options={{ title: 'Help' }} />
+              <Stack.Screen name="(tabs)/dashboardTab" options={{ title: 'Dashboard' }} />
 
             {/* <Stack.Screen name="LandingPage" /> */}
             <Stack.Screen name="components/Auth" options={{ headerShown: false }}/>
@@ -128,8 +129,21 @@ export default function RootLayout() {
           <FlashMessage position="top" />
           <StatusBar style="auto" />
         </View>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </ReduxProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
+    </ReduxProvider >
   );
 }
+
+const styles = StyleSheet.create({
+  navContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    height: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+});

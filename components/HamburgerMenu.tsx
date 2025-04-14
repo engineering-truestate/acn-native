@@ -386,18 +386,18 @@ export const HamburgerMenu = () => {
 // });
 
 const styles = StyleSheet.create({
-  hamburgerButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 5,
-  },
+  // hamburgerButton: {
+  //   backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  //   borderRadius: 8,
+  //   shadowColor: '#000',
+  //   shadowOffset: {
+  //     width: 0,
+  //     height: 2,
+  //   },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3,
+  //   elevation: 5,
+  // },
   hamburgerLine: {
     height: 3,
     backgroundColor: '#000',
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1,
+    zIndex: 3,
   },
   overlayPressable: {
     flex: 1,
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     width: width * 0.6,
     height: '100%',
     backgroundColor: '#fff',
-    zIndex: 2,
+    zIndex: 4,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

@@ -41,6 +41,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const agentData = useSelector((state: RootState) => state.agent.docData);
+  const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
+  
 
   // Debug the property data
   console.log("PropertyCard received:", property);
