@@ -5,9 +5,10 @@ import { FontAwesome } from '@expo/vector-icons';
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  enqId:string
 };
 
-const ReviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
+const ReviewModal: React.FC<Props> = ({ isOpen, onClose,enqId }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [errors, setErrors] = useState({ rating: false, review: false });
@@ -30,6 +31,7 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     if (hasError) return;
 
+    console.log("Enquiry Id:", enqId);
     console.log('Rating:', rating);
     console.log('Review:', review);
 

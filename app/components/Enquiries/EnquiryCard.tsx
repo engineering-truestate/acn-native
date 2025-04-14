@@ -50,7 +50,7 @@ interface CardProps {
     status?: string;
     [key: string]: any;
   };
-  handleGiveReview: (enquiryId: string) => void;
+  // handleGiveReview: (enquiryId: string) => void;
 }
 
 const fetchPropertyById = async (id: string): Promise<Property> => {
@@ -67,7 +67,7 @@ const EnquiryCard: React.FC<CardProps> = ({
   // key,
   index,
   enquiry,
-  handleGiveReview,
+  // handleGiveReview,
 }) => {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +109,7 @@ const EnquiryCard: React.FC<CardProps> = ({
       <ReviewModal
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
+        enqId={enquiry['enquiryId']!}
       />
     )}
 
@@ -164,7 +165,7 @@ const EnquiryCard: React.FC<CardProps> = ({
         {/* Give Review Button */}
         <Pressable
           className="flex flex-row items-center mt-2 p-3 bg-gray-200 border border-gray-300 rounded-lg"
-          onPress={() => setIsReviewModalOpen(true)}
+          onPress={(e) => giveReviewClick(e, enquiry['enquiryId']!)}
         >
           <MaterialIcons name="edit" size={20} color="#153E3B" />
           <Text className="text-[#153E3B] font-medium text-sm">Give review</Text>

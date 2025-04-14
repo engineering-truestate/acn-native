@@ -703,7 +703,7 @@ export default function Dashboard({ myEnquiries }: DashboardProps) {
                   key={enquiry.id}
                   index={index}
                   enquiry={enquiry}
-                  handleGiveReview={()=>{console.log("Review")}}
+                  // handleGiveReview={()=>{console.log("Review")}}
                 />
               ))}
             </View>
