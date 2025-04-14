@@ -39,6 +39,8 @@ export default function OTPage() {
   const [canResend, setCanResend] = useState(true);
   const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
 
+  const { verificationId } = useLocalSearchParams();
+
   useEffect(() => {
     const isOtpComplete = otp.every((num) => num.trim() !== '');
     setIsValid(isOtpComplete);
@@ -129,22 +131,29 @@ export default function OTPage() {
 
     try {
       console.log('🔑 Confirming OTP code');
-      const credential = await auth().signInWithCredential(
-        auth.PhoneAuthProvider.credential(confirm.verificationId, code)
-      );
+
+      console.log(verificationId, "hello")
+      const credential = auth.PhoneAuthProvider.credential(verificationId as string, code);
+      //const credential = await confirmation?.confirm(code);
       console.log('✅ OTP confirmed successfully');
 
-      if (credential?.user?.phoneNumber) {
+      const userCredential = await auth().signInWithCredential(credential);
+
+      console.log(userCredential, "userCredential")
+
+      console.log(userCredential?.user?.phoneNumber, "userCredential?.user?.phoneNumber")
+
+      if (userCredential?.user?.phoneNumber) {
         console.log('👤 User authenticated:', {
-          uid: credential.user.uid,
-          phonenumber: credential.user.phoneNumber
+          uid: userCredential.user.uid,
+          phonenumber: userCredential.user.phoneNumber
         });
 
         // First update auth state
         dispatch(signIn());
 
         // Then fetch agent data
-        const result = await dispatch(setAgentDataState(credential.user.phoneNumber)).unwrap();
+        const result = await dispatch(setAgentDataState(userCredential.user.phoneNumber)).unwrap();
         console.log('📊 Agent data after OTP:', {
           hasDocId: !!result?.docId,
           docData: result?.docData,

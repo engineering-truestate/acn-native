@@ -75,12 +75,12 @@ export default function SignUp() {
         const agentData = result.docData;
   
         if (agentData?.blacklisted) {
-          router.push('../loginPages/BlacklistedPage');
+          router.push('/components/Auth/BlacklistedPage');
           return;
         }
   
         if (!agentData?.verified) {
-          router.push('../loginPages/VerificationPage');
+          router.push('/components/Auth/VerificationPage');
           return;
         }
   
@@ -117,8 +117,12 @@ export default function SignUp() {
 
         setIsSendingOTP(false);
         setConfirm(confirmation);
-        // Show success message to user
-
+          // Show success message to user
+       
+          router.push({ 
+            pathname: '/components/Auth/OTPage', 
+            params: { verificationId: confirmation.verificationId } 
+          });
 
     } catch (error: any) {
         console.error("❌ Error during OTP send:", {
@@ -140,7 +144,7 @@ export default function SignUp() {
     } finally {
         setErrorMessage('');
         setIsSendingOTP(false);
-        setStep(2);
+        
     }
 };
 

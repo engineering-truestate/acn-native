@@ -262,16 +262,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Copyright 2022 Google</string>
-			<key>License</key>
-			<string>Copyright</string>
-			<key>Title</key>
-			<string>FirebaseAnalytics</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>FooterText</key>
 			<string>
                                  Apache License
                            Version 2.0, January 2004
@@ -2632,16 +2622,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Copyright 2022 Google</string>
-			<key>License</key>
-			<string>Copyright</string>
-			<key>Title</key>
-			<string>GoogleAppMeasurement</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>FooterText</key>
 			<string>
                                  Apache License
                            Version 2.0, January 2004
@@ -3783,43 +3763,32 @@ SOFTWARE.
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Apache-2.0 License
-------------------
+			<string>The MIT License (MIT)
 
-Copyright (c) 2016-present Invertase Limited &lt;oss@invertase.io&gt; &amp; Contributors
+Copyright (c) 2015 Rebecca Hughes
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this library except in compliance with the License.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-You may obtain a copy of the Apache-2.0 License at
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-
-Creative Commons Attribution 3.0 License
-----------------------------------------
-
-Copyright (c) 2016-present Invertase Limited &lt;oss@invertase.io&gt; &amp; Contributors
-
-Documentation and other instructional materials provided for this project
-(including on a separate documentation repository or it's documentation website) are
-licensed under the Creative Commons Attribution 3.0 License. Code samples/blocks
-contained therein are licensed under the Apache License, Version 2.0 (the "License"), as above.
-
-You may obtain a copy of the Creative Commons Attribution 3.0 License at
-
-    https://creativecommons.org/licenses/by/3.0/
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 </string>
 			<key>License</key>
-			<string>Apache-2.0</string>
+			<string>MIT</string>
 			<key>Title</key>
-			<string>RNFBAnalytics</string>
+			<string>RNDeviceInfo</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 		</dict>
