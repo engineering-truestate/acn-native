@@ -16,7 +16,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/dashboard' },
+  { title: 'Dashboard', path: '/dashboardTab' },
   { title: 'Properties', path: '/properties' },
   { title: 'Requirements', path: '/requirements' },
 
