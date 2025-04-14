@@ -165,13 +165,15 @@ const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCo
 
           {/* Tags section for Asset Type, Unit Type, and Facing */}
           <StyledView className="flex flex-row flex-wrap gap-2 px-0 mb-3">
-            {property.unitType && (
+            {[property.assetType, property.unitType, property.facing]
+            .filter(Boolean)
+            .map((tag, index) => (
               <StyledView className="bg-gray-100 rounded-full px-3 py-1">
                 <StyledText className="text-xs text-gray-700">
-                  {property.unitType}
+                  {tag}
                 </StyledText>
               </StyledView>
-            )}
+            ))}
           </StyledView>
 
           {/* Price and SBUA (Super Built-Up Area) section */}
@@ -204,40 +206,16 @@ const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCo
 
           {/* Status Selector */}
           <StyledView className="relative">
-            <StyledTouchableOpacity
-              className="flex flex-row items-center justify-center p-2 px-3 rounded min-w-[100px]"
-              style={{ backgroundColor: getStatusColor() }}
-              onPress={(e) => {
-                e.stopPropagation(); // Prevent opening property details
-                handleStatusPress();
-              }}
-            >
-              <StyledView className="flex flex-row items-center">
-                <StyledText style={{ color: 'black' }} className="text-sm font-medium mr-1">
-                  {property.status}
-                </StyledText>
-                <Ionicons name="chevron-down" size={16} color="#6B7280" />
-              </StyledView>
-            </StyledTouchableOpacity>
-
-            {isStatusOpen && (
-              <StyledView className="absolute right-0 top-[-120px] bg-white rounded-md border border-gray-200 shadow-sm z-10 min-w-[100px]">
-                {statusOptions.map((option) => (
-                  <StyledPressable
-                    key={option.label}
-                    onPress={(e) => {
-                      e.stopPropagation(); // Prevent opening property details
-                      handleStatusSelect(option.label);
-                    }}
-                    className="p-3 border-b border-gray-100"
-                  >
-                    <StyledText style={{ color: option.color }} className="font-medium">
-                      {option.label}
-                    </StyledText>
-                  </StyledPressable>
-                ))}
-              </StyledView>
-            )}
+          <DashboardDropdown
+            value={property.status || "Available"}
+            setValue={(val) => onStatusChange(property.propertyId, val)}
+            options={[
+              { label: "Available", value: "Available" },
+              { label: "Hold", value: "Hold" },
+              { label: "Sold", value: "Sold" }            
+            ]}
+            type={"inventory"}
+          />
           </StyledView>
         </StyledView>
       </StyledTouchableOpacity>
@@ -404,12 +382,31 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
   ];
 
   // Use useCallback to prevent recreation of handler functions on each render
-  const handlePropertyStatusChange = useCallback((id: string, status: string) => {
-    setProperties(prevProperties =>
-      prevProperties.map(property =>
-        property.propertyId === id ? { ...property, status } : property
+  const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
+    const newStatus = status;
+    setProperties((prevProperties) =>
+      prevProperties.map((property) =>
+        property.propertyId === id
+          ? { ...property, status: newStatus }
+          : property
       )
     );
+
+    try {
+      const propertyRef = collection(db, "ACN123");
+      const q = query(propertyRef, where("propertyId", "==", id));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docRef = querySnapshot.docs[0].ref;
+        await updateDoc(docRef, { status: newStatus });
+        console.log("Status updated successfully in Firestore");
+      } else {
+        console.log("No document found with propertyId:", id);
+      }
+    } catch (error) {
+      console.error("Error updating status in Firestore:", error);
+    }
   }, []);
 
   const handleRequirementStatusChange = useCallback(async (id: string, status: string) => {

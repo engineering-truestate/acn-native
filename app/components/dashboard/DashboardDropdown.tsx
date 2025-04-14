@@ -22,13 +22,13 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
   type,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState<string | null>("");
 
   useEffect(() => {
-    const selected = options?.find(
+    const selected: string | null = options?.find(
       (option) => option?.value?.toLowerCase() === value?.toLowerCase()
-    )?.label;
-    setSelectedLabel(selected || "");
+    )?.label || value;
+    setSelectedLabel(selected);
   }, [value, options]);
 
   const toggleDropdown = () => {
