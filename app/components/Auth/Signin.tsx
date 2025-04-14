@@ -66,38 +66,62 @@ export default function SignUp() {
     }
   
     try {
-      const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();
+      const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();  
+      
+      // If agent exists in DB
+      dispatch(listenToAgentChanges(result.docId));
+      const agentData = result.docData;
   
-      if (result?.docId) {
-        // Set up real-time listener for the agent
-        dispatch(listenToAgentChanges(result.docId));
-  
-        const agentData = result.docData;
-  
-        if (agentData?.blacklisted) {
-          router.push('/components/Auth/BlacklistedPage');
-          return;
-        }
-  
-        if (!agentData?.verified) {
-          router.push('/components/Auth/VerificationPage');
-          return;
-        }
-  
-        // Sign in only if not blacklisted or unverified
-        await signInWithPhoneNumber();
-      } else {
-        setErrorMessage("No user found.");
+      if (agentData?.blacklisted) {
+        router.push('/components/Auth/BlacklistedPage');
+        return;
       }
+  
+      if (!agentData?.verified) {
+        router.push('/components/Auth/VerificationPage');
+        return;
+      }
+  
+      // Proceed with Firebase phone sign-in
+      await signInWithPhoneNumber();
     } catch (error) {
-      console.error("Error fetching agent data:", error);
+      await handleNewAgent();
     } finally {
       dispatch(setPhonenumber(phoneNumber));
     }
   };
   
 
+  const handleNewAgent = async () => {
+    if (phonenumber && isPhoneValid && !isAgentInDb && !addingNewAgent) {
+      setAddingNewAgent(true);
+      try {
+        // Prepare the new agent data
+        const newAgent = {
+          phonenumber: phonenumber,
+          admin: false,
+          blacklisted: false,
+          verified: false,
+          added: getUnixDateTime(),
+          lastModified: getUnixDateTime(),
+        };
 
+        await addDoc(collection(db, "agents"), newAgent);
+        console.log("New user added to the database:", newAgent);
+
+        setAddingNewAgent(false);
+        router.push('/components/Auth/VerificationPage')
+      } catch (error) {
+        console.error("Error adding new user:", error);
+        // You might want to provide user feedback
+        setErrorMessage("There was an error adding the agent. Please try again.");
+        setAddingNewAgent(false);
+      }
+      finally {
+        router.push('/components/Auth/VerificationPage')
+      }
+    }
+  }
 
   const signInWithPhoneNumber = async () => {
     setIsSendingOTP(true);
