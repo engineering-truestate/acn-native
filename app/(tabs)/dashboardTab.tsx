@@ -24,8 +24,8 @@ interface UseEnquiriesResult {
 
 const useCpId = (): string | undefined => {
   const reduxCpId: string | undefined = useSelector((state: RootState) => state.agent?.docData?.cpId);
-  // return reduxCpId;
-  return "CPA537";
+  return reduxCpId;
+  // return "CPA537";
   // return "INT002"
 };
 
