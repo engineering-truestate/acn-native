@@ -3,37 +3,37 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
-
+import { Property } from '@/app/types';
 // Define Property interface based on available data
-interface Property {
-  propertyId: string;
-  title?: string;
-  nameOfTheProperty?: string;
-  micromarket?: string;
-  assetType?: string;
-  unitType?: string;
-  facing?: string;
-  totalAskPrice?: number;
-  askPricePerSqft?: number;
-  sbua?: number;
-  plotSize?: number;
-  carpet?: number;
-  floorNo?: string;
-  handoverDate?: string;
-  buildingKhata?: string;
-  landKhata?: string;
-  buildingAge?: string;
-  tenanted?: boolean;
-  area?: string;
-  dateOfInventoryAdded?: number;
-  extraDetails?: string;
-  driveLink?: string;
-  photo?: string[];
-  video?: string[];
-  mapLocation?: string;
-  cpId?: string;
-  cpCode?: string;
-}
+// interface Property {
+//   propertyId: string;
+//   title?: string;
+//   nameOfTheProperty?: string;
+//   micromarket?: string;
+//   assetType?: string;
+//   unitType?: string;
+//   facing?: string;
+//   totalAskPrice?: number;
+//   askPricePerSqft?: number;
+//   sbua?: number;
+//   plotSize?: number;
+//   carpet?: number;
+//   floorNo?: string;
+//   handoverDate?: string;
+//   buildingKhata?: string;
+//   landKhata?: string;
+//   buildingAge?: string;
+//   tenanted?: boolean;
+//   area?: string;
+//   dateOfInventoryAdded?: number;
+//   extraDetails?: string;
+//   driveLink?: string;
+//   photo?: string[];
+//   video?: string[];
+//   mapLocation?: string;
+//   cpId?: string;
+//   cpCode?: string;
+// }
 
 interface PropertyDetailsScreenProps {
   property: Property;
@@ -196,8 +196,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           <View style={styles.extraDetailsSection}>
             <Text style={styles.extraDetailsTitle}>Extra Details</Text>
             <View style={styles.extraDetailsContent}>
-              {property.extraDetails ? (
-                property.extraDetails.split("\n").map((detail, index) => (
+              {property?.extraDetails ? (
+                property?.extraDetails?.split("\n")?.map((detail, index) => (
                   <View key={index} style={styles.detailItem}>
                     <Text style={styles.bulletPoint}>•</Text>
                     <Text style={styles.detailText}>{detail}</Text>

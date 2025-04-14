@@ -176,19 +176,7 @@ function MobileHits() {
           const propertyName = (property as any).nameOfTheProperty || 'Unnamed Property';
           
           // Debug individual property data transformation
-          const transformedProperty = {
-            propertyId: property.propertyId || '',
-            title: propertyName,
-            nameOfTheProperty: propertyName,
-            micromarket: property.micromarket,
-            assetType: property.assetType,
-            unitType: property.unitType,
-            facing: property.facing,
-            totalAskPrice: property.totalAskPrice,
-            sbua: property.sbua,
-            cpCode: property.cpCode,
-            driveLink: property.driveLink
-          };
+          const transformedProperty:Property = property;
                     
           return (
             <PropertyCard 

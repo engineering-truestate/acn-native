@@ -1,26 +1,35 @@
 export interface Property {
-  id?: string;
-  propertyId?: string;
+  propertyId: string;
   title?: string;
-  description?: string;
-  price?: number;
-  image?: string;
-  totalAskPrice?: number;
-  unitType?: string;
-  sbua?: number;
+  nameOfTheProperty?: string;
   micromarket?: string;
-  currentStatus?: string;
   assetType?: string;
+  unitType?: string;
   facing?: string;
-  floorNo?: string;
+  totalAskPrice?: number;
+  askPricePerSqft?: number;
+  sbua?: number;
   plotSize?: number;
   carpet?: number;
-  askPricePerSqft?: number;
+  floorNo?: string;
+  handoverDate?: string;
+  buildingKhata?: string;
+  landKhata?: string;
+  buildingAge?: string;
+  tenanted?: boolean;
   area?: string;
-  cpCode?: string;
+  dateOfInventoryAdded?: number;
+  extraDetails?: string;
   driveLink?: string;
-  [key: string]: any; // for additional dynamic fields
-} 
+  photo?: string[];
+  video?: string[];
+  mapLocation?: string;
+  cpId?: string;
+  cpCode?: string;
+  description?: string;
+  status?: string;
+  objectID?: string;
+}
 
 export interface Budget{
   from?: number;
