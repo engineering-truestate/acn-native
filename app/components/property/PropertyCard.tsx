@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
@@ -7,6 +7,11 @@ import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { Enquiry } from '@/app/types';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/app/config/firebase';
+import { handleIdGeneration } from '@/app/helpers/nextId';
+import deductMonthlyCredit from '@/app/helpers/deductCredit';
 
 interface PropertyCardProps {
   property: {
@@ -32,6 +37,11 @@ interface AgentData {
   [key: string]: any;
 }
 
+interface IdGenerationResult {
+  lastId: string;
+  nextId: string;
+}
+
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) => {
   // Add state for details modal visibility
   
@@ -41,6 +51,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const agentData = useSelector((state: RootState) => state.agent.docData);
+  const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
   
 
@@ -55,6 +66,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       return `₹${(property.totalAskPrice / 100).toFixed(2)} Cr`;
     } else {
       return `₹${property.totalAskPrice} L`;
+    }
+  };
+
+  const generateNextEnqId = async (): Promise<string | null> => {
+    try {
+      const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
+      const result = await handleIdGeneration(type) as IdGenerationResult;
+      return result.nextId;
+    } catch (error) {
+      console.error("Error generating IDs:", error);
+      return null;
     }
   };
 
@@ -79,17 +101,76 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Handle enquire button click
   const handleEnquireNowBtn = (e: any) => {
     setSelectedCPID(property.cpCode || "")
-    setIsConfirmModelOpen(true)
+    if ( monthlyCredits > 0 ) {
+      setIsConfirmModelOpen(true);
+      return;
+    }
+    Alert.alert("Do not have credits");
   };
 
   const handleCancel = () => {
     setIsConfirmModelOpen(false)
   };
 
-  const handleConfirm = () => {
-    console.log("Confirmed")
-    setIsEnquiryCPModelOpen(true)
-    setIsConfirmModelOpen(false)
+  const submitEnquiry = async (nextEnqId: string) => {
+    const enq: Enquiry = {} as Enquiry;
+
+    try {
+      const enquiryDocRef = doc(db, "enquiries", nextEnqId);
+      await setDoc(enquiryDocRef, enq);
+    } catch (error) {
+      console.error("Error in enquiry submission:", error);
+    }
+  };
+
+  const onConfirmEnquiry = async () => {
+    console.log("Selected CPID before enquiry:", selectedCPID);
+
+    if (!selectedCPID) {
+      Alert.alert("Error: Seller CPID is missing. Please try again.");
+      setIsConfirmModelOpen(false);
+      return;
+    }
+
+    if (!(monthlyCredits > 0)) {
+      Alert.alert("You don't have enough credits. Please contact your account manager.");
+      setIsConfirmModelOpen(false);
+      return;
+    }
+
+    try {
+      console.log("Processing enquiry for CPID:", selectedCPID);
+
+      const nextEnqId = await generateNextEnqId()
+      if (!nextEnqId) {
+        Alert.alert(
+          "Failed to generate the next Enquiry ID. Please try again later."
+        );
+        setIsConfirmModelOpen(false);
+        return;
+      }
+
+      // ✅ Deduct credits first
+      await deductMonthlyCredit(phoneNumber, monthlyCredits);
+
+      if (typeof nextEnqId === "string") {
+        await submitEnquiry(nextEnqId);
+      } 
+
+      // ✅ Close the confirmation modal
+      setIsConfirmModelOpen(false);
+
+      // ✅ Open EnquireCPModal AFTER confirming
+      setTimeout(() => {
+        console.log("Opening Enquiry CP Modal for CPID:", selectedCPID);
+        setIsEnquiryCPModelOpen(true);
+      }, 100);
+    } catch (error) {
+      console.error("Error during enquiry process:", error);
+      Alert.alert(
+        "An error occurred while processing your enquiry. Please try again."
+      );
+    }
   };
 
   const handleShareButton = () => {
@@ -199,8 +280,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
           />
           <ConfirmModal
             title="Confirm Enquiry"
-            message={`Are you sure you want to enquire? You have ${3} credits remaining for this month.`}
-            onConfirm={handleConfirm}
+            message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+            onConfirm={onConfirmEnquiry}
             onCancel={handleCancel}
             generatingEnquiry={false}
             visible={isConfirmModelOpen}
