@@ -8,6 +8,11 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { RootState } from '@/store/store';
+import { logOut } from '@/store/slices/authSlice';
+import { useRouter } from 'expo-router';
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -29,10 +34,17 @@ const getRandomColor = (): string => {
 };
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
+  const router = useRouter();
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const name = 'John Doe';
   const phoneNumber = '+919876543210';
   const initials = getInitials(name);
   const avatarColor = getRandomColor();
+
+  const handleLogOut = () => {
+    dispatch(logOut());
+    router.push('/');
+  }
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -72,7 +84,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
               </View>
 
               {/* 🔴 Logout Button */}
-              <TouchableOpacity style={styles.logoutButton}>
+              <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut} >
                 <MaterialIcons name="logout" size={18} color="#DE1135" />
                 <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
