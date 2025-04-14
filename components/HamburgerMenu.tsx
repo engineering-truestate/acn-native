@@ -5,8 +5,6 @@ import ProfileModal from '@/app/modals/ProfileModal';
 import { Button } from 'react-native-elements/dist/buttons/Button';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { useDispatch } from 'react-redux';
-import { signIn } from '@/store/slices/authSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -34,22 +32,8 @@ export const HamburgerMenu = () => {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const [profileModalVisible, setProfileModalVisible] = useState(false);
-  // In your component
-const authState = useSelector((state: RootState) => state.auth);
-console.log('Full auth state:', JSON.stringify(authState));
 
-const isAuthenticated = authState?.isAuthenticated;
-console.log('Is authenticated:', isAuthenticated);
-
-// const dispatch = useDispatch();
-// useEffect(() => {
-//   if(!isAuthenticated) {
-//       setTimeout (() => {
-//         dispatch(signIn());
-//       }, 3000);
-    
-//   }
-// }, [isAuthenticated])
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const toggleMenu = () => {
     const toValue = isOpen ? 0 : 1;
@@ -81,7 +65,7 @@ console.log('Is authenticated:', isAuthenticated);
 
   return (
     <>
-      {!isAuthenticated &&
+      {isAuthenticated &&
         <>
           <TouchableOpacity onPress={toggleMenu} className="absolute top-10 left-5 z-20">
             <View className="w-7 h-5 flex justify-between">

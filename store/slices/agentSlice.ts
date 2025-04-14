@@ -1,9 +1,10 @@
 // store/slices/agentSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, ThunkAction, AnyAction } from '@reduxjs/toolkit';
 import { db } from '../../app/config/firebase';
 import { collection, query, where, getDocs, onSnapshot, doc } from 'firebase/firestore';
 import { signOut } from './authSlice';
 import { setAgentListener, clearAgentListener } from './listenerSlice';
+import { RootState } from '../store';
 
 export const setAgentDataState = createAsyncThunk(
   'agent/setAgentDataState',
@@ -29,31 +30,33 @@ export const setAgentDataState = createAsyncThunk(
   }
 );
 
-export const listenToAgentChanges = (agentId: string) => (dispatch: any) => {
-  dispatch(clearAgentListener());
-  const docRef = doc(db, 'agents', agentId);
+export const listenToAgentChanges =
+  (agentId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
+    (dispatch) => {
+      dispatch(clearAgentListener());
+      const docRef = doc(db, 'agents', agentId);
 
-  const unsubscribe = onSnapshot(
-    docRef,
-    (docSnap) => {
-      if (docSnap.exists()) {
-        dispatch(setUserDoc({
-          docData: docSnap.data(),
-          docId: docSnap.id,
-        }));
-      } else {
-        dispatch(resetAgentState());
-        dispatch(signOut());
-      }
-    },
-    (error) => {
-      console.error('Agent listener error:', error);
-      dispatch(setError(error.message));
-    }
-  );
+      const unsubscribe = onSnapshot(
+        docRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            dispatch(setUserDoc({
+              docData: docSnap.data(),
+              docId: docSnap.id,
+            }));
+          } else {
+            dispatch(resetAgentState());
+            dispatch(signOut());
+          }
+        },
+        (error) => {
+          console.error('Agent listener error:', error);
+          dispatch(setError(error.message));
+        }
+      );
 
-  dispatch(setAgentListener(unsubscribe));
-};
+      dispatch(setAgentListener(unsubscribe));
+    };
 
 const agentSlice = createSlice({
   name: 'agent',
@@ -129,5 +132,20 @@ export const {
   setError,
   updateAgentDocData,
 } = agentSlice.actions;
+
+export const selectVerified = (state: RootState): boolean => 
+  state?.agent?.docData?.verified || false;
+
+export const selectAdmin = (state: RootState): boolean => 
+  state?.agent?.docData?.admin || false;
+
+export const selectBlacklisted = (state: RootState): boolean => 
+  state?.agent?.docData?.blacklisted || false;
+
+export const selectName = (state: RootState): string => 
+  state?.agent?.docData?.name || "";
+
+export const selectMyKam = (state: RootState): any => 
+  state?.agent?.docData?.kam || null;
 
 export default agentSlice.reducer;

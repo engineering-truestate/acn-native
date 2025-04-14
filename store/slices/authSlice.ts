@@ -1,5 +1,5 @@
 // store/slices/authSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createSlice, ThunkAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../store';
 import { resetAgentState } from './agentSlice';
 import { clearAgentListener } from './listenerSlice';
@@ -77,7 +77,12 @@ export const authSlice = createSlice({
   },
 });
 
-export const logOut = () => async (dispatch: AppDispatch, getState: () => RootState) => {
+export const logOut = (): ThunkAction<
+  Promise<void>, // Return type
+  RootState,     // State type
+  unknown,       // Extra args type
+  AnyAction      // Action type
+> => async (dispatch, getState) => {
   if (getState().auth.loading) return;
 
   dispatch(setLoading(true));
@@ -92,7 +97,7 @@ export const logOut = () => async (dispatch: AppDispatch, getState: () => RootSt
     setTimeout(() => {
       dispatch(signOut());
     }, 200);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Logout error:', error);
     dispatch(clearAgentListener());
     dispatch(clearVersionListener());

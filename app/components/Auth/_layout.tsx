@@ -38,6 +38,7 @@ export default function RootLayout() {
         <Stack.Screen name="VerificationPage" />
         <Stack.Screen name="BlacklistedPage" />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="@app/(tabs)/properties" />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

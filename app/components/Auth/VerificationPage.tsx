@@ -1,9 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { RootState } from '@/store/store';
+import { logOut } from '@/store/slices/authSlice';
 
 export default function VerificationPage() {
   const router = useRouter();
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
+
+  const handleBack = () => {
+    dispatch(logOut());
+    router.back();
+  }
 
   return (
     <View style={styles.container}>
@@ -15,7 +25,7 @@ export default function VerificationPage() {
           <Text style={styles.bold}>24 Hrs</Text> for verification and smooth onboarding.
         </Text>
       </View>
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={handleBack}>
         <Text style={styles.back}>← Back</Text>
       </TouchableOpacity>
     </View>

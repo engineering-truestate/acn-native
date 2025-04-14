@@ -93,6 +93,7 @@ export default function RootLayout() {
               headerTintColor: '#000',
               headerTitleAlign: 'center',
               headerTitleStyle: { fontWeight: 'bold' },
+              headerBackVisible: false,
             }}
           >
             <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
