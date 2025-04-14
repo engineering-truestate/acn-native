@@ -43,3 +43,6 @@ app\config\*
 
 
 firebase.ts
+
+ios/
+android/
