@@ -19,6 +19,7 @@ import { doc, getDoc, DocumentData, DocumentReference } from "firebase/firestore
 import { db } from "../../config/firebase"; // adjust the path to your Firebase config
 import { styled } from 'nativewind';
 import EnquiryCard from '../Enquiries/EnquiryCard';
+import TabCarousel from './TabCarousel';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -715,86 +716,45 @@ export default function Dashboard({ myEnquiries }: DashboardProps) {
 
   
 
+  const tabData = [
+    {
+      key: "inventories",
+      label: "My Inventories",
+      icon: "home",
+      count: properties.length,
+    },
+    {
+      key: "requirements",
+      label: "My Requirements",
+      icon: "layers",
+      count: requirements.length,
+    },
+    {
+      key: "enquiries",
+      label: "My Enquiries",
+      icon: "email",
+      count: myEnquiries.length,
+    },
+  ];
+
   return (
-    <StyledView className="flex-1 bg-gray-50">
-      <StatusBar style="auto" />
-      
-      {/* Tab Header */}
-      <StyledView className="flex-row bg-white border-b border-gray-200">
-        {/* Inventories Tab */}
-        <StyledTouchableOpacity
-          className={`flex-1 p-3 ${activeTab === 'inventories' ? 'bg-[#153E3B]' : 'bg-white'}`}
-          onPress={() => handleTabChange('inventories')}
-        >
-          <StyledView className="items-center">
-            <MaterialCommunityIcons 
-              size={28} 
-              name="home" 
-              color={activeTab === 'inventories' ? '#FFFFFF' : '#000000'} 
-            />
-            <StyledView className="items-center">
-              <StyledText className={`text-sm font-medium ${activeTab === 'inventories' ? 'text-white' : 'text-gray-800'}`}>
-                My Inventories
-              </StyledText>
-              <StyledText className={`text-xl font-bold ${activeTab === 'inventories' ? 'text-white' : 'text-gray-800'}`}>
-                {properties.length}
-              </StyledText>
-            </StyledView>
-          </StyledView>
-        </StyledTouchableOpacity>
+  <StyledView className="flex-1 bg-gray-50">
+    <StatusBar style="auto" />
 
-        {/* Requirements Tab */}
-        <StyledTouchableOpacity
-          className={`flex-1 p-3 ${activeTab === 'requirements' ? 'bg-[#153E3B]' : 'bg-white'}`}
-          onPress={() => handleTabChange('requirements')}
-        >
-          <StyledView className="items-center">
-            <MaterialCommunityIcons 
-              size={28} 
-              name="file-document" 
-              color={activeTab === 'requirements' ? '#FFFFFF' : '#000000'} 
-            />
-            <StyledView className="items-center">
-              <StyledText className={`text-sm font-medium ${activeTab === 'requirements' ? 'text-white' : 'text-gray-800'}`}>
-                My Requirements
-              </StyledText>
-              <StyledText className={`text-xl font-bold ${activeTab === 'requirements' ? 'text-white' : 'text-gray-800'}`}>
-                {requirements.length}
-              </StyledText>
-            </StyledView>
-          </StyledView>
-        </StyledTouchableOpacity>
+    {/* Carousel Tab Header */}
+    <TabCarousel
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      tabData={tabData}
+    />
 
-        {/* Enquiries Tab */}
-        <StyledTouchableOpacity
-          className={`flex-1 p-3 ${activeTab === 'enquiries' ? 'bg-[#153E3B]' : 'bg-white'}`}
-          onPress={() => {handleTabChange('enquiries');}}
-          
-        >
-          <StyledView className="items-center">
-            <MaterialCommunityIcons 
-              size={28} 
-              name="email" 
-              color={activeTab === 'enquiries' ? '#FFFFFF' : '#000000'} 
-            />
-            <StyledView className="items-center">
-              <StyledText className={`text-sm font-medium ${activeTab === 'enquiries' ? 'text-white' : 'text-gray-800'}`}>
-                My Enquiries
-              </StyledText>
-              <StyledText className={`text-xl font-bold ${activeTab === 'enquiries' ? 'text-white' : 'text-gray-800'}`}>
-                {myEnquiries.length}
-              </StyledText>
-            </StyledView>
-          </StyledView>
-        </StyledTouchableOpacity>
-      </StyledView>
-      
-      {/* Content Area */}
-      <StyledScrollView className="flex-1">
-        <StyledView className="flex-1">
-          {renderTabContent}
-        </StyledView>
-      </StyledScrollView>
-    </StyledView>
+    {/* Content Area */}
+    <StyledScrollView>
+      {renderTabContent && (
+        <StyledView >{renderTabContent}</StyledView>
+      )}
+    </StyledScrollView>
+  </StyledView>
+
   );
 } 
