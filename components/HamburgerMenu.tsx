@@ -12,11 +12,11 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/dashboard' },
+  { title: 'Dashboard', path: '/dashboardTab' },
   { title: 'Properties', path: '/properties' },
   { title: 'Requirements', path: '/requirements' },
 
-  { title: 'Add Requirements', path: '/+not-found' },
+  { title: 'Add Requirements', path: '/UserRequirementForm' },
   { title: 'Join Community', path: 'https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38' },
   { title: 'Billing', path: '/billings' },
   { title: 'Help', path: '/help' },
