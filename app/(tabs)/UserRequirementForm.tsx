@@ -136,7 +136,7 @@ const UserRequirementForm: React.FC<UserRequirementFormProps> = ({ setAddRequire
         marketValue,
       });
       onClose();
-    }
+    } 
   };
 
     const [saving, setSaving] = useState(false);
