@@ -73,7 +73,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
 
   // Get the property name with fallbacks
   const getPropertyName = () => {
-    return property.nameOfTheProperty || property.title || "Unnamed Property";
+    return property.nameOfTheProperty;
   };
 
   // Combine images and videos for carousel

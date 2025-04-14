@@ -10,19 +10,21 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import ShareModal from '../../components/ShareModal';
 import MonthFilterDropdown from '../../components/MonthFilterDropdown';
 import PropertyDetailsScreen from '../../components/property/PropertyDetailsScreen';
 import { styled } from 'nativewind';
 import EnquiryCard from '../Enquiries/EnquiryCard';
 import TabCarousel from './TabCarousel';
-import { Property, Requirement, EnquiryWithProperty } from '@/app/types';
-import { toCapitalizedWords } from '@/app/helpers/common';
+import { Property, Requirement, EnquiryWithProperty, Enquiry } from '@/app/types';
+import { formatCost2, toCapitalizedWords } from '@/app/helpers/common';
 import DashboardDropdown from './DashboardDropdown';
 import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import RequirementDetailsModal from '../requirement/RequirementDetailsModal';
 import RequirementDetailsScreen from '../requirement/RequirementDetailsScreen';
+import ShareModal from '@/app/modals/ShareModal';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -30,26 +32,16 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledPressable = styled(Pressable);
 const StyledScrollView = styled(ScrollView);
 
-const PropertyCard = React.memo(({ property, onStatusChange }: {
+const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCount}: {
   property: Property,
-  onStatusChange: (id: string, status: string) => void
+  onStatusChange: (id: string, status: string) => void,
+  matchingEnquiriesCount: number,
 }) => {
   // State for share modal
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   // State for property details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  // Format price display
-  const formatPrice = () => {
-    if (property?.totalAskPrice && (property?.totalAskPrice >= 100)) {
-      return `₹${(property?.totalAskPrice / 100).toFixed(2)} Cr`;
-    } else {
-      return `₹${property.totalAskPrice} L`;
-    }
-  };
-
-  // Mock data for demonstration
-  const enquiryCount = Math.floor(Math.random() * 5); // Random number between 0-4
 
   // Function to get property status color
   const getStatusColor = () => {
@@ -89,17 +81,12 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
   };
 
   // Mock agent data for share modal
-  const agentData = {
-    name: "Agent Name",
-    phonenumber: "+91 9876543210",
-    email: "agent@example.com"
-  };
+  const agentData = useSelector((state: RootState) => state.agent.docData);
 
   // Prepare share property data
   const shareProperty = {
     ...property,
     propertyId: property.propertyId,
-    title: property.title,
     totalAskPrice: property.totalAskPrice,
     sbua: property.sbua,
     micromarket: property.micromarket
@@ -108,14 +95,13 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
   // Format the property data to match the PropertyDetailsScreen expected format
   const propertyDetailsData = {
     propertyId: property.propertyId,
-    title: property.title,
-    nameOfTheProperty: property.title,
+    nameOfTheProperty: property.nameOfTheProperty,
     micromarket: property.micromarket,
     unitType: property.unitType,
     totalAskPrice: property.totalAskPrice,
     sbua: property.sbua,
     // Add other required properties with default values as needed
-    assetType: 'Residential',
+    assetType: property.assetType,
     photo: []
   };
 
@@ -132,7 +118,7 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
       {/* Property Details Modal */}
       {isDetailsModalOpen && (
         <PropertyDetailsScreen
-          property={propertyDetailsData}
+          property={property}
           onClose={() => setIsDetailsModalOpen(false)}
         />
       )}
@@ -174,7 +160,7 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
 
           {/* Property Name */}
           <StyledText className="text-base font-bold text-black mt-2 mb-4">
-            {property.title}
+            {property.nameOfTheProperty}
           </StyledText>
 
           {/* Tags section for Asset Type, Unit Type, and Facing */}
@@ -194,7 +180,7 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
             <StyledView className="flex-1">
               <StyledText className="text-xs text-gray-500">Total Ask Price:</StyledText>
               <StyledText className="text-sm font-semibold">
-                {formatPrice()}
+                {formatCost2(property.totalAskPrice || null)}
               </StyledText>
             </StyledView>
 
@@ -213,7 +199,7 @@ const PropertyCard = React.memo(({ property, onStatusChange }: {
           {/* Enquiries */}
           <StyledView>
             <StyledText className="text-sm text-black font-semibold">Enquiries Received:</StyledText>
-            <StyledText className="text-sm font-semibold text-black mt-1">{enquiryCount} Enquiry</StyledText>
+            <StyledText className="text-sm font-semibold text-black mt-1">{matchingEnquiriesCount} Enquiry</StyledText>
           </StyledView>
 
           {/* Status Selector */}
@@ -372,8 +358,8 @@ const RequirementCard = React.memo(({ requirement, onStatusChange }: {
 
       {/* Requirement Details Modal */}
       <RequirementDetailsScreen
-      requirement={requirement}
-      onClose={() => setIsDetailsModalOpen(false)}
+        requirement={requirement}
+        onClose={() => setIsDetailsModalOpen(false)}
         visible={isDetailsModalOpen}
 
       />
@@ -385,9 +371,10 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
+  allEnquiries: Enquiry[];
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, allEnquiries }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -475,13 +462,20 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
               <StyledText className="text-gray-500 text-base">No properties found</StyledText>
             </StyledView>
           ) : (
-            properties.map(property => (
-              <PropertyCard
-                key={property.propertyId}
-                property={property}
-                onStatusChange={handlePropertyStatusChange}
-              />
-            ))
+            properties.map(property => {
+              const matchingEnquiriesCount: number = allEnquiries.filter(
+                (enquiry) => enquiry.propertyId === property.propertyId
+              ).length;
+
+              return (
+                <PropertyCard
+                  key={property.propertyId}
+                  property={property}
+                  onStatusChange={handlePropertyStatusChange}
+                  matchingEnquiriesCount={matchingEnquiriesCount}
+                />
+              );
+            })
           )}
         </StyledView>
       );

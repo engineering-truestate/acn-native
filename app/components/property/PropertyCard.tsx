@@ -5,6 +5,8 @@ import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface PropertyCardProps {
   property: {
@@ -37,8 +39,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
   const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
   const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
-  const [ agentData, setAgentData ] = useState<AgentData | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const agentData = useSelector((state: RootState) => state.agent.docData);
 
   // Debug the property data
   console.log("PropertyCard received:", property);

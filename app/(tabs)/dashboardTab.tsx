@@ -17,14 +17,15 @@ interface UsePropertiesResult {
 
 interface UseEnquiriesResult {
   myEnquiries: EnquiryWithProperty[];
+  allEnquiries: Enquiry[];
   loading: boolean;
   error: string | null;
 }
 
 const useCpId = (): string | undefined => {
   const reduxCpId: string | undefined = useSelector((state: RootState) => state.agent?.docData?.cpId);
-  return reduxCpId;
-  // return "CPA537";
+  // return reduxCpId;
+  return "CPA537";
   // return "INT002"
 };
 
@@ -34,6 +35,7 @@ const getUnixDateTime = (): number => {
 
 const useEnquiries = (): UseEnquiriesResult => {
   const [myEnquiries, setMyEnquiries] = useState<EnquiryWithProperty[]>([]);
+  const [allEnquiries, setAllEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,25 +43,33 @@ const useEnquiries = (): UseEnquiriesResult => {
   console.log('cpId:', cpId);
 
   useEffect(() => {
-    const fetchEnquiriesWithProperties = async () => {
-      if (!cpId) {
-        setError('No channel partner ID found. Please login again.');
-        return;
-      }
-
+    const fetchEnquiries = async () => {
       setLoading(true);
       try {
-        // Using where clause to filter on the server side instead of client side
-        const q = query(collection(db, 'enquiries'), where('cpId', '==', cpId));
-        const querySnapshot = await getDocs(q);
-
-        const enquiriesData: Enquiry[] = querySnapshot.docs.map((docSnap) => ({
+        // Fetch all enquiries without filtering
+        const allEnquiriesQuery = query(collection(db, 'enquiries'));
+        const allEnquiriesSnapshot = await getDocs(allEnquiriesQuery);
+        
+        const allEnquiriesData: Enquiry[] = allEnquiriesSnapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         }));
+        
+        // Set allEnquiries state
+        setAllEnquiries(allEnquiriesData);
+        
+        // Filter for myEnquiries if cpId exists
+        if (!cpId) {
+          setError('No channel partner ID found. Please login again.');
+          setLoading(false);
+          return;
+        }
 
-        // Now fetch property details for each enquiry
-        const enquiriesWithPropertyPromises = enquiriesData.map(async (enquiry) => {
+        // Filter myEnquiries with cpId
+        const myEnquiriesData = allEnquiriesData.filter(enquiry => enquiry.cpId === cpId);
+        
+        // Now fetch property details for each of myEnquiries
+        const enquiriesWithPropertyPromises = myEnquiriesData.map(async (enquiry) => {
           if (enquiry.propertyId) {
             try {
               const propertyDoc = await getDoc(doc(db, 'ACN123', enquiry.propertyId));
@@ -94,10 +104,10 @@ const useEnquiries = (): UseEnquiriesResult => {
       }
     };
 
-    fetchEnquiriesWithProperties();
+    fetchEnquiries();
   }, [cpId]);
 
-  return { myEnquiries, loading, error };
+  return { myEnquiries, allEnquiries, loading, error };
 };
 
 const useProperties = (): UsePropertiesResult => {
@@ -205,11 +215,11 @@ const useRequirements = () => {
 };
 
 export default function DashboardTab() {
-  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
+  const { myEnquiries, allEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
   return( 
-    <Dashboard  myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} />
+    <Dashboard  myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} allEnquiries={allEnquiries} />
   );
 } 
