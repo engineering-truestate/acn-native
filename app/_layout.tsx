@@ -102,6 +102,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)/UserRequirementForm" options={{ title: 'Add Requirement' }}/>
             <Stack.Screen name="(tabs)/billings" options={{ title: 'Billing' }}/>
             <Stack.Screen name="(tabs)/help" options={{ title: 'Help' }}/>
+            <Stack.Screen name="(tabs)/dashboardTab" options={{ title: 'Dashboard' }}/>
 
             {/* <Stack.Screen name="LandingPage" /> */}
             <Stack.Screen name="components/Auth" options={{ headerShown: false }}/>

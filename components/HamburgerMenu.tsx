@@ -30,7 +30,7 @@ interface SidebarItemProps {
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/dashboard', icon: 'dashboard', iconType: 'MaterialIcons' },
+  { title: 'Dashboard', path: '/dashboardTab', icon: 'dashboard', iconType: 'MaterialIcons' },
   { title: 'Properties', path: '/properties', icon: 'home', iconType: 'MaterialIcons' },
   { title: 'Requirements', path: '/requirements', icon: 'list-alt', iconType: 'MaterialIcons' },
 ];
