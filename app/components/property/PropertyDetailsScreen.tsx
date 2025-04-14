@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
-import { Property } from '@/app/types';
+import { Enquiry, Property } from '@/app/types';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { handleIdGeneration } from '@/app/helpers/nextId';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/app/config/firebase';
+import deductMonthlyCredit from '@/app/helpers/deductCredit';
+import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
+import ConfirmModal from '@/app/modals/ConfirmModal';
 // Define Property interface based on available data
 // interface Property {
 //   propertyId: string;
@@ -40,6 +48,11 @@ interface PropertyDetailsScreenProps {
   onClose: () => void;
 }
 
+interface IdGenerationResult {
+  lastId: string;
+  nextId: string;
+}
+
 // Helper function to format currency similar to web implementation
 const formatCost = (value: number) => {
   if (!value) return "N/A";
@@ -67,6 +80,25 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   const router = useRouter();
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedCPID, setSelectedCPID] = useState(property.cpCode );
+  const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
+  const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
+  const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
+  const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
+  const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
+
+  
+  const generateNextEnqId = async (): Promise<string | null> => {
+    try {
+      const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
+      const result = await handleIdGeneration(type) as IdGenerationResult;
+      return result.nextId;
+    } catch (error) {
+      console.error("Error generating IDs:", error);
+      return null;
+    }
+  };
+
   
   // Log property data for debugging
   console.log("PropertyDetailsScreen received:", property);
@@ -95,9 +127,78 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     console.log("Opening drive details:", property.driveLink);
   };
 
-  const handleEnquireNow = () => {
-    // Implementation would handle enquiry
-    console.log("Enquiring about property:", property.propertyId);
+  const handleEnquireNowBtn = (e: any) => {
+    setSelectedCPID(property.cpCode || "")
+    if ( monthlyCredits > 0 ) {
+      setIsConfirmModelOpen(true);
+      return;
+    }
+    Alert.alert("Do not have credits");
+  };
+
+  const handleCancel = () => {
+    setIsConfirmModelOpen(false)
+  };
+
+  const submitEnquiry = async (nextEnqId: string) => {
+    const enq: Enquiry = {} as Enquiry;
+
+    try {
+      const enquiryDocRef = doc(db, "enquiries", nextEnqId);
+      await setDoc(enquiryDocRef, enq);
+    } catch (error) {
+      console.error("Error in enquiry submission:", error);
+    }
+  };
+
+  const onConfirmEnquiry = async () => {
+    console.log("Selected CPID before enquiry:", selectedCPID);
+
+    if (!selectedCPID) {
+      Alert.alert("Error: Seller CPID is missing. Please try again.");
+      setIsConfirmModelOpen(false);
+      return;
+    }
+
+    if (!(monthlyCredits > 0)) {
+      Alert.alert("You don't have enough credits. Please contact your account manager.");
+      setIsConfirmModelOpen(false);
+      return;
+    }
+
+    try {
+      console.log("Processing enquiry for CPID:", selectedCPID);
+
+      const nextEnqId = await generateNextEnqId()
+      if (!nextEnqId) {
+        Alert.alert(
+          "Failed to generate the next Enquiry ID. Please try again later."
+        );
+        setIsConfirmModelOpen(false);
+        return;
+      }
+
+      // ✅ Deduct credits first
+      await deductMonthlyCredit(phoneNumber, monthlyCredits);
+
+      if (typeof nextEnqId === "string") {
+        await submitEnquiry(nextEnqId);
+      } 
+
+      // ✅ Close the confirmation modal
+      setIsConfirmModelOpen(false);
+
+      // ✅ Open EnquireCPModal AFTER confirming
+      setTimeout(() => {
+        console.log("Opening Enquiry CP Modal for CPID:", selectedCPID);
+        setIsEnquiryCPModelOpen(true);
+      }, 100);
+    } catch (error) {
+      console.error("Error during enquiry process:", error);
+      Alert.alert(
+        "An error occurred while processing your enquiry. Please try again."
+      );
+    }
   };
 
   // InfoRow component for property details
@@ -218,6 +319,20 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
           </View>
         </ScrollView>
+        <EnquiryCPModal
+            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+            generatingEnquiry={false}
+            visible={isEnquiryModelOpen}
+            selectedCPID={selectedCPID}
+          />
+          <ConfirmModal
+            title="Confirm Enquiry"
+            message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+            onConfirm={onConfirmEnquiry}
+            onCancel={handleCancel}
+            generatingEnquiry={false}
+            visible={isConfirmModelOpen}
+          />
 
         {/* Fixed share button */}
         <TouchableOpacity style={styles.shareButton}>
@@ -231,7 +346,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNow}>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNowBtn}>
             <Ionicons name="call-outline" size={20} color="white" />
             <Text style={styles.primaryButtonText}>Enquire Now</Text>
           </TouchableOpacity>
