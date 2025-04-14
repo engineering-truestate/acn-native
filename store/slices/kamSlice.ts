@@ -1,34 +1,49 @@
 // store/slices/kamSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, ThunkAction, AnyAction } from '@reduxjs/toolkit';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../app/config/firebase';
+import { RootState } from '../store';
 
-export const setKamDataState = createAsyncThunk(
-  'kam/setKamDataState',
-  async (kamId: string, { getState, rejectWithValue, dispatch }) => {
-    const { kamId: currentKamId } = (getState() as any).kam;
-    if (currentKamId === kamId) return;
+export const setKamDataState = (kamId: string): ThunkAction<
+  Promise<void>,
+  RootState,
+  unknown,
+  AnyAction
+> => async (dispatch, getState) => {
+  const { kamId: currentKamId } = getState().kam;
+  if (currentKamId === kamId) return;
 
-    dispatch(resetKamState());
+  // First, set loading
+  dispatch(setLoading(true));
+  dispatch(resetError());
+  
+  try {
+    const q = query(collection(db, 'kam'), where('kamId', '==', kamId));
+    const querySnapshot = await getDocs(q);
 
-    try {
-      const q = query(collection(db, 'kam'), where('kamId', '==', kamId));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        return {
-          docData: docSnap.data(),
-          docId: docSnap.id,
-        };
-      } else {
-        throw new Error('No user found with this phone number.');
-      }
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    if (!querySnapshot.empty) {
+      const docSnap = querySnapshot.docs[0];
+      const { myAgents, ...docDataWithoutAgents } = docSnap.data();
+      const data = {
+        docData: docDataWithoutAgents,
+        docId: docSnap.id,
+      };
+      
+      // Update the state with the new data
+      dispatch(setKamId(kamId));
+      dispatch(setKamDoc(data));
+      console.log("yippieeee")
+    } else {
+      throw new Error('No user found with this phone number.');
     }
+  } catch (error: any) {
+    console.log(error.message)
+    dispatch(setError(error.message));
+  } finally {
+    // Set loading to false
+    dispatch(setLoading(false));
   }
-);
+};
 
 const kamSlice = createSlice({
   name: 'kam',
@@ -40,6 +55,9 @@ const kamSlice = createSlice({
     kamDocData: null as any,
   },
   reducers: {
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
     setKamId: (state, action) => {
       state.kamId = action.payload;
     },
@@ -62,33 +80,20 @@ const kamSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    resetError: (state) => {
+      state.error = null;
+    }
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(setKamDataState.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(setKamDataState.fulfilled, (state, action) => {
-        state.loading = false;
-        if (action.payload) {
-          state.kamDocData = action.payload.docData;
-          state.kamDocId = action.payload.docId;
-          state.kamId = action.meta.arg;
-        }
-      })
-      .addCase(setKamDataState.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
-  },
+  // Remove extraReducers since we're not using createAsyncThunk anymore
 });
 
 export const {
+  setLoading,
   setKamId,
   setKamDoc,
   resetKamState,
   setError,
+  resetError,
 } = kamSlice.actions;
 
 export const selectKamState = (state: any) => state?.kam;

@@ -18,6 +18,8 @@ import { FontAwesome5 as FA5Icon } from '@expo/vector-icons';
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { formatCost } from "../../helpers/common.js";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store.js';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -33,6 +35,9 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
     const [showKeyBenefits, setShowKeyBenefits] = useState(false);
     const originalAmount = 10000;
     const [totalAmount, setTotalAmount] = useState(originalAmount);
+
+    const phoneNumber = useSelector((state: RootState) => state?.agent?.phonenumber) || null;
+    const cpId = useSelector((state: RootState) => state?.agent?.docData?.cpId) || null;
 
     const toggleKeyBenefits = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -54,13 +59,12 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
     const functions = getFunctions();
     const initiatePhonePePayment = httpsCallable(functions, "initiatePhonePePayment");
 
-    //Replace hardcoded values with actual values from agentSlice
     try {
       const transactionId = "TXN" + Date.now();
       //figure out and validate anoter redirect url for app.
       const redirectUrl = "https://acnonline.in/billing"; 
-      const mobileNumber = "+917206498895";
-      const userId = "INT002";
+      const mobileNumber = phoneNumber;
+      const userId = cpId;
 
       const response: any = await initiatePhonePePayment({
         amount: totalAmount,

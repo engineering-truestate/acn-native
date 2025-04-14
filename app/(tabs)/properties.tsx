@@ -51,14 +51,6 @@ interface PropertyDetailsModalProps {
 const PropertyDetailsModal = React.memo(({ isOpen, onClose, property }: PropertyDetailsModalProps) => {
   if (!property) return null;
   
-  // Log all properties to help debug
-  React.useEffect(() => {
-    if (property) {
-      console.log("PropertyDetailsModal - Property object keys:", Object.keys(property));
-      console.log("PropertyDetailsModal - Complete property:", JSON.stringify(property, null, 2));
-    }
-  }, [property]);
-  
   return (
     
       <View className="flex-1 bg-black bg-opacity-50 justify-end">
@@ -162,24 +154,6 @@ function MobileHits() {
     setSelectedProperty(property);
   };
 
-  // Debug the first hit if available
-  React.useEffect(() => {
-    if (hits && hits.length > 0) {
-      console.log("First hit data (all properties):", JSON.stringify(hits[0], null, 2));
-      
-      // Check all possible name properties
-      const firstHit = hits[0];
-      console.log("Possible name properties:");
-      console.log("- title:", firstHit.title);
-      console.log("- name:", (firstHit as any).name);
-      console.log("- propertyName:", (firstHit as any).propertyName);
-      console.log("- nameOfTheProperty:", (firstHit as any).nameOfTheProperty);
-      console.log("- nameOfProperty:", (firstHit as any).nameOfProperty);
-      console.log("- property_name:", (firstHit as any).property_name);
-      console.log("- description:", firstHit.description);
-    }
-  }, [hits]);
-
   if (hits?.length === 0 && query?.length !== 0) {
     return (
       <View className="flex items-center justify-center h-64">
@@ -199,15 +173,7 @@ function MobileHits() {
       <View className="w-full p-4">
         {hits.map((property) => {
           // Try different possible field names for the property name
-          const propertyName = 
-            property.title || 
-            (property as any).name || 
-            (property as any).propertyName ||
-            (property as any).nameOfTheProperty ||
-            (property as any).nameOfProperty ||
-            (property as any).property_name ||
-            property.description ||
-            'Unnamed Property';
+          const propertyName = (property as any).nameOfTheProperty || 'Unnamed Property';
           
           // Debug individual property data transformation
           const transformedProperty = {
@@ -223,9 +189,7 @@ function MobileHits() {
             cpCode: property.cpCode,
             driveLink: property.driveLink
           };
-          
-          console.log("Using property name:", propertyName);
-          
+                    
           return (
             <PropertyCard 
               key={property.objectID} 

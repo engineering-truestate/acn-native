@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,13 @@ import {
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Avatar } from 'react-native-elements';
+import { useSelector } from "react-redux";
+import { selectMyKam } from "@/store/slices/agentSlice";
+import { selectKamName, selectKamNumber, setKamDataState } from "@/store/slices/kamSlice";
+import { useDispatch } from "react-redux";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
+import { RootState } from "@/store/store";
+import { toCapitalizedWords } from "../helpers/common";
 
 type KamManagerProps = {
   visible: boolean;
@@ -31,8 +38,17 @@ const getRandomColor = () => {
 };
 
 const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
-  const kamName = "John Doe";
-  const kamNumber = "+919876543210";
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
+
+  const myKamId = useSelector(selectMyKam);
+  const kamName = useSelector(selectKamName);
+  const kamNumber = useSelector(selectKamNumber);
+
+  useEffect(() => {
+    if (myKamId) {
+      dispatch(setKamDataState(myKamId));
+    }
+  }, [myKamId, dispatch]);
   
   const profilePicUrl = `https://ui-avatars.com/api/?name=${kamName.replace(" ", "+")}`;
 
@@ -64,7 +80,7 @@ const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
                   size="medium"
                 />
                 <View style={styles.textContainer}>
-                  <Text style={styles.nameText}>{kamName}</Text>
+                  <Text style={styles.nameText}>{toCapitalizedWords(kamName)}</Text>
                   <Text style={styles.roleText}>Account Manager</Text>
                 </View>
               </View>

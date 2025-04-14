@@ -18,9 +18,9 @@ export default function LandingPage() {
   const handleNavigate = () => {
     if (!isAuthenticated) {
       dispatch(logOut());
-      router.push('/components/Auth/Signin');
+      router.replace('/components/Auth/Signin');
     } else {
-      router.push('/(tabs)/properties');
+      router.replace('/(tabs)/properties');
     }
   };
 

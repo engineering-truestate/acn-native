@@ -2,6 +2,7 @@ import { handleIdGeneration } from './nextId';
 import { getUnixDateTime } from "./getUnixDateTime";
 import { arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useSelector } from 'react-redux';
 
 const generateNextReqId = async () => {
     try {
@@ -14,7 +15,7 @@ const generateNextReqId = async () => {
     }
 };
 
-export default async function submitRequirement(userRequirement) {
+export default async function submitRequirement(userRequirement, cpId) {
     console.log("userRequirement", userRequirement);
 
     try {
@@ -27,7 +28,7 @@ export default async function submitRequirement(userRequirement) {
         const formData = {
             added: timestamp,
             lastModified: timestamp,
-            agentCpid: "INT002", //Test, Fetch this from agentSlice
+            agentCpid: cpId,
             area: userRequirement.area || 0,
             assetType: userRequirement.assetType,
             budget: userRequirement.budget,

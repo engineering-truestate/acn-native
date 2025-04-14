@@ -6,8 +6,12 @@ import ARPrimaryButton from '../components/Button/ARPrimaryButton';
 import { FontAwesome } from '@expo/vector-icons';
 import { Requirement } from '../types';
 import submitRequirement from '../helpers/submitRequirement';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 const UserRequirementForm = () => {
+  const cpId = useSelector((state: RootState) => state?.agent?.docData?.cpId) || null;
+    
   const [focusedFields, setFocusedFields] = useState<{ [key: string]: boolean }>({});
   const handleFocus = (fieldName: string) => {
     setFocusedFields((prev) => ({ ...prev, [fieldName]: true }));
@@ -144,7 +148,7 @@ const UserRequirementForm = () => {
         marketValue: marketValue === true ? "Market Value" : "",
       }
 
-      await submitRequirement(userRequirement);
+      await submitRequirement(userRequirement, cpId);
 
     } catch (error) {
       console.error("An error occurred:", error);

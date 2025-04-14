@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, usePathname } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Button } from 'react-native-elements';
@@ -8,11 +8,12 @@ import KamManager from '@/app/modals/KamModal';
 
 export const KamModalButton = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const pathName = usePathname();
   const [kamModalVisible, setKamModalVisible] = useState(false);
 
   return (
     <>
-      {isAuthenticated && (
+      {(isAuthenticated && pathName != "/" && pathName != "/components/Auth/Signin" && pathName != "/components/Auth/OTPage" && pathName != "/components/Auth/BlacklistedPage" && pathName != "/components/Auth/VerificationPage") && (
         <>
           <KamManager
             visible={kamModalVisible}

@@ -105,7 +105,9 @@ export default function OTPage() {
     if (!isValid) return;
     const fullOtp = otp.join('');
     dispatch(signIn());
-    router.push('/(tabs)/properties');
+    router.dismissAll();
+    router.replace('/(tabs)/properties');
+    // router.push('/(tabs)/properties');
   };
 
   const handleResend = () => {

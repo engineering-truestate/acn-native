@@ -13,6 +13,8 @@ import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { logOut } from '@/store/slices/authSlice';
 import { useRouter } from 'expo-router';
+import { useSelector } from 'react-redux';
+import { toCapitalizedWords } from '../helpers/common';
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -36,14 +38,19 @@ const getRandomColor = (): string => {
 const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
   const router = useRouter();
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
-  const name = 'John Doe';
-  const phoneNumber = '+919876543210';
+
+  const {name, phonenumber} = useSelector((state: RootState) => state.agent.docData)
+  // const name = 'John Doe';
+  // const phoneNumber = '+919876543210';
   const initials = getInitials(name);
   const avatarColor = getRandomColor();
 
   const handleLogOut = () => {
+    setVisible(false);
     dispatch(logOut());
-    router.push('/');
+    router.dismissAll();
+    router.replace('/');
+    // router.push('/');
   }
 
   return (
@@ -74,11 +81,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                 <View style={styles.infoContainer}>
                   <View style={styles.infoRow}>
                     <MaterialIcons name="person" size={20} color="#726C6C" />
-                    <Text style={styles.infoText}>{name}</Text>
+                    <Text style={styles.infoText}>{toCapitalizedWords(name)}</Text>
                   </View>
                   <View style={styles.infoRow}>
                     <MaterialIcons name="call" size={20} color="#726C6C" />
-                    <Text style={styles.infoText}>{phoneNumber.slice(3)}</Text>
+                    <Text style={styles.infoText}>{phonenumber.slice(3)}</Text>
                   </View>
                 </View>
               </View>
