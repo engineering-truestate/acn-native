@@ -4,7 +4,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { View, Dimensions, Platform, SafeAreaView, StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
-import DeviceInfo from 'react-native-device-info';
 import {
   useFonts,
   Montserrat_400Regular,
