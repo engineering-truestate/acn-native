@@ -1,40 +1,113 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Switch } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import { useRefinementList } from 'react-instantsearch';
+import CheckboxFilter from './CheckboxFilter';
+import DropdownMoreFilters from '../DropdownMoreFilters';
+import RangeMoreFilters from '../RangeMoreFilters';
+
+interface BudgetMarketValueFiltersProps {
+  isMarketValueActive: Boolean;
+  isBudgetActive: Boolean;
+  handleRangeFilterChange: (attribute: string) => void;
+}
+const BudgetMarketValueFilters = ({
+  isMarketValueActive,
+  isBudgetActive,
+  handleRangeFilterChange,
+}: BudgetMarketValueFiltersProps) => {
+  const [minBudget, setMinBudget] = useState('');
+  const [maxBudget, setMaxBudget] = useState('');
+  const { items, refine } = useRefinementList({ attribute: 'marketValue' });
+
+  return (
+    <View className="border border-[#ECECEC] rounded-xl p-4 bg-white mb-5">
+      <Text className="text-sm font-semibold text-neutral-700 mb-2">Budget</Text>
+
+      {!isMarketValueActive && (
+        <View className="mb-4 flex-row space-x-3">
+          <TextInput
+            className="flex-1 h-12 px-3 rounded-md border border-neutral-300 bg-white text-base text-neutral-800"
+            placeholder="Min"
+            value={minBudget}
+            keyboardType="numeric"
+            onChangeText={(val) => {
+              setMinBudget(val);
+              handleRangeFilterChange('budget.to');
+            }}
+          />
+          <TextInput
+            className="flex-1 h-12 px-3 rounded-md border border-neutral-300 bg-white text-base text-neutral-800"
+            placeholder="Max"
+            value={maxBudget}
+            keyboardType="numeric"
+            onChangeText={(val) => {
+              setMaxBudget(val);
+              handleRangeFilterChange('budget.to');
+            }}
+          />
+        </View>
+      )}
+
+      {!isBudgetActive && (
+        <>
+          <View className="h-px bg-neutral-300 my-2" />
+          <Text className="text-sm font-semibold text-neutral-700 mt-2 mb-2">Market Value</Text>
+          <View className="max-h-[240px]">
+            <FlatList
+              data={items}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => {
+                const isRefined = item.isRefined;
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      refine(item.value);
+                      handleRangeFilterChange('marketValue');
+                    }}
+                    className={`flex-1 m-1 p-3 rounded-lg border ${isRefined
+                      ? 'bg-[#DFF4F3] border-primary'
+                      : 'bg-gray-50 border-neutral-300'
+                      }`}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${isRefined ? 'text-primary' : 'text-neutral-800'
+                        }`}
+                    >
+                      {item.label}
+                    </Text>
+                    <Text
+                      className={`text-xs ${isRefined ? 'text-primary' : 'text-neutral-500'
+                        }`}
+                    >
+                      {item.count}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </>
+      )}
+    </View>
+  );
+};
 
 interface MoreFiltersRequirementProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   handleToggle: () => void;
 }
-
-const FilterSection = ({ attribute, title }: { attribute: string; title: string }) => {
-  const { items, refine } = useRefinementList({ attribute });
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {items.map((item) => (
-        <TouchableOpacity
-          key={item.value}
-          style={styles.filterItem}
-          onPress={() => refine(item.value)}
-        >
-          <Switch
-            value={item.isRefined}
-            onValueChange={() => refine(item.value)}
-            trackColor={{ false: '#E5E7EB', true: '#10B981' }}
-            thumbColor="#FFFFFF"
-          />
-          <Text style={styles.filterLabel}>{item.label}</Text>
-          <Text style={styles.filterCount}>({item.count})</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-};
-
 const MoreFiltersRequirement = ({
   isOpen,
   setIsOpen,
@@ -42,131 +115,66 @@ const MoreFiltersRequirement = ({
 }: MoreFiltersRequirementProps) => {
   if (!isOpen) return null;
 
+  const [showFilters, setShowFilters] = useState(true);
+
+  const toggleFiltersVisibility = () => {
+    setShowFilters(!showFilters);
+  };
+
+
   return (
     <Modal
-      visible={isOpen}
+      visible={showFilters}
       animationType="slide"
       transparent={true}
-      onRequestClose={handleToggle}
+      onRequestClose={()=> {
+        toggleFiltersVisibility()}}
+      
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <Text style={styles.title}>More Filters</Text>
-            <TouchableOpacity onPress={handleToggle}>
-              <Ionicons name="close" size={24} color="#374151" />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.content}>
-            <FilterSection attribute="assetType" title="Asset Type" />
-            <FilterSection attribute="configuration" title="Configuration" />
-            <FilterSection attribute="budget.from" title="Budget Range" />
-            <FilterSection attribute="location" title="Location" />
-            <FilterSection attribute="status" title="Status" />
-          </ScrollView>
-
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.applyButton}>
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
-            </TouchableOpacity>
-          </View>
+      <SafeAreaView className="flex-1 bg-white px-4">
+        <View className="flex-row justify-between items-center px-4 pt-10 pb-4 border-b border-gray-200">
+          <Text className="text-xl font-bold text-black text-center flex-1">More Filters</Text>
+          <TouchableOpacity onPress={handleToggle}>
+            <Text className="text-lg text-black">✕</Text>
+          </TouchableOpacity>
         </View>
-      </View>
+
+        <ScrollView className="px-4">
+          <View className="flex-row flex-wrap justify-between mb-4">
+            <View className="w-[48%] mb-4 z-20">
+              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Asset Type</Text>
+              <DropdownMoreFilters title="Asset Type" attribute="assetType" type="dropdown" />
+            </View>
+            <View className="w-[48%] mb-4 z-20">
+              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">configuration</Text>
+              <DropdownMoreFilters attribute="configuration" title="Configuration" type="dropdown" />
+            </View>
+          </View>
+
+
+
+          <RangeMoreFilters title="SBUA (sqft)" attribute="sbua" />
+          <CheckboxFilter attribute="Requirment" />
+          <BudgetMarketValueFilters
+            isBudgetActive={false}
+            isMarketValueActive={false}
+            handleRangeFilterChange={() => console.log()}
+          />
+        </ScrollView>
+
+        <TouchableOpacity
+          className="bg-[#103D35] p-3 mx-4 mb-8 rounded-lg items-center"
+          onPress={() => {
+             // Make sure this is called to handle any side effects
+            toggleFiltersVisibility()
+          }}
+        >
+          <Text className="text-white text-lg font-semibold">Show Results</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     </Modal>
   );
 };
 
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    maxHeight: '80%',
-    width: '100%',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  title: {
-    fontFamily: 'Montserrat_600SemiBold',
-    fontSize: 18,
-    color: '#374151',
-  },
-  content: {
-    padding: 16,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontFamily: 'Montserrat_600SemiBold',
-    fontSize: 16,
-    color: '#374151',
-    marginBottom: 12,
-  },
-  filterItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  filterLabel: {
-    flex: 1,
-    fontFamily: 'Montserrat_400Regular',
-    fontSize: 14,
-    color: '#374151',
-    marginLeft: 12,
-  },
-  filterCount: {
-    fontFamily: 'Montserrat_400Regular',
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  footer: {
-    flexDirection: 'row',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    gap: 16,
-  },
-  clearButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    alignItems: 'center',
-  },
-  clearButtonText: {
-    fontFamily: 'Montserrat_600SemiBold',
-    fontSize: 16,
-    color: '#374151',
-  },
-  applyButton: {
-    flex: 1,
-    backgroundColor: '#10B981',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    fontFamily: 'Montserrat_600SemiBold',
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-});
+export default MoreFiltersRequirement;
 
-export default MoreFiltersRequirement; 

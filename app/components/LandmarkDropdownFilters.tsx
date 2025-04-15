@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ActivityIndicator, Keyboard } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Landmark } from '../(tabs)/properties';
+import { Ionicons } from '@expo/vector-icons';
 
 // Define types for API responses
 interface PlacePrediction {
@@ -235,8 +236,8 @@ const LandmarkDropdownFilters = ({ selectedLandmark, setSelectedLandmark }: Land
       {/* Search Input */}
       <View style={styles.inputContainer}>
         {/* Location Icon */}
-        <View style={styles.iconPlaceholder} />
-        
+        {/* <View style={styles.iconPlaceholder} /> */}
+        <Ionicons name="location-outline" size={20} color="#6B7280" />
         <TextInput
           style={styles.textInput}
           placeholder="Search landmarks"
@@ -279,20 +280,22 @@ const LandmarkDropdownFilters = ({ selectedLandmark, setSelectedLandmark }: Land
 
       {/* Slider section */}
       {selectedLandmark && (
-        <View style={styles.sliderContainer}>
-          <View style={styles.radiusHeaderContainer}>
-            <Text style={styles.radiusHeader}>Search Radius (in km)</Text>
-            <View style={styles.infoIconPlaceholder} />
+        <View className="mt-4 mb-4">
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="font-semibold text-sm text-gray-700">Search Radius (in km)</Text>
+            <Ionicons name="information-circle-outline" size={18} color="#6B7280" />
           </View>
 
           <View style={styles.radiusLabelsContainer}>
-            <Text style={styles.radiusLabel}>1 km</Text>
-            <Text style={styles.radiusLabelCurrent}>{formatRadius(sliderTempValue)} km</Text>
-            <Text style={styles.radiusLabel}>10 km</Text>
+            <Text className="text-sm text-gray-700 font-medium mb-2">1 km</Text>
+            <Text className="text-sm text-gray-700 font-medium mb-2">{formatRadius(sliderTempValue)} km</Text>
+            <Text className="text-sm text-gray-700 font-medium mb-2">10 km</Text>
           </View>
-
+          {/* <Text className="text-sm text-gray-700 font-medium mb-2">
+                  Selected: {sliderTempValue.toFixed(1)} km
+          </Text> */}
           <Slider
-            style={styles.slider}
+            className="h-8 mb-3"
             minimumValue={1000}
             maximumValue={10000}
             step={100}
