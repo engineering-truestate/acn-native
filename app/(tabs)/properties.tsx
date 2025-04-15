@@ -150,7 +150,6 @@ function MobileHits() {
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
 
   const handleCardClick = (property: any) => {
-    console.log("Property clicked:", property);
     setSelectedProperty(property);
   };
 
