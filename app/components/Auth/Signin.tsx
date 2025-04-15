@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
+import auth from '@react-native-firebase/auth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -19,6 +20,9 @@ export default function SignUp() {
 
   const [phoneInput, setPhoneInput] = useState("");
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [confirm, setConfirm] = useState<any>(null);
+  const [step, setStep] = useState(1);
 
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -55,59 +59,38 @@ export default function SignUp() {
     Linking.openURL(whatsappUrl);
   };
 
-  const handleCheckUser = () => {
+  const handleCheckUser = async () => {
     if (!isPhoneValid) {
       setErrorMessage("Please enter a valid phone number and country code.");
       return;
     }
-
-    dispatch(setAgentDataState(phoneNumber))
-      .unwrap() // Use unwrap to handle the async logic cleanly
-      .then((result) => {
-        if (result?.docId) {
-          // Set up real-time listener for the agent
-          dispatch(listenToAgentChanges(result.docId));
-        } else {
-          setErrorMessage("No user found.");
-        }
-
-      })
-      .catch((error) => {
-        console.error("Error fetching agent data:", error);
-        setErrorMessage(error?.message);
-      })
-      .finally(() => {
-        // Set the phone number unconditionally
-        dispatch(setPhonenumber(phoneNumber));
-      });
-  }
-
-  const handleUnverifiedLoginAttempt = async () => {
+  
     try {
-      const q = query(
-        collection(db, "agents"),
-        where("phonenumber", "==", phonenumber)
-      );
-
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const agentDoc = querySnapshot.docs[0];
-        const agentRef = doc(db, "agents", agentDoc.id);
-
-        await updateDoc(agentRef, {
-          lastModified: getUnixDateTime()
-        });
-
-        console.log("Timestamp updated successfully");
-      } else {
-        console.log("No document found with the provided phone number");
+      const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();  
+      
+      // If agent exists in DB
+      dispatch(listenToAgentChanges(result.docId));
+      const agentData = result.docData;
+  
+      if (agentData?.blacklisted) {
+        router.push('/components/Auth/BlacklistedPage');
+        return;
       }
-
+  
+      if (!agentData?.verified) {
+        router.push('/components/Auth/VerificationPage');
+        return;
+      }
+  
+      // Proceed with Firebase phone sign-in
+      await signInWithPhoneNumber();
     } catch (error) {
-      console.error("Error updating timestamp:", error);
+      await handleNewAgent();
+    } finally {
+      dispatch(setPhonenumber(phoneNumber));
     }
-  }
+  };
+  
 
   const handleNewAgent = async () => {
     if (phonenumber && isPhoneValid && !isAgentInDb && !addingNewAgent) {
@@ -134,43 +117,60 @@ export default function SignUp() {
         setErrorMessage("There was an error adding the agent. Please try again.");
         setAddingNewAgent(false);
       }
+      finally {
+        router.push('/components/Auth/VerificationPage')
+      }
     }
   }
 
-  const handleSendOtp = () => {
-    // router.push({
-    //   pathname: '/components/Auth/OTPage',
-    //   params: { phoneNumber },
-    // });
-    router.push('/components/Auth/OTPage');
-  };
+  const signInWithPhoneNumber = async () => {
+    setIsSendingOTP(true);
+    setErrorMessage(""); // Reset any previous errors
 
-  useEffect(() => {
-    if (!loading) {
-      if (phonenumber) {
-        if (isAgentInDb) {
-          if (isBlacklisted) {
-            handleUnverifiedLoginAttempt();
-            router.push('/components/Auth/BlacklistedPage')
-          } else {
-            if (!isVerified) {
-              handleUnverifiedLoginAttempt();
-              router.push('/components/Auth/VerificationPage')
-            }
-            else {
-              handleSendOtp();
-            }
-          }
+    try {
+        console.log('📱 Attempting to send OTP to:', phoneNumber);
+
+        // Configure reCAPTCHA verifier if needed
+        if (!auth().settings.appVerificationDisabledForTesting) {
+            console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
         }
-        else {
-          handleNewAgent();
+
+        // Send OTP using Firebase
+        const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
+        console.log('✅ OTP sent successfully, confirmation received');
+
+        setIsSendingOTP(false);
+        setConfirm(confirmation);
+          // Show success message to user
+       
+          router.push({ 
+            pathname: '/components/Auth/OTPage', 
+            params: { verificationId: confirmation.verificationId } 
+          });
+
+    } catch (error: any) {
+        console.error("❌ Error during OTP send:", {
+            message: error.message,
+            code: error.code,
+            nativeErrorMessage: error.nativeErrorMessage
+        });
+
+        // Handle specific error cases
+        if (error.code === 'auth/invalid-phone-number') {
+            setErrorMessage("Please enter a valid phone number.");
+        } else if (error.code === 'auth/too-many-requests') {
+            setErrorMessage("Too many attempts. Please try again later.");
+        } else if (error.code === 'auth/operation-not-allowed') {
+            setErrorMessage("Phone authentication is not enabled. Please contact support.");
+        } else {
+            setErrorMessage(error.message || "Failed to send OTP. Please try again.");
         }
-      }
-      else {
-        setPhoneInput("");
-      }
+    } finally {
+        setErrorMessage('');
+        setIsSendingOTP(false);
+        
     }
-  }, [phonenumber, isAgentInDb, isVerified, isBlacklisted, loading]);
+};
 
   return (
     <View style={styles.container}>

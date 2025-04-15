@@ -42,4 +42,5 @@ app-example
 app\config\*
 
 
-firebase.ts
+ios/
+android/

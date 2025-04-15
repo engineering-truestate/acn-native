@@ -19,6 +19,7 @@ interface MonthFilterDropdownProps {
 }
 
 const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownProps) => {
+  const allOptions = [{label: "All", value: ""}, ...options];
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState("");
 
@@ -26,12 +27,12 @@ const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownPr
     if (!value || value === "") {
       setSelectedLabel("All");
     } else {
-      const selected = options?.find((option) => option?.value === value)?.label;
+      const selected = allOptions?.find((option) => option?.value === value)?.label;
       if (selected) {
         setSelectedLabel(selected);
       }
     }
-  }, [value, options]);
+  }, [value, allOptions]);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -68,7 +69,7 @@ const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownPr
 
         {isOpen && (
           <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-30 min-w-[100px]">
-            {options.map((option, index) => (
+            {allOptions.map((option, index) => (
               <StyledTouchableOpacity
                 key={index}
                 className="rounded-md w-full px-3 py-2 mb-1"
