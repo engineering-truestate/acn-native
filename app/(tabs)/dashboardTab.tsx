@@ -1,7 +1,7 @@
 import { collection, doc, getDocs, query, updateDoc, where, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
-import { db } from '../../../config/firebase.ts';
+import { db } from '../config/firebase';
 import { useSelector } from 'react-redux';
 import { Property, Requirement, Enquiry, EnquiryWithProperty } from '../types';
 import Dashboard from '../components/dashboard/Dashboard';
