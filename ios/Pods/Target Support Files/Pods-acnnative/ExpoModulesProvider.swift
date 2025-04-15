@@ -7,6 +7,7 @@
 
 import ExpoModulesCore
 import Expo
+import EXApplication
 import ExpoAsset
 import ExpoBlur
 import ExpoClipboard
@@ -27,6 +28,7 @@ public class ExpoModulesProvider: ModulesProvider {
   public override func getModuleClasses() -> [AnyModule.Type] {
     return [
       ExpoFetchModule.self,
+      ApplicationModule.self,
       AssetModule.self,
       BlurViewModule.self,
       ClipboardModule.self,
