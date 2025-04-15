@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions, Pressable, Image } from 'react-native';
 import { Link, usePathname } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Button } from 'react-native-elements';
 import KamManager from '@/app/modals/KamModal';
+import KamModalIcon from '../assets/icons/KamModal.png';
 
 export const KamModalButton = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -21,13 +22,23 @@ export const KamModalButton = () => {
           />
           <View style={styles.button}>
             <Button
-              title="Kam"
               onPress={() => {
                 setKamModalVisible(true);
               }}
               containerStyle={{ marginVertical: 10 }}
-              buttonStyle={{ backgroundColor: '#007BFF' }}
+              buttonStyle={{
+                backgroundColor: '#153E3B',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              icon={
+                <Image
+                  source={require('../assets/icons/KamModal.webp')}
+                  style={{ width: 24, height: 24 }} // You can adjust the size
+                />
+              }
             />
+
           </View>
         </>
       )}
