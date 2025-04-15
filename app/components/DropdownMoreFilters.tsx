@@ -3,13 +3,6 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'rea
 import { useRefinementList } from 'react-instantsearch';
 import { Ionicons } from '@expo/vector-icons';
 
-interface DropdownMoreFiltersProps {
-  attribute: string;
-  title: string;
-  type?: string;
-  transformFunction?: (label: string) => string;
-}
-
 interface RefinementItem {
   value: string;
   label: string;
@@ -17,24 +10,25 @@ interface RefinementItem {
   isRefined: boolean;
 }
 
+interface DropdownMoreFiltersProps {
+  attribute: string;
+  title: string;
+  type?: string;
+  transformFunction?: (label: string) => string;
+  items: RefinementItem[], 
+  refine: any,
+}
+
 const DropdownMoreFilters = ({
   attribute,
   title,
+  items, 
+  refine,
   type,
   transformFunction
 }: DropdownMoreFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ height: 0 });
-
-  const { items, refine } = useRefinementList({
-    attribute,
-    limit: 50,
-    transformItems: useCallback((items: RefinementItem[]) =>
-      items.map((item) => ({
-        ...item,
-        label: transformFunction ? transformFunction(item.label) : item.label,
-      })), [transformFunction])
-  });
 
   const handleToggle = useCallback(() => {
     setIsOpen(prev => !prev);
@@ -93,7 +87,7 @@ return (
     </TouchableOpacity>
     {isOpen && (
       <View
-        className="border border-gray-200 rounded-md bg-white shadow-sm z-10 absolute w-full"
+        className={`border border-gray-200 rounded-md bg-white shadow-sm z-10 absolute w-full ${isOpen ? 'visible' : 'invisible'}`}
         style={{ top: dropdownLayout.height + 8 }}
       >
         {renderItems}

@@ -12,6 +12,7 @@ import { db } from '@/app/config/firebase';
 import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
+import ShareModal from '@/app/modals/ShareModal';
 // Define Property interface based on available data
 // interface Property {
 //   propertyId: string;
@@ -43,8 +44,14 @@ import ConfirmModal from '@/app/modals/ConfirmModal';
 //   cpCode?: string;
 // }
 
+interface AgentData {
+  phonenumber: string;
+  [key: string]: any;
+}
+
 interface PropertyDetailsScreenProps {
   property: Property;
+  agentData: AgentData;
   onClose: () => void;
 }
 
@@ -76,7 +83,7 @@ const formatDate = (timestamp?: number) => {
 };
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetailsScreenProps) => {
+const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: PropertyDetailsScreenProps) => {
   const router = useRouter();
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -210,6 +217,11 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     </View>
   );
 
+  const handleShareButtonPress = () => {
+    setIsShareModalOpen(true);
+
+  };
+
   return (
     <Modal
       visible={true}
@@ -319,6 +331,12 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
           </View>
         </ScrollView>
+        <ShareModal
+          property={property}
+          agentData={agentData}
+          setProfileModalOpen={setIsShareModalOpen}
+          visible = {isShareModalOpen}
+        />
         <EnquiryCPModal
             setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
             generatingEnquiry={false}
@@ -335,7 +353,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           />
 
         {/* Fixed share button */}
-        <TouchableOpacity style={styles.shareButton}>
+        <TouchableOpacity style={styles.shareButton} onPress={handleShareButtonPress}>
           <Ionicons name="share-social" size={24} color="white" />
         </TouchableOpacity>
 

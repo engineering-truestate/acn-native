@@ -8,6 +8,16 @@ import { Landmark } from '../(tabs)/properties';
 import RangeMoreFilters from './RangeMoreFilters';
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
 
+interface RangeState {
+  start: (number | undefined)[];
+  range: {
+    min?: number;
+    max?: number;
+  };
+  refine: (range: [number, number]) => void;
+  currentRefinement?: [number | undefined, number | undefined];
+}
+
 interface MoreFiltersProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -29,9 +39,6 @@ const MoreFilters = ({
   const [selectedLocationFilter, setSelectedLocationFilter] = useState('micromarket');
   const [landmarkSearch, setLandmarkSearch] = useState('');
 
-  // Debug log to check when selectedLandmark changes in this component
-  console.log("MoreFilters selectedLandmark:", selectedLandmark);
-
   // Micromarket refinement list
   const { items: micromarketItems, refine: refineMicromarket } = useRefinementList({
     attribute: 'micromarket',
@@ -49,8 +56,8 @@ const MoreFilters = ({
     attribute: 'area',
     limit: 50,
   });
-   // Other refinement lists for assetType, unitType, etc.
-   const { items: assetTypeItems, refine: refineAssetType } = useRefinementList({
+  // Other refinement lists for assetType, unitType, etc.
+  const { items: assetTypeItems, refine: refineAssetType } = useRefinementList({
     attribute: 'assetType',
     limit: 50,
   });
@@ -60,14 +67,37 @@ const MoreFilters = ({
     limit: 50,
   });
 
+  const { items: facingItems, refine: refineFacing } = useRefinementList({
+    attribute: 'facing',
+    limit: 50,
+  });
+
+  const { items: floorItems, refine: refineFloor } = useRefinementList({
+    attribute: 'floorNo',
+    limit: 50,
+  });
+
   const { items: sbuaItems, refine: refineSbua } = useRefinementList({
     attribute: 'sbua',
     limit: 50,
   });
 
-  const { items: totalAskPriceItems, refine: refineTotalAskPrice } = useRefinementList({
-    attribute: 'totalAskPrice',
-    limit: 50,
+  const sbuaRangeState: RangeState = useRange({
+    attribute: 'sbua'
+  });
+
+  const totalAskPriceState: RangeState = useRange({
+    attribute: 'totalAskPrice'
+  });
+
+  const plotSizeState: RangeState = useRange({
+    attribute: 'plotSize'
+  });
+  const carpetState: RangeState = useRange({
+    attribute: 'carpet'
+  });
+  const askPricePerSqftState: RangeState = useRange({
+    attribute: 'askPricePerSqft'
   });
 
   const clearAttributeFilter = (attribute: string) => {
@@ -125,126 +155,6 @@ const MoreFilters = ({
     );
   };
 
-  // return (
-  // <Modal
-  //   visible={isOpen}
-  //   animationType="slide"
-  //   transparent={true}
-  //   onRequestClose={handleToggle}
-  // >
-  //   <View style={styles.modalOverlay}>
-  //     <View style={styles.modalContent}>
-  //       {/* Header */}
-  //       <View style={styles.header}>
-  //         <Text style={styles.headerTitle}>More Filters</Text>
-  //         <TouchableOpacity onPress={handleToggle}>
-  //           <Text style={styles.closeButton}>×</Text>
-  //         </TouchableOpacity>
-  //       </View>
-
-  //       <ScrollView style={styles.scrollView}>
-  //         <View style={styles.mobileFilters}>
-  //           {outsideFilters.map((filter, idx) => (
-  //             <View key={idx} style={styles.filterCard}>
-  //               <Text style={styles.filterTitle}>{filter.title}</Text>
-  //               {filter.type === 'dropdown' ? (
-  //                 <DropdownMoreFilters
-  //                   attribute={filter.attribute}
-  //                   title="Please Select"
-  //                   type={filter.type}
-  //                 />
-  //               ) : filter.type === 'range' ? (
-  //                 <></>
-  //               ) : null}
-  //             </View>
-  //           ))}
-  //         </View>
-
-  //         {/* Location Filter */}
-  //         <View style={styles.locationFilter}>
-  //           <View style={styles.locationButtons}>
-  //             <TouchableOpacity
-  //               style={[
-  //                 styles.locationButton,
-  //                 selectedLocationFilter === 'landmark' && styles.selectedLocationButton
-  //               ]}
-  //               onPress={() => {
-  //                 setSelectedLocationFilter('landmark');
-  //                 clearAttributeFilter('micromarket');
-  //               }}
-  //             >
-  //               <Text style={[
-  //                 styles.locationButtonText,
-  //                 selectedLocationFilter === 'landmark' && styles.selectedLocationButtonText
-  //               ]}>
-  //                 Landmark
-  //               </Text>
-  //             </TouchableOpacity>
-  //             <TouchableOpacity
-  //               style={[
-  //                 styles.locationButton,
-  //                 selectedLocationFilter === 'micromarket' && styles.selectedLocationButton
-  //               ]}
-  //               onPress={() => {
-  //                 setSelectedLocationFilter('micromarket');
-  //                 setSelectedLandmark(null);
-  //               }}
-  //             >
-  //               <Text style={[
-  //                 styles.locationButtonText,
-  //                 selectedLocationFilter === 'micromarket' && styles.selectedLocationButtonText
-  //               ]}>
-  //                 Micromarket
-  //               </Text>
-  //             </TouchableOpacity>
-  //           </View>
-
-  //           {selectedLocationFilter === 'micromarket' && (
-  //             renderRefinementList(micromarketItems, refineMicromarket)
-  //           )}
-  //           {selectedLocationFilter === 'landmark' && (
-  //             <LandmarkDropdownFilters
-  //               selectedLandmark={selectedLandmark}
-  //               setSelectedLandmark={setSelectedLandmark}
-  //             />
-  //           )}
-  //         </View>
-
-  //         {/* Inside Filters */}
-  //         <View style={styles.insideFilters}>
-  //           {insideFilters.map((filter, idx) => (
-  //             <View key={idx} style={styles.filterCard}>
-  //               <Text style={styles.filterTitle}>{filter.title}</Text>
-  //               {filter.type === 'dropdown' ? (
-  //                 <DropdownMoreFilters
-  //                   attribute={filter.attribute}
-  //                   title="Please Select"
-  //                 />
-  //               ) : filter.type === 'range' ? (
-  //                 // <RangeMoreFilters attribute={filter.attribute} />
-  //                 <></>
-  //               ) : filter.type === 'tab' ? (
-  //                 filter.attribute === 'currentStatus' ? (
-  //                   renderRefinementList(statusItems, refineStatus)
-  //                 ) : filter.attribute === 'area' ? (
-  //                   renderRefinementList(areaItems, refineArea)
-  //                 ) : null
-  //               ) : null}
-  //             </View>
-  //           ))}
-  //         </View>
-  //       </ScrollView>
-
-  //       {/* Footer */}
-  //       <View style={styles.footer}>
-  //         <TouchableOpacity style={styles.showResultsButton} onPress={handleToggle}>
-  //           <Text style={styles.showResultsText}>Show Results</Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //     </View>
-  //   </View>
-  // </Modal>
-  // );
   return (
     <Modal
       visible={isOpen}
@@ -273,6 +183,8 @@ const MoreFilters = ({
                 attribute={outsideFilters[0].attribute}
                 title="Please Select"
                 type={outsideFilters[0].type}
+                items={assetTypeItems}
+                refine={refineAssetType}
               />
             </View>
 
@@ -284,6 +196,8 @@ const MoreFilters = ({
                 attribute={outsideFilters[1].attribute}
                 title="Please Select"
                 type={outsideFilters[1].type}
+                items={unitTypeItems}
+                refine={refineUnitType}
               />
             </View>
           </View>
@@ -291,22 +205,17 @@ const MoreFilters = ({
           {/* SBUA Range */}
           <RangeMoreFilters
             title={outsideFilters[2].title}
-            attribute={outsideFilters[2].attribute}
-
+            refine={sbuaRangeState.refine}
+            range={sbuaRangeState.range}
+            start={sbuaRangeState.start}
           />
 
-          {/* Total Ask Price Range - replaced with BudgetRangeSlider */}
-          <View className="border border-gray-200 rounded-xl w-full mb-4">
-            <View className="py-3 px-4">
-              <Text className="font-semibold text-sm text-gray-700">
-                {outsideFilters[3].title}
-              </Text>
-            </View>
-            <BudgetRangeSlider
-              attribute={outsideFilters[3].attribute}
-              onApply={handleToggle}
-            />
-          </View>
+          <RangeMoreFilters
+            title={outsideFilters[3].title}
+            refine={totalAskPriceState.refine}
+            range={totalAskPriceState.range}
+            start={totalAskPriceState.start}
+          />
 
           {/* Location Filter */}
           <View className="border border-gray-200 rounded-xl mb-4">
@@ -315,8 +224,8 @@ const MoreFilters = ({
               <View className="flex-row">
                 <TouchableOpacity
                   className={`flex-1 py-3 px-4 rounded-md ${selectedLocationFilter === 'landmark'
-                      ? 'bg-white'
-                      : ''
+                    ? 'bg-white'
+                    : ''
                     }`}
                   onPress={() => {
                     setSelectedLocationFilter('landmark');
@@ -331,8 +240,8 @@ const MoreFilters = ({
 
                 <TouchableOpacity
                   className={`flex-1 py-3 px-4 rounded-md ${selectedLocationFilter === 'micromarket'
-                      ? 'bg-white'
-                      : ''
+                    ? 'bg-white'
+                    : ''
                     }`}
                   onPress={() => {
                     setSelectedLocationFilter('micromarket');
@@ -349,37 +258,12 @@ const MoreFilters = ({
 
             {/* Search Input */}
             <View className="p-4">
-              {/* <View className="flex-row items-center border border-gray-300 rounded-md px-3 h-12 mb-2">
-                <Ionicons name="location-outline" size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 ml-2 text-gray-700"
-                  placeholder="Search landmarks"
-                  value={landmarkSearch}
-                  onChangeText={setLandmarkSearch}
-                />
-              </View> */}
-              {/* <TouchableOpacity
-                 className="flex-row items-center border border-gray-300 rounded-md px-3 h-12 mb-2"
-                  onPress={() => {
-                    setSelectedLocationFilter('landmark');
-                    clearAttributeFilter('micromarket');
-                  }}
-                >
-                  <Text className="flex-1 ml-2 text-gray-700">
-                    Landmark
-                  </Text>
-                </TouchableOpacity> */}
               {selectedLocationFilter === 'landmark' && (
                 <LandmarkDropdownFilters
                   selectedLandmark={selectedLandmark}
                   setSelectedLandmark={setSelectedLandmark}
                 />
               )}
-              {/* {selectedLocationFilter === 'landmark' && (
-                <SearchRadiusSlider attribute="radius" onApply={() => { }}
-
-                />
-              )} */}
 
               {selectedLocationFilter === 'micromarket' && (
                 renderRefinementList(micromarketItems, refineMicromarket)
@@ -387,46 +271,55 @@ const MoreFilters = ({
             </View>
           </View>
 
-          {/* Inside Filters - Plot Size, Carpet Area, Ask Price/Sqft */}
           <RangeMoreFilters
             title={insideFilters[0].title}
-            attribute={insideFilters[0].attribute}
-
+            refine={plotSizeState.refine}
+            start={plotSizeState.start}
+            range={plotSizeState.range}
           />
 
           <RangeMoreFilters
             title={insideFilters[1].title}
-            attribute={insideFilters[1].attribute}
-
+            refine={carpetState.refine}
+            start={carpetState.start}
+            range={carpetState.range}
           />
 
           <RangeMoreFilters
             title={insideFilters[2].title}
-            attribute={insideFilters[2].attribute}
+            refine={askPricePerSqftState.refine}
+            start={askPricePerSqftState.start}
+            range={askPricePerSqftState.range}
           />
 
-          {/* Facing Dropdown */}
-          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4">
-            <Text className="font-semibold text-sm text-gray-700 mb-3">
-              {insideFilters[3].title}
-            </Text>
-            <DropdownMoreFilters
-              attribute={insideFilters[3].attribute}
-              title="Please Select"
-              type={insideFilters[3].type}
-            />
-          </View>
+          <View className="flex-row flex-wrap justify-between mb-4">
+            {/* Facing Dropdown */}
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4">
+              <Text className="font-semibold text-sm text-gray-700 mb-3">
+                {insideFilters[3].title}
+              </Text>
+              <DropdownMoreFilters
+                attribute={insideFilters[3].attribute}
+                title="Please Select"
+                type={insideFilters[3].type}
+                items={facingItems}
+                refine={refineFacing}
+              />
+            </View>
 
-          {/* Floor Dropdown */}
-          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4">
-            <Text className="font-semibold text-sm text-gray-700 mb-3">
-              {insideFilters[4].title}
-            </Text>
-            <DropdownMoreFilters
-              attribute={insideFilters[4].attribute}
-              title="Please Select"
-              type={insideFilters[4].type}
-            />
+            {/* Floor Dropdown */}
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4">
+              <Text className="font-semibold text-sm text-gray-700 mb-3">
+                {insideFilters[4].title}
+              </Text>
+              <DropdownMoreFilters
+                attribute={insideFilters[4].attribute}
+                title="Please Select"
+                type={insideFilters[4].type}
+                items={floorItems}
+                refine={refineFloor}
+              />
+            </View>
           </View>
 
           {/* Status Refinement List */}

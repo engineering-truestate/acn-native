@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
@@ -207,7 +207,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
                 {property.micromarket || "-"}
               </Text>
             </View>
-            <Ionicons name="share-outline" size={14} color="#000" style={{ marginLeft: 5 }} onPress={handleShareButton} />
+            <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
+                      <Ionicons name="share-social" size={18} color="#153E3B" />
+                    </TouchableOpacity>
           </View>
 
           {/* Property Name */}
@@ -298,6 +300,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       {showDetails && (
         <PropertyDetailsScreen 
           property={property} 
+          agentData={agentData}
           onClose={() => setShowDetails(false)} 
         />
       )}
@@ -306,3 +309,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 };
 
 export default PropertyCard; 
+
+const styles = StyleSheet.create({
+  shareButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 22,
+    backgroundColor: '#E3E3E3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+});
