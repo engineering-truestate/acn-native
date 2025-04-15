@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Button } from 'react-native-elements';
 import KamManager from '@/app/modals/KamModal';
-import KamModalIcon from '../assets/icons/KamModal.png';
 
 export const KamModalButton = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);

@@ -298,6 +298,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       {showDetails && (
         <PropertyDetailsScreen 
           property={property} 
+          agentData={agentData}
           onClose={() => setShowDetails(false)} 
         />
       )}
