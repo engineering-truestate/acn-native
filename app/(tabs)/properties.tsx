@@ -115,7 +115,7 @@ export default function PropertiesScreen() {
         <View className="flex-1 relative">
           {/* Filters at the top */}
           <View className="absolute top-2 left-0 right-0 z-10 bg-white border-b border-gray-200">
-            <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} />
+            <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
           </View>
           
           {/* Main content area with padding to account for filters and pagination */}

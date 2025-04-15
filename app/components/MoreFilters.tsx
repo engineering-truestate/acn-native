@@ -8,7 +8,7 @@ import { Landmark } from '../(tabs)/properties';
 import RangeMoreFilters from './RangeMoreFilters';
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
 
-interface RangeState {
+export interface RangeState {
   start: (number | undefined)[];
   range: {
     min?: number;
@@ -180,9 +180,7 @@ const MoreFilters = ({
                 {outsideFilters[0].title}
               </Text>
               <DropdownMoreFilters
-                attribute={outsideFilters[0].attribute}
                 title="Please Select"
-                type={outsideFilters[0].type}
                 items={assetTypeItems}
                 refine={refineAssetType}
               />
@@ -193,9 +191,7 @@ const MoreFilters = ({
                 {outsideFilters[1].title}
               </Text>
               <DropdownMoreFilters
-                attribute={outsideFilters[1].attribute}
                 title="Please Select"
-                type={outsideFilters[1].type}
                 items={unitTypeItems}
                 refine={refineUnitType}
               />
@@ -299,9 +295,7 @@ const MoreFilters = ({
                 {insideFilters[3].title}
               </Text>
               <DropdownMoreFilters
-                attribute={insideFilters[3].attribute}
                 title="Please Select"
-                type={insideFilters[3].type}
                 items={facingItems}
                 refine={refineFacing}
               />
@@ -313,9 +307,7 @@ const MoreFilters = ({
                 {insideFilters[4].title}
               </Text>
               <DropdownMoreFilters
-                attribute={insideFilters[4].attribute}
                 title="Please Select"
-                type={insideFilters[4].type}
                 items={floorItems}
                 refine={refineFloor}
               />

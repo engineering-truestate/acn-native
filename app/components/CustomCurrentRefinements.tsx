@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { useCurrentRefinements } from 'react-instantsearch';
+import { useClearRefinements, useCurrentRefinements } from 'react-instantsearch';
+import { Button } from 'react-native-elements';
 
 interface CustomCurrentRefinementsProps {
   selectedLandmark?: any;
@@ -12,48 +13,61 @@ export default function CustomCurrentRefinements({
   setSelectedLandmark,
 }: CustomCurrentRefinementsProps) {
   const { items, refine } = useCurrentRefinements();
+  const { refine: clearRefinements } = useClearRefinements();
 
   if (items.length === 0 && !selectedLandmark) {
     return null;
   }
 
+  console.log("selectedLandmark", selectedLandmark);
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        {selectedLandmark && (
-          <TouchableOpacity
-            onPress={() => setSelectedLandmark?.(null)}
-            style={styles.chip}
-          >
-            <Text style={styles.chipText}>
-              {selectedLandmark.name} ({selectedLandmark.radius}km)
-            </Text>
-            <Text style={styles.removeIcon}>×</Text>
-          </TouchableOpacity>
-        )}
+    <>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.container}
+      >
+        <View style={styles.content}>
+          {selectedLandmark && (
+            <TouchableOpacity
+              onPress={() => {setSelectedLandmark && setSelectedLandmark(null)}}
+              style={styles.chip}
+            >
+              <Text style={styles.chipText}>
+                {selectedLandmark.name} ({selectedLandmark.radius/1000}km)
+              </Text>
+              <Text style={styles.removeIcon}>×</Text>
+            </TouchableOpacity>
+          )}
 
-        {items.map((item) => (
-          <View key={item.attribute}>
-            {item.refinements.map((refinement) => (
-              <TouchableOpacity
-                key={refinement.value}
-                onPress={() => refine(refinement)}
-                style={styles.chip}
-              >
-                <Text style={styles.chipText}>
-                  {refinement.label}
-                </Text>
-                <Text style={styles.removeIcon}>×</Text>
-              </TouchableOpacity>
-            ))}
+          {items.map((item) => (
+            <View key={item.attribute}>
+              {item.refinements.map((refinement) => (
+                <TouchableOpacity
+                  key={refinement.value}
+                  onPress={() => refine(refinement)}
+                  style={styles.chip}
+                >
+                  <Text style={styles.chipText}>
+                    {refinement.label}
+                  </Text>
+                  <Text style={styles.removeIcon}>×</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+
+
+        </View>
+      </ScrollView>
+      {(items.length > 0 || selectedLandmark) && (
+        <TouchableOpacity onPress={() => { clearRefinements(); { setSelectedLandmark && setSelectedLandmark(null); } }}>
+          <View>
+            <Text className='font-lato text-[#E11E1E] text-[12px] font-semibold'>Clear All</Text>
           </View>
-        ))}
-      </View>
-    </ScrollView>
+        </TouchableOpacity>
+      )}
+    </>
   );
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSearchBox } from 'react-instantsearch';
+import CustomCurrentRefinements from '../CustomCurrentRefinements';
 
 interface RequirementFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -39,6 +40,8 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
           <Ionicons name="options" size={16} color="#10B981" />
         </TouchableOpacity>
       </View>
+
+      <CustomCurrentRefinements />
     </View>
   );
 };

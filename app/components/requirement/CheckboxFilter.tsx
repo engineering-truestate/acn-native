@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRefinementList } from 'react-instantsearch';
 import { useSelector } from 'react-redux';
+import { RefinementItem } from '../DropdownMoreFilters';
 
 interface RootState {
   agent: {
@@ -11,9 +12,10 @@ interface RootState {
   };
 }
 
-const CheckboxFilter = ({ attribute }: { attribute: string }) => {
+const CheckboxFilter = ({ attribute, items, refine }: { attribute: string, items: RefinementItem[], refine: any }) => {
   const cpId = useSelector((state: RootState) => state.agent?.docData?.cpId);
-  const { items, refine } = useRefinementList({ attribute });
+  // const cpId = "CPA537"
+  // const { items, refine } = useRefinementList({ attribute });
   const [isToggled, setIsToggled] = useState(
     items.some(item => item.value === cpId && item.isRefined)
   );

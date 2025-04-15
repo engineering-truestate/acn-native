@@ -56,7 +56,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   
 
   // Debug the property data
-  console.log("PropertyCard received:", property);
+  // console.log("PropertyCard received:", property);
 
   // Format price display
   const formatPrice = () => {
@@ -83,7 +83,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Get property name with first letter capitalized
   const getPropertyName = () => {
     const name = property.title || property.nameOfTheProperty || '';
-    console.log("Property name before formatting:", name);
+    // console.log("Property name before formatting:", name);
     if (!name) return "Unnamed Property";
     return name.charAt(0).toUpperCase() + name.slice(1);
   };

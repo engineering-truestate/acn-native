@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'rea
 import { useRefinementList } from 'react-instantsearch';
 import { Ionicons } from '@expo/vector-icons';
 
-interface RefinementItem {
+export interface RefinementItem {
   value: string;
   label: string;
   count: number;
@@ -11,20 +11,16 @@ interface RefinementItem {
 }
 
 interface DropdownMoreFiltersProps {
-  attribute: string;
   title: string;
-  type?: string;
   transformFunction?: (label: string) => string;
   items: RefinementItem[], 
   refine: any,
 }
 
 const DropdownMoreFilters = ({
-  attribute,
   title,
   items, 
   refine,
-  type,
   transformFunction
 }: DropdownMoreFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);

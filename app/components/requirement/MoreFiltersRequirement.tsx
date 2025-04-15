@@ -9,20 +9,25 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import { useRefinementList } from 'react-instantsearch';
+import { useRange, useRefinementList } from 'react-instantsearch';
 import CheckboxFilter from './CheckboxFilter';
-import DropdownMoreFilters from '../DropdownMoreFilters';
+import DropdownMoreFilters, { RefinementItem } from '../DropdownMoreFilters';
 import RangeMoreFilters from '../RangeMoreFilters';
+import { RangeState } from '../MoreFilters';
 
 interface BudgetMarketValueFiltersProps {
   isMarketValueActive: Boolean;
   isBudgetActive: Boolean;
   handleRangeFilterChange: (attribute: string) => void;
+  marketValueItem: RefinementItem[];
+  refineMarketValue: any;
 }
 const BudgetMarketValueFilters = ({
   isMarketValueActive,
   isBudgetActive,
   handleRangeFilterChange,
+  marketValueItem,
+  refineMarketValue,
 }: BudgetMarketValueFiltersProps) => {
   const [minBudget, setMinBudget] = useState('');
   const [maxBudget, setMaxBudget] = useState('');
@@ -63,7 +68,7 @@ const BudgetMarketValueFilters = ({
           <Text className="text-sm font-semibold text-neutral-700 mt-2 mb-2">Market Value</Text>
           <View className="max-h-[240px]">
             <FlatList
-              data={items}
+              data={marketValueItem}
               numColumns={2}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               keyExtractor={(item) => item.value}
@@ -72,7 +77,7 @@ const BudgetMarketValueFilters = ({
                 return (
                   <TouchableOpacity
                     onPress={() => {
-                      refine(item.value);
+                      refineMarketValue(item.value);
                       handleRangeFilterChange('marketValue');
                     }}
                     className={`flex-1 m-1 p-3 rounded-lg border ${isRefined
@@ -116,10 +121,43 @@ const MoreFiltersRequirement = ({
   if (!isOpen) return null;
 
   const [showFilters, setShowFilters] = useState(true);
+  const [isMarketValueActive, setIsMarketValueActive] = useState(false);
+  const [isBudgetActive, setIsBudgetActive] = useState(false);
+
+  const handleRangeFilterChange = (attribute: string) => {
+    if (attribute === "marketValue") {
+      setIsMarketValueActive(true);
+      setIsBudgetActive(false);
+    } else if (attribute === "budget.to") {
+      setIsBudgetActive(true);
+      setIsMarketValueActive(false);
+    }
+  };
 
   const toggleFiltersVisibility = () => {
     setShowFilters(!showFilters);
   };
+
+  const { items: assetTypeItems, refine: refineAssetType } = useRefinementList({
+    attribute: 'assetType',
+    limit: 50,
+  });
+
+  const { items: unitTypeItems, refine: refineUnitType } = useRefinementList({
+    attribute: 'configuration',
+    limit: 50,
+  });
+
+  const sbuaRangeState: RangeState = useRange({
+    attribute: 'area'
+  });
+
+  const budgetToRangeState: RangeState = useRange({
+    attribute: 'budget.to'
+  });
+
+  const { items, refine } = useRefinementList({ attribute: 'agentCpid' });
+  const { items: marketValueItem, refine: refineMarketValue } = useRefinementList({ attribute: 'marketValue' });
 
 
   return (
@@ -127,9 +165,10 @@ const MoreFiltersRequirement = ({
       visible={showFilters}
       animationType="slide"
       transparent={true}
-      onRequestClose={()=> {
-        toggleFiltersVisibility()}}
-      
+      onRequestClose={() => {
+        toggleFiltersVisibility()
+      }}
+
     >
       <SafeAreaView className="flex-1 bg-white px-4">
         <View className="flex-row justify-between items-center px-4 pt-10 pb-4 border-b border-gray-200">
@@ -143,29 +182,49 @@ const MoreFiltersRequirement = ({
           <View className="flex-row flex-wrap justify-between mb-4">
             <View className="w-[48%] mb-4 z-20">
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Asset Type</Text>
-              <DropdownMoreFilters title="Asset Type" attribute="assetType" type="dropdown" />
+              <DropdownMoreFilters
+                title="Please Select"
+                items={assetTypeItems}
+                refine={refineAssetType}
+              />
             </View>
             <View className="w-[48%] mb-4 z-20">
-              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">configuration</Text>
-              <DropdownMoreFilters attribute="configuration" title="Configuration" type="dropdown" />
+              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Configuration</Text>
+              <DropdownMoreFilters
+                title="Please Select"
+                items={unitTypeItems}
+                refine={refineUnitType}
+              />
             </View>
           </View>
 
-
-
-          <RangeMoreFilters title="SBUA (sqft)" attribute="sbua" />
-          <CheckboxFilter attribute="Requirment" />
-          <BudgetMarketValueFilters
-            isBudgetActive={false}
-            isMarketValueActive={false}
-            handleRangeFilterChange={() => console.log()}
+          <RangeMoreFilters
+            title={"SBUA"}
+            refine={sbuaRangeState.refine}
+            range={sbuaRangeState.range}
+            start={sbuaRangeState.start}
           />
+          <CheckboxFilter attribute="agentCpid" items={items} refine={refine} />
+          {/* <BudgetMarketValueFilters
+            isBudgetActive={isBudgetActive}
+            isMarketValueActive={isMarketValueActive}
+            handleRangeFilterChange={handleRangeFilterChange}
+            marketValueItem={marketValueItem}
+            refineMarketValue={refineMarketValue}
+
+          /> */}
+          <RangeMoreFilters
+            title={"Budget"}
+            refine={budgetToRangeState.refine}
+            range={budgetToRangeState.range}
+            start={budgetToRangeState.start}
+          />
+
         </ScrollView>
 
         <TouchableOpacity
           className="bg-[#103D35] p-3 mx-4 mb-8 rounded-lg items-center"
           onPress={() => {
-             // Make sure this is called to handle any side effects
             toggleFiltersVisibility()
           }}
         >
