@@ -18,6 +18,7 @@ import { shareProperty, createPropertyMessage } from '../helpers/shareModal';
 import whatsappIcon from '../../assets/icons/whatsAppgreen.svg 14-54-26-826.svg';
 import copyIcon from '../../assets/icons/copyenq.svg';
 import closeIcon from '../../assets/icons/close.svg';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 interface ShareModalProps {
@@ -67,19 +68,23 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
               </View>
 
               <View style={styles.buttonGroup}>
-              <View style={styles.container}>
                 <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-                  <Text style={styles.label}>Share on WhatsApp</Text>
+                  <View style={styles.iconWrapper}>
+                    <MaterialCommunityIcons name="whatsapp" size={28} color="#25D366" />
+                  </View>
+                  <Text style={styles.buttonText}>Share on WhatsApp</Text>
                 </TouchableOpacity>
-              </View>
+                
                 <TouchableOpacity style={styles.actionButton} onPress={handleCopy}>
                   <View style={styles.iconWrapper}>
+                    <Ionicons name="copy-outline" size={24} color="#555" />
                   </View>
                   <Text style={styles.buttonText}>Copy Details</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+                <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -89,7 +94,8 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
   );
 };
 
-export default ShareModal;
+
+export default ShareModal; 
 
 const styles = StyleSheet.create({
   overlay: {
@@ -125,54 +131,41 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: 10,
-    justifyContent: 'center',
   },
   actionButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 28,
+    borderRadius: 12,
     height: 58,
     borderWidth: 1,
     borderColor: '#E3E3E3',
     paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF',
   },
   iconWrapper: {
-    width: 58,
+    width: 40,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    width: 38,
-    height: 38,
-    resizeMode: 'contain',
   },
   buttonText: {
     flex: 1,
     fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
+    textAlign: 'center',
+    marginLeft: -10,
   },
   closeButton: {
     position: 'absolute',
-    top: 8,
+    top: 12,
     right: 16,
-  },
-  closeIcon: {
-    width: 24,
-    height: 24,
-  },
-  container: {
-    padding: 20,
-  },
-  button: {
-    flexDirection: 'row',
+    width: 30,
+    height: 30,
     alignItems: 'center',
-    gap: 10,
-  },
-  label: {
-    fontSize: 16,
+    justifyContent: 'center',
   },
 });
