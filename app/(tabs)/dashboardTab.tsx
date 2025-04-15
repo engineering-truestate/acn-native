@@ -47,7 +47,7 @@ const useEnquiries = (): UseEnquiriesResult => {
       setLoading(true);
       try {
         // Fetch all enquiries without filtering
-        const allEnquiriesQuery = query(collection(db, 'enquiries'));
+        const allEnquiriesQuery = query(collection(db, 'enquiries'), where('cpId', '==', cpId));
         const allEnquiriesSnapshot = await getDocs(allEnquiriesQuery);
         
         const allEnquiriesData: Enquiry[] = allEnquiriesSnapshot.docs.map((docSnap) => ({
