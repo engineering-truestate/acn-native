@@ -17,18 +17,19 @@ interface RefinementItem {
   isRefined: boolean;
 }
 
-const DropdownMoreFilters = ({ 
-  attribute, 
-  title, 
+const DropdownMoreFilters = ({
+  attribute,
+  title,
   type,
-  transformFunction 
+  transformFunction
 }: DropdownMoreFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+  const [dropdownLayout, setDropdownLayout] = useState({ height: 0 });
+
   const { items, refine } = useRefinementList({
     attribute,
     limit: 50,
-    transformItems: useCallback((items: RefinementItem[]) => 
+    transformItems: useCallback((items: RefinementItem[]) =>
       items.map((item) => ({
         ...item,
         label: transformFunction ? transformFunction(item.label) : item.label,
@@ -37,6 +38,10 @@ const DropdownMoreFilters = ({
 
   const handleToggle = useCallback(() => {
     setIsOpen(prev => !prev);
+  }, []);
+  const handleLayout = useCallback((event: any) => {
+    const { height } = event.nativeEvent.layout;
+    setDropdownLayout({ height });
   }, []);
 
   const handleClose = useCallback(() => {
@@ -48,152 +53,56 @@ const DropdownMoreFilters = ({
   }, [refine]);
 
   const renderItems = useMemo(() => {
-    return items.map((item) => (
+    return items.map((item, index) => {
+      const isSelected = items.some(items => items.isRefined && items.label === item.label);
+
+    return (
       <TouchableOpacity
-        key={item.value}
-        style={[
-          styles.refinementItem,
-          item.isRefined && styles.refinementSelectedItem
-        ]}
+        key={index}
+        className="flex-row justify-between items-center py-2 px-3 border-b border-gray-100"
         onPress={() => handleRefine(item.value)}
       >
-        <View style={styles.refinementLabel}>
-          <Text style={styles.refinementText}>{item.label}</Text>
-          <View style={styles.refinementCount}>
-            <Text style={styles.countText}>{item.count}</Text>
+        <View className="flex-row items-center flex-1">
+          <View className={`w-4 h-4 ${isSelected ? 'bg-[#153E3B]' : 'border border-gray-300'} rounded mr-2 items-center justify-center`}>
+            {isSelected && (
+              <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+            )}
           </View>
+          <Text className="text-gray-800">{item.label}</Text>
         </View>
-      </TouchableOpacity>
-    ));
-  }, [items, handleRefine]);
+        <View className="ml-2">
+          <Text className="text-xs text-gray-600">{item.count}</Text>
+        </View>
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={[
-          styles.button,
-          isOpen && styles.buttonOpen
-        ]}
-        onPress={handleToggle}
-      >
-        <Text style={[
-          styles.buttonText,
-          isOpen && styles.buttonTextOpen
-        ]}>
-          {title}
-        </Text>
-        <Ionicons
-          name={isOpen ? 'chevron-up' : 'chevron-down'}
-          size={16}
-          color={isOpen ? '#FFFFFF' : '#313131'}
-        />
       </TouchableOpacity>
+    );
+  });
+}, [items, handleRefine]);
 
-      <Modal
-        visible={isOpen}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleClose}
+return (
+  <View className="relative">
+    <TouchableOpacity
+      className={`flex-row justify-between items-center px-3 py-2 ${isOpen ? 'bg-[#153E3B]' : 'bg-white border border-gray-300'} rounded-md`}
+      onPress={handleToggle}
+      onLayout={handleLayout}
+    >
+      <Text className={isOpen ? "text-white" : "text-gray-700"}>
+        {title}
+      </Text>
+      <Ionicons name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={isOpen ? "#FFFFFF" : "#666"} />
+    </TouchableOpacity>
+    {isOpen && (
+      <View
+        className="border border-gray-200 rounded-md bg-white shadow-sm z-10 absolute w-full"
+        style={{ top: dropdownLayout.height + 8 }}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={handleClose}
-        >
-          <View style={styles.dropdown}>
-            <ScrollView style={styles.scrollView}>
-              <View style={styles.refinementRoot}>
-                <View style={styles.refinementList}>
-                  {renderItems}
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    </View>
-  );
+        {renderItems}
+      </View>
+    )}
+  </View>
+);
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FAFAFA',
-    borderRadius: 8,
-  },
-  buttonOpen: {
-    backgroundColor: '#0F2C2A',
-    borderColor: '#0F2C2A',
-  },
-  buttonText: {
-    fontFamily: 'Montserrat_400Regular',
-    fontSize: 13,
-    color: '#313131',
-  },
-  buttonTextOpen: {
-    color: '#FFFFFF',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  dropdown: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    maxHeight: 200,
-    margin: 16,
-  },
-  scrollView: {
-    maxHeight: 200,
-  },
-  refinementRoot: {
-    width: '100%',
-  },
-  refinementList: {
-    padding: 8,
-  },
-  refinementItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  refinementSelectedItem: {
-    backgroundColor: '#DFF4F3',
-  },
-  refinementLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  refinementText: {
-    fontFamily: 'Montserrat_400Regular',
-    fontSize: 13,
-    color: '#313131',
-  },
-  refinementCount: {
-    backgroundColor: '#E8ECEB',
-    borderRadius: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 4,
-  },
-  countText: {
-    fontSize: 12,
-    color: '#313131',
-  },
-});
+
 
 export default React.memo(DropdownMoreFilters); 
