@@ -7,7 +7,6 @@ import LandingPage from '../components/Auth/LandingPage';
 export default function TabOneScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      {/* <PropertiesScreen /> */}
       <LandingPage />
     </View>
   );

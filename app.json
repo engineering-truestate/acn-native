@@ -2,7 +2,7 @@
   "expo": {
     "name": "acn-native",
     "slug": "acn-native",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
@@ -17,9 +17,12 @@
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.anonymous.acnnative",
+      "bundleIdentifier": "com.acnonline.in",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "aps-environment": "production"
       }
     },
     "android": {
@@ -28,7 +31,7 @@
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
-      "package": "com.anonymous.acnnative"
+      "package": "com.acnonline.in"
     },
     "web": {
       "favicon": "./assets/favicon.png"
