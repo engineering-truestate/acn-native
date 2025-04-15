@@ -38,8 +38,6 @@ yarn-error.*
 
 app-example
 
-#firebase.ts
-app\config\*
 
 
 ios/

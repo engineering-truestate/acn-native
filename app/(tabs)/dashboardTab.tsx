@@ -1,11 +1,13 @@
 import { collection, doc, getDocs, query, updateDoc, where, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
-import { db } from '../config/firebase';
+import { db } from '../../../config/firebase.ts';
 import { useSelector } from 'react-redux';
 import { Property, Requirement, Enquiry, EnquiryWithProperty } from '../types';
 import Dashboard from '../components/dashboard/Dashboard';
 import { RootState } from '@/store/store';
+
+console.log("dashboardTab",);
 
 
 interface UsePropertiesResult {
@@ -47,7 +49,7 @@ const useEnquiries = (): UseEnquiriesResult => {
       setLoading(true);
       try {
         // Fetch all enquiries without filtering
-        const allEnquiriesQuery = query(collection(db, 'enquiries'), where('cpId', '==', cpId));
+        const allEnquiriesQuery = query(collection(db, 'enquiries'));
         const allEnquiriesSnapshot = await getDocs(allEnquiriesQuery);
         
         const allEnquiriesData: Enquiry[] = allEnquiriesSnapshot.docs.map((docSnap) => ({
