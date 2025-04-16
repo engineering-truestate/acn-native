@@ -181,7 +181,7 @@ export default function OTPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 48, backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: width*0.05, backgroundColor: '#fff' },
   heading: { fontWeight: 'bold', marginBottom: 12, marginTop: 0, textAlign: 'left' },
   otpInfo: { color: '#888', marginBottom: 11, textAlign: 'left', marginTop: 8 },
   phone: { fontWeight: 'bold', color: '#153E3B', textDecorationLine: 'underline' },
