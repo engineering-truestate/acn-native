@@ -42,12 +42,12 @@ export default function CustomCurrentRefinements({
             style={styles.chip}
           >
             <Text style={styles.chipText}>
-              {selectedLandmark.name} ({selectedLandmark.radius}km)
+              {selectedLandmark.name} ({selectedLandmark.radius/1000} Km)
             </Text>
             <Text style={styles.removeIcon}>×</Text>
           </TouchableOpacity>
         )}
-    <ScrollView
+    {/* <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       style={styles.container}
@@ -82,7 +82,7 @@ export default function CustomCurrentRefinements({
           </View>
         ))}
       </View>
-    </ScrollView>
+    </ScrollView> */}
         {allRefinements.map((item, index) => (
           <TouchableOpacity
             key={`${item.attribute}-${item.refinement.value || index}`}

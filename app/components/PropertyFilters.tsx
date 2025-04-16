@@ -96,6 +96,7 @@ export default function PropertyFilters({
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     width: '95%',
