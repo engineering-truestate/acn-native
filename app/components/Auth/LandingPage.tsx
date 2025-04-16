@@ -5,7 +5,6 @@ import { RootState } from '@/store/store';
 import { useDispatch } from 'react-redux';
 import { logOut } from '@/store/slices/authSlice';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-// import landing from '../../../assets/images/landingPageBg.webp';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,7 +16,7 @@ export default function LandingPage() {
 
   const handleNavigate = () => {
     if (!isAuthenticated) {
-      dispatch(logOut());
+      // dispatch(logOut());
       router.replace('/components/Auth/Signin');
     } else {
       router.replace('/(tabs)/properties');
@@ -26,7 +25,7 @@ export default function LandingPage() {
 
   return (
     <ImageBackground
-      // source={(landing)}
+      source={require('../../../assets/images/landingPageBg.webp')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -57,8 +56,8 @@ export default function LandingPage() {
         </View>
 
         <TouchableOpacity style={styles.loginBtn} onPress={handleNavigate}>
-          <Image source={require('../../../assets/icons/login.svg')} style={styles.loginIcon} />
-          <Text style={styles.loginText}>Login / Sign Up</Text>
+          {/* <Image source={require('../../../assets/icons/login.svg')} style={styles.loginIcon} /> */}
+          <Text style={styles.loginText}>{isAuthenticated ? "Continue" : "Login / Sign Up"}</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>

@@ -80,8 +80,6 @@ export const HamburgerMenu = () => {
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
   const isAuthenticated = useSelector((state: RootState) => state?.auth?.isAuthenticated);
 
-  console.log("monthlyCredits", monthlyCredits);
-
   useEffect(() => {
     // Close menu when path changes
     if (isOpen) {

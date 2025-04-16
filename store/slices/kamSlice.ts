@@ -32,7 +32,6 @@ export const setKamDataState = (kamId: string): ThunkAction<
       // Update the state with the new data
       dispatch(setKamId(kamId));
       dispatch(setKamDoc(data));
-      console.log("yippieeee")
     } else {
       throw new Error('No user found with this phone number.');
     }
