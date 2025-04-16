@@ -22,6 +22,7 @@ import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
 import { listenToAgentChanges, setAgentDataState } from '@/store/slices/agentSlice';
+import { OtpInput } from "react-native-otp-entry";
 const { width, height } = Dimensions.get('window');
 
 export default function OTPage() {
@@ -33,23 +34,13 @@ export default function OTPage() {
   const { phonenumber } = useSelector((state: RootState) => state.agent);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirm, setConfirm] = useState<any>(null);
-  const [otp, setOtp] = useState(Array(6).fill(''));
+  const [otp, setOtp] = useState<String>('');
   const [isValid, setIsValid] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(true);
   const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
 
   const { verificationId } = useLocalSearchParams();
-
-  useEffect(() => {
-    const isOtpComplete = otp.every((num) => num.trim() !== '');
-    setIsValid(isOtpComplete);
-
-    if (isOtpComplete) {
-      // Analytics event would go here
-      console.log('OTP complete:', otp.join(''));
-    }
-  }, [otp]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -63,68 +54,8 @@ export default function OTPage() {
     return () => clearInterval(timer);
   }, [resendTimer, canResend]);
 
-  const handleOtpChange = (text: string, index: number) => {
-    if (text.length > 1) {
-      handlePaste(text, index);
-      return;
-    }
-
-    if (isNaN(Number(text))) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = text;
-    setOtp(newOtp);
-
-    // Auto-focus next input if value is entered
-    if (text && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
-    // Handle backspace
-    if (e.nativeEvent.key === 'Backspace') {
-      if (!otp[index] && index > 0) {
-        // Focus previous input on backspace if current input is empty
-        inputRefs.current[index - 1]?.focus();
-      }
-    }
-  };
-
-
-  const handlePaste = async (pastedText: string, index: number) => {
-    try {
-      const text = pastedText || await Clipboard.getString();
-      if (!text || isNaN(Number(text))) return;
-
-      // Only use numeric characters
-      const cleanedText = text.replace(/[^0-9]/g, '');
-
-      const newOtp = [...otp];
-      for (let i = 0; i < cleanedText.length; i++) {
-        if (index + i < 6) {
-          newOtp[index + i] = cleanedText[i];
-        }
-      }
-      setOtp(newOtp);
-
-      // Focus the appropriate field after paste
-      const lastFilledIndex = Math.min(index + cleanedText.length - 1, 5);
-      if (lastFilledIndex < 5 && cleanedText.length > 0) {
-        setTimeout(() => {
-          inputRefs.current[lastFilledIndex + 1]?.focus();
-        }, 0);
-      }
-    } catch (error) {
-      console.error('Failed to paste text:', error);
-    }
-  };
-
-
-
   const handleVerify = async () => {
-    const code = otp.join('');
-    if (!code || code.length < 6) {
+    if (!otp || otp.length < 6) {
       setErrorMessage('Please enter a valid 6-digit OTP');
       return;
     }
@@ -133,7 +64,7 @@ export default function OTPage() {
       console.log('🔑 Confirming OTP code');
 
       console.log(verificationId, "hello")
-      const credential = auth.PhoneAuthProvider.credential(verificationId as string, code);
+      const credential = auth.PhoneAuthProvider.credential(verificationId as string, otp.toString());
       //const credential = await confirmation?.confirm(code);
       console.log('✅ OTP confirmed successfully');
 
@@ -182,7 +113,7 @@ export default function OTPage() {
 
   const handleResend = async () => {
     if (!canResend) return;
-    
+
     try {
       const confirmation = await auth().signInWithPhoneNumber(phonenumber || '', true);
       setConfirm(confirmation);
@@ -215,13 +146,13 @@ export default function OTPage() {
       <Text style={[styles.otpInfo, { fontSize: width * 0.04 }]}>
         OTP sent to <Text style={styles.phone}> {phonenumber}</Text>
       </Text>
-      <TouchableOpacity 
-        onPress={handleResend} 
+      <TouchableOpacity
+        onPress={handleResend}
         style={styles.resendButton}
         disabled={!canResend}
       >
         <Text style={[
-          styles.resendText, 
+          styles.resendText,
           { fontSize: width * 0.04 },
           !canResend && styles.resendTextDisabled
         ]}>
@@ -230,28 +161,31 @@ export default function OTPage() {
       </TouchableOpacity>
 
       <View style={styles.otpRow}>
-        {otp.map((value, index) => (
-          <TextInput
-            key={index}
-            ref={(ref) => (inputRefs.current[index] = ref)}
-            style={[styles.otpInput, { width: width * 0.12, fontSize: width * 0.05 }]}
-            maxLength={1}
-            keyboardType="numeric"
-            value={value}
-            onChangeText={(text) => handleOtpChange(text, index)}
-            onKeyPress={(e) => handleKeyDown(e, index)}
-          />
-        ))}
+        <OtpInput
+          numberOfDigits={6}
+          autoFocus={true}
+          onTextChange={(text) => setOtp(text)}
+          theme={{
+            // containerStyle: styles.container,
+            pinCodeContainerStyle: styles.pinCodeContainer,
+            // pinCodeTextStyle: styles.pinCodeText,
+            focusStickStyle: styles.focusStick,
+            focusedPinCodeContainerStyle: styles.activePinCodeContainer,
+            // placeholderTextStyle: styles.placeholderText,
+            // filledPinCodeContainerStyle: styles.filledPinCodeContainer,
+            // disabledPinCodeContainerStyle: styles.disabledPinCodeContainer,
+          }}
+        />
       </View>
 
       <TouchableOpacity
         style={[
           styles.verifyButton,
-          otp.every((val) => val) && styles.verifyButtonActive,
+          otp.length === 6 && styles.verifyButtonActive,
           { padding: width * 0.04 },
         ]}
         onPress={handleVerify}
-        disabled={!otp.every((val) => val)}
+        disabled={otp.length !== 6}
       >
         <Text style={[styles.verifyText, { fontSize: width * 0.045 }]}>Verify OTP</Text>
       </TouchableOpacity>
@@ -318,4 +252,17 @@ const styles = StyleSheet.create({
     color: '#888',
     marginBottom: height * 0.04,
   },
+  activePinCodeContainer: {
+    borderColor: "#000000",
+  },
+  pinCodeContainer: {
+    borderWidth: 2,
+    width: 50,
+    height: 50,
+    borderRadius: 10
+  },
+  focusStick: {
+    width: 1,
+    backgroundColor: "#000000"
+  }
 });
