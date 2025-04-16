@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal, Dimensions } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -39,7 +39,6 @@ export interface Landmark {
   radius: number;
 }
 
-
 // PropertyDetailsModal component
 interface PropertyDetailsModalProps {
   isOpen: boolean;
@@ -48,47 +47,52 @@ interface PropertyDetailsModalProps {
 }
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsModal = React.memo(({ isOpen, onClose, property }: PropertyDetailsModalProps) => {
-  if (!property) return null;
+// const PropertyDetailsModal = React.memo(({ isOpen, onClose, property }: PropertyDetailsModalProps) => {
+//   if (!property) return null;
   
-  return (
-    
-      <View className="flex-1 bg-black bg-opacity-50 justify-end">
-        <View className="bg-white rounded-t-lg max-h-[80%]">
-          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-            <Text className="text-lg font-bold">Property Details</Text>
-            <TouchableOpacity onPress={onClose} className="p-2">
-              <Ionicons name="close" size={24} color="#374151" />
-            </TouchableOpacity>
-          </View>
+//   return (
+//     <Modal
+//       animationType="slide"
+//       transparent={true}
+//       visible={isOpen}
+//       onRequestClose={onClose}
+//     >
+//       <View className="flex-1 bg-black bg-opacity-50 justify-end">
+//         <View className="bg-white rounded-t-lg max-h-[80%]">
+//           <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+//             <Text className="text-lg font-bold">Property Details</Text>
+//             <TouchableOpacity onPress={onClose} className="p-2">
+//               <Ionicons name="close" size={24} color="#374151" />
+//             </TouchableOpacity>
+//           </View>
           
-          <ScrollView className="p-4">
-            <Text className="text-lg font-bold mb-2">
-              {property.title || property.nameOfTheProperty || "Unnamed Property"}
-            </Text>
-            {property.propertyId && (
-              <Text className="text-gray-500">ID: {property.propertyId}</Text>
-            )}
+//           <ScrollView className="p-4">
+//             <Text className="text-lg font-bold mb-2">
+//               {property.title || property.nameOfTheProperty || "Unnamed Property"}
+//             </Text>
+//             {property.propertyId && (
+//               <Text className="text-gray-500">ID: {property.propertyId}</Text>
+//             )}
             
-            <View className="mt-4">
-              <Text className="text-gray-700 font-bold">Available Properties:</Text>
-              {Object.entries(property).map(([key, value]) => (
-                value && typeof value !== 'object' && key !== 'objectID' ? (
-                  <Text key={key} className="text-gray-600 mt-1">
-                    {key}: {value.toString()}
-                  </Text>
-                ) : null
-              ))}
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    
-  );
-});
+//             <View className="mt-4">
+//               <Text className="text-gray-700 font-bold">Available Properties:</Text>
+//               {Object.entries(property).map(([key, value]) => (
+//                 value && typeof value !== 'object' && key !== 'objectID' ? (
+//                   <Text key={key} className="text-gray-600 mt-1">
+//                     {key}: {value.toString()}
+//                   </Text>
+//                 ) : null
+//               ))}
+//             </View>
+//           </ScrollView>
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// });
 
 // Set display name for debugging
-PropertyDetailsModal.displayName = 'PropertyDetailsModal';
+// PropertyDetailsModal.displayName = 'PropertyDetailsModal';
 
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
@@ -171,12 +175,9 @@ function MobileHits() {
     <>
       <View className="w-full p-4">
         {hits.map((property) => {
-          // Try different possible field names for the property name
-          const propertyName = (property as any).nameOfTheProperty || 'Unnamed Property';
+          // Transform property data
+          const transformedProperty: Property = property;
           
-          // Debug individual property data transformation
-          const transformedProperty:Property = property;
-                    
           return (
             <PropertyCard 
               key={property.objectID} 
@@ -201,45 +202,8 @@ function MobileHits() {
   );
 }
 
-// Property Card Component
-// const PropertyCard = ({ property }: { property: Property }) => {
-//   const router = useRouter();
 
-//   const handlePress = () => {
-//     router.push(`/property/${property.propertyId}`);
 
-//   };
-
-  // return (
-  //   <TouchableOpacity 
-  //     style={styles.card}
-  //     onPress={handlePress}
-  //   >
-  //     <Image
-  //       source={{ uri: property.image || 'https://via.placeholder.com/300x200' }}
-  //       style={styles.image}
-  //     />
-  //     <View style={styles.content}>
-  //       <Text style={styles.title}>{property.title}</Text>
-  //       <Text style={styles.price}>₹ {property.totalAskPrice} Lacs</Text>
-  //       <View style={styles.details}>
-  //         <View style={styles.detailItem}>
-  //           <Ionicons name="bed-outline" size={16} color="#374151" />
-  //           <Text style={styles.detailText}>{property.unitType}</Text>
-  //         </View>
-  //         <View style={styles.detailItem}>
-  //           <Ionicons name="resize-outline" size={16} color="#374151" />
-  //           <Text style={styles.detailText}>{property.sbua} sqft</Text>
-  //         </View>
-  //         <View style={styles.detailItem}>
-  //           <Ionicons name="location-outline" size={16} color="#374151" />
-  //           <Text style={styles.detailText}>{property.micromarket}</Text>
-  //         </View>
-  //       </View>
-  //     </View>
-  //   </TouchableOpacity>
-  // );
-// };
 
 const styles = StyleSheet.create({
   text: {
@@ -295,4 +259,4 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 14,
   },
-}); 
+});

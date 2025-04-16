@@ -47,71 +47,83 @@ export default function PropertyFilters({
           </TouchableOpacity>
         </View>
       </View>
-
+      <View style={styles.refinements}>
       {/* Applied Filters */}
       <CustomCurrentRefinements
         selectedLandmark={selectedLandmark}
         setSelectedLandmark={setSelectedLandmark}
       />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    borderBottomWidth: 1,
+    width: '95%',
+    borderBottomWidth: 0,
     borderBottomColor: '#E5E7EB',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    borderRadius: 16,
+  },
+  contentWrapper: {
+    flexDirection: 'column',
+    // paddingHorizontal: 16,
+    // paddingVertical: 8,
   },
   content: {
-    paddingHorizontal: 16,
-  },
-  mobileContent: {
     flexDirection: 'column',
-    gap: 8,
-  },
-  desktopContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   searchBox: {
     flex: 1,
-    marginRight: 16,
   },
   searchInput: {
+    height: 40, // fixed height
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 8,
     fontSize: 14,
     fontFamily: 'Montserrat_400Regular',
     color: '#374151',
   },
   filters: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    alignContent: 'center',
+    alignSelf: 'center',
   },
   moreFiltersButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    height: 40, // same fixed height
+    flexDirection: 'column',
+    // alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
   },
   moreFiltersText: {
     fontFamily: 'Montserrat_500Medium',
+    alignContent: 'center',
+    justifyContent: 'center',
+    top: 10,
     fontSize: 14,
     color: '#374151',
   },
-}); 
+  refinements: {
+    // marginTop: 8,
+    flexDirection: 'row',
+    left: -15,
+  },
+  mobileContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+});
