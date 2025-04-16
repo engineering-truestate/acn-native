@@ -24,6 +24,7 @@ type ProfileModalProps = {
 
 // ✅ Avatar logic
 const getInitials = (name: string): string => {
+  if(!name) return "";
   const names = name.trim().split(' ');
   const initials =
     names.length >= 2 ? names[0][0] + names[1][0] : names[0].slice(0, 2);

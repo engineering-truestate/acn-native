@@ -24,7 +24,8 @@ type KamManagerProps = {
   setVisible: (visible: boolean) => void;
 };
 
-const getInitials = (name: string) => {
+const getInitials = (name: string): string => {
+  if(!name) return "";
   const names = name.trim().split(' ');
   const initials = names.length >= 2
     ? names[0][0] + names[1][0]
