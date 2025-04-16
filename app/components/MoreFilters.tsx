@@ -183,6 +183,7 @@ const MoreFilters = ({
                 title="Please Select"
                 items={assetTypeItems}
                 refine={refineAssetType}
+                isAssetType={true}
               />
             </View>
 
