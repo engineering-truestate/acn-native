@@ -229,7 +229,7 @@ export default function SignUp() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: width * 0.06,
+    paddingHorizontal: width * 0.05,
     paddingTop: height * 0.08,
     paddingBottom: height * 0.05,
     flex: 1,
