@@ -19,11 +19,11 @@ const UserTickIcon = () => (
 );
 const ArrowIcon = () => (
   <Svg width="16" height="17" viewBox="0 0 16 17" fill="none" >
-    <Path 
-      d="M10 2.5H12.6667C13.0203 2.5 13.3594 2.64048 13.6095 2.89052C13.8595 3.14057 14 3.47971 14 3.83333V13.1667C14 13.5203 13.8595 13.8594 13.6095 14.1095C13.3594 14.3595 13.0203 14.5 12.6667 14.5H10M6.66667 11.8333L10 8.5M10 8.5L6.66667 5.16667M10 8.5H2" 
-      stroke="#10302D" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
+    <Path
+      d="M10 2.5H12.6667C13.0203 2.5 13.3594 2.64048 13.6095 2.89052C13.8595 3.14057 14 3.47971 14 3.83333V13.1667C14 13.5203 13.8595 13.8594 13.6095 14.1095C13.3594 14.3595 13.0203 14.5 12.6667 14.5H10M6.66667 11.8333L10 8.5M10 8.5L6.66667 5.16667M10 8.5H2"
+      stroke="#10302D"
+      strokeWidth="1.5"
+      strokeLinecap="round"
       strokeLinejoin="round"
     />
   </Svg>
@@ -34,8 +34,8 @@ const ArrowIcon = () => (
 const LeftArrow = () => (
   <Svg width="24" height="20" viewBox="0 0 24 24">
     <G fill="none" stroke="#e3e3e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M20 12H4"/>
-      <Path d="M10 18L4 12L10 6"/>
+      <Path d="M20 12H4" />
+      <Path d="M10 18L4 12L10 6" />
     </G>
   </Svg>
 );
@@ -43,67 +43,35 @@ const LeftArrow = () => (
 const RightArrow = () => (
   <Svg width="24" height="20" viewBox="0 0 24 24">
     <G fill="none" stroke="#e3e3e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M4 12H20"/>
-      <Path d="M14 18L20 12L14 6"/>
+      <Path d="M4 12H20" />
+      <Path d="M14 18L20 12L14 6" />
     </G>
   </Svg>
 );
 
 const BidirectionalArrowIcon = () => (
-  <View style={{ 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    height: 40, 
-    overflow: 'hidden' 
+  <View style={{
+    flexDirection: 'column',
+    alignItems: 'center',
+    height: 40,
+    overflow: 'hidden'
   }}>
-    <View style={{ 
-      position: 'relative', 
-      top: 4, 
+    <View style={{
+      position: 'relative',
+      top: 4,
       right: 4,
-      transform: [{ scaleY: -1 }] 
+      transform: [{ scaleY: -1 }]
     }}>
       <LeftArrow />
     </View>
-    <View style={{ 
-      position: 'relative', 
-      top: -4 
+    <View style={{
+      position: 'relative',
+      top: -4
     }}>
       <RightArrow />
     </View>
   </View>
 );
-
-
-
-const Card = () => {
-  return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.cardText}>
-          Agent Cooperation Network is a trusted platform that helps real estate agents share and find property listings for resale.
-        </Text>
-
-        <View style={styles.infoContainer}>
-          <View style={styles.infoItem}>
-            <View style={styles.iconContainer}>
-              <UserTickIcon />
-            </View>
-            <Text style={styles.infoText}>Only for verified agents</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <View style={styles.iconContainer}> 
-            </View >
-            <View style={{alignItems: 'center', justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
-            <ArrowIcon />
-            <Text style={styles.infoText}>All transactions on a side-by-side basis</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
 
 
 export default function LandingPage() {
@@ -151,31 +119,31 @@ export default function LandingPage() {
               </View>
 
               <View style={styles.infoItem}>
-              <View style={styles.iconContainer}>
-              <BidirectionalArrowIcon />
-            </View>
+                <View style={styles.iconContainer}>
+                  <BidirectionalArrowIcon />
+                </View>
                 <Text style={styles.infoText}>All transactions on a side-by-side basis</Text>
               </View>
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-    <TouchableOpacity 
-      style={styles.loginBtn} 
-      onPress={handleNavigate}
-    >
-      <View style={{ 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        gap: 8 // Add some space between icon and text
-      }}>
-        <ArrowIcon/>
-        <Text style={styles.loginText}>
-          {isAuthenticated ? "Continue" : "Login / Sign Up"}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  </View>
+            <TouchableOpacity
+              style={styles.loginBtn}
+              onPress={handleNavigate}
+            >
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8 // Add some space between icon and text
+              }}>
+                <ArrowIcon />
+                <Text style={styles.loginText}>
+                  {isAuthenticated ? "Continue" : "Login / Sign Up"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ImageBackground>
@@ -196,7 +164,7 @@ const styles = StyleSheet.create({
   contentWrapper: {
     top: -10,
     width: '100%',
-    maxWidth: 338,
+    // maxWidth: 338,
     alignItems: 'center',
   },
   logoContainer: {
@@ -257,7 +225,7 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: 400,
-    borderRadius: 10 ,
+    borderRadius: 10,
     // borderColor: 'rgba(255, 255, 255, 0.13)',
     backgroundColor: 'rgba(255, 255, 255, 0.13)',
     padding: 16,
