@@ -1,12 +1,110 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, Dimensions, Linking } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useDispatch } from 'react-redux';
-import { logOut } from '@/store/slices/authSlice';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import Svg, { Circle, G, Path, Polyline } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
+
+
+const UserTickIcon = () => (
+  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#e3e3e3" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <Path d="M8.5 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+    <Polyline points="17 11 19 13 23 9" />
+  </Svg>
+);
+const ArrowIcon = () => (
+  <Svg width="16" height="17" viewBox="0 0 16 17" fill="none" >
+    <Path 
+      d="M10 2.5H12.6667C13.0203 2.5 13.3594 2.64048 13.6095 2.89052C13.8595 3.14057 14 3.47971 14 3.83333V13.1667C14 13.5203 13.8595 13.8594 13.6095 14.1095C13.3594 14.3595 13.0203 14.5 12.6667 14.5H10M6.66667 11.8333L10 8.5M10 8.5L6.66667 5.16667M10 8.5H2" 
+      stroke="#10302D" 
+      strokeWidth="1.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+  </Svg>
+
+);
+
+
+const LeftArrow = () => (
+  <Svg width="24" height="20" viewBox="0 0 24 24">
+    <G fill="none" stroke="#e3e3e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M20 12H4"/>
+      <Path d="M10 18L4 12L10 6"/>
+    </G>
+  </Svg>
+);
+
+const RightArrow = () => (
+  <Svg width="24" height="20" viewBox="0 0 24 24">
+    <G fill="none" stroke="#e3e3e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M4 12H20"/>
+      <Path d="M14 18L20 12L14 6"/>
+    </G>
+  </Svg>
+);
+
+const BidirectionalArrowIcon = () => (
+  <View style={{ 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    height: 40, 
+    overflow: 'hidden' 
+  }}>
+    <View style={{ 
+      position: 'relative', 
+      top: 4, 
+      right: 4,
+      transform: [{ scaleY: -1 }] 
+    }}>
+      <LeftArrow />
+    </View>
+    <View style={{ 
+      position: 'relative', 
+      top: -4 
+    }}>
+      <RightArrow />
+    </View>
+  </View>
+);
+
+
+
+const Card = () => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.cardText}>
+          Agent Cooperation Network is a trusted platform that helps real estate agents share and find property listings for resale.
+        </Text>
+
+        <View style={styles.infoContainer}>
+          <View style={styles.infoItem}>
+            <View style={styles.iconContainer}>
+              <UserTickIcon />
+            </View>
+            <Text style={styles.infoText}>Only for verified agents</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <View style={styles.iconContainer}> 
+            </View >
+            <View style={{alignItems: 'center', justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
+            <ArrowIcon />
+            <Text style={styles.infoText}>All transactions on a side-by-side basis</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 
 export default function LandingPage() {
   const router = useRouter();
@@ -16,7 +114,6 @@ export default function LandingPage() {
 
   const handleNavigate = () => {
     if (!isAuthenticated) {
-      // dispatch(logOut());
       router.replace('/components/Auth/Signin');
     } else {
       router.replace('/(tabs)/properties');
@@ -30,35 +127,56 @@ export default function LandingPage() {
       resizeMode="cover"
     >
       <View style={styles.container}>
-        <View style={styles.titleBlock}>
-          <Text style={styles.title}>ACN</Text>
-          <View style={styles.subtitleRow}>
-            <Text style={styles.subtitle}>Connect</Text>
-            <Text style={[styles.subtitle, styles.subtitleDivider]}>Collaborate</Text>
-            <Text style={styles.subtitle}>Succeed</Text>
+        <View style={styles.contentWrapper}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.title}>ACN</Text>
+            <View style={styles.subtitleRow}>
+              <Text style={[styles.subtitle, styles.subtitleFirst]}>Connect</Text>
+              <Text style={[styles.subtitle, styles.subtitleMiddle]}>Collaborate</Text>
+              <Text style={[styles.subtitle, styles.subtitleLast]}>Succeed</Text>
+            </View>
           </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardText}>
+              Agent Cooperation Network is a trusted platform that helps real estate agents share and find property listings for resale.
+            </Text>
+
+            <View style={styles.infoContainer}>
+              <View style={styles.infoItem}>
+                <View style={styles.iconContainer}>
+                  <UserTickIcon />
+                </View>
+                <Text style={styles.infoText}>Only for verified agents</Text>
+              </View>
+
+              <View style={styles.infoItem}>
+              <View style={styles.iconContainer}>
+              <BidirectionalArrowIcon />
+            </View>
+                <Text style={styles.infoText}>All transactions on a side-by-side basis</Text>
+              </View>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+    <TouchableOpacity 
+      style={styles.loginBtn} 
+      onPress={handleNavigate}
+    >
+      <View style={{ 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        gap: 8 // Add some space between icon and text
+      }}>
+        <ArrowIcon/>
+        <Text style={styles.loginText}>
+          {isAuthenticated ? "Continue" : "Login / Sign Up"}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  </View>
         </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardText}>
-            Agent Cooperation Network is a trusted platform that helps real estate agents share and find property listings for resale.
-          </Text>
-
-          <View style={styles.infoItem}>
-            <Image source={require('../../../assets/icons/user-tick.svg')} style={styles.icon} />
-            <Text style={styles.infoText}>Only for verified agents</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Image source={require('../../../assets/icons/arrow-2.svg')} style={styles.icon} />
-            <Text style={styles.infoText}>All transactions on a side-by-side basis.</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.loginBtn} onPress={handleNavigate}>
-          {/* <Image source={require('../../../assets/icons/login.svg')} style={styles.loginIcon} /> */}
-          <Text style={styles.loginText}>{isAuthenticated ? "Continue" : "Login / Sign Up"}</Text>
-        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -72,91 +190,104 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.1,
-    paddingBottom: height * 0.08,
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
-  titleBlock: {
+  contentWrapper: {
+    top: -10,
+    width: '100%',
+    maxWidth: 338,
     alignItems: 'center',
-    maxWidth: width * 0.8,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: height * 0.1,
   },
   title: {
-    fontSize: width * 0.1,
+    fontSize: 48,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontFamily: 'serif',
-    lineHeight: width * 0.12,
+    fontFamily: 'Lora-Bold',
+    marginBottom: 10,
   },
   subtitleRow: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
-    marginTop: 8,
   },
   subtitle: {
-    color: '#AAAAAA',
-    fontSize: width * 0.04,
+    fontSize: 14,
     textAlign: 'center',
   },
-  subtitleDivider: {
+  subtitleFirst: {
+    color: '#BFE9E6',
+  },
+  subtitleMiddle: {
+    color: '#BFE9E6',
     paddingHorizontal: 8,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#444',
+    borderColor: '#DFF4F3',
   },
-  card: {
-    width: '100%',
-    maxWidth: 338,
-    padding: width * 0.06,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    gap: 24,
-  },
-  cardText: {
-    color: '#CCCCCC',
-    fontSize: width * 0.04,
-    fontWeight: '500',
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 12,
+  subtitleLast: {
+    color: '#BFE9E6',
   },
   icon: {
-    width: width * 0.05,
-    height: width * 0.05,
+    width: 24,
+    height: 24,
+    marginRight: 12,
     tintColor: '#DDDDDD',
     resizeMode: 'contain',
   },
-  infoText: {
-    color: '#AAAAAA',
-    fontSize: width * 0.035,
-  },
   loginBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1F1F1F',
-    paddingVertical: height * 0.018,
+    top: height * 0.1,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
     borderRadius: 8,
     width: '100%',
-    maxWidth: 338,
-    gap: 10,
-    marginBottom: height * 0.2, // Added margin to shift the button slightly up
-  },
-  loginIcon: {
-    width: width * 0.05,
-    height: width * 0.05,
-    tintColor: '#FFFFFF',
-    resizeMode: 'contain',
+    alignItems: 'center',
   },
   loginText: {
-    color: '#FFFFFF',
-    fontSize: width * 0.045,
+    color: '#10302D',
+    fontSize: 16,
     fontWeight: '600',
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 10 ,
+    // borderColor: 'rgba(255, 255, 255, 0.13)',
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    padding: 16,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  cardText: {
+    fontSize: 16,
+    color: '#ffffff',
+    marginBottom: 24,
+    textAlign: 'left',
+  },
+  infoContainer: {
+    marginTop: 8,
+  },
+  infoItem: {
+    color: '#e3e3e3',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  iconContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#e3e3e3',
   },
 });
