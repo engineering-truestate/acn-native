@@ -1,6 +1,6 @@
 import { styled } from 'nativewind';
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native'; // Adjust import based on your setup
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'; // Adjust import based on your setup
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -12,6 +12,7 @@ type EmptyTabContentProps = {
     icon: React.ReactNode; // Use ReactNode for JSX elements like icons
     handleOnPress: () => void; // Specific function type
     buttonText: string;
+    loading: boolean
 };
 
 // Define component
@@ -21,7 +22,10 @@ const EmptyTabContent: React.FC<EmptyTabContentProps> = ({
     icon,
     handleOnPress,
     buttonText,
+    loading
 }) => {
+    if (loading)
+        return <ActivityIndicator />;
     return (
         <StyledView className="flex-1 items-center justify-center gap-[24px] mt-8">
             <StyledView className="flex flex-col items-center justify-center gap-[12px]">

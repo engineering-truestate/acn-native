@@ -7,7 +7,8 @@ import {
   Pressable,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Linking
+  Linking,
+  ActivityIndicator
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -368,10 +369,11 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
-  propertyStatusUpdate: Function
+  propertyStatusUpdate: Function;
+  loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -379,11 +381,10 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   const [propertyMonthFilter, setPropertyMonthFilter] = useState("");
   const [requirementMonthFilter, setRequirementMonthFilter] = useState("");
   const [enquiryMonthFilter, setEnquiryMonthFilter] = useState("");
-  const [batchSize, setBatchSize] = useState(15);
-  // const [renderingNewBatch, setRenderingNewBatch] = useState(false);
+  const [batchSize, setBatchSize] = useState(10);
+  const [bufferring, setBuffering] = useState(false);
+  const [renderingNewBatch, setRenderingNewBatch] = useState(false);
   const isBatchSizePendingLock = useRef(false);
-
-  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (myProperties) {
@@ -412,8 +413,8 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
 
     if (Math.min(batchSize + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count) > batchSize) {
       isBatchSizePendingLock.current = true;
-      // setRenderingNewBatch(true);
-      setBatchSize((prev) => (Math.min(prev + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
+      setRenderingNewBatch(true);
+      setBatchSize((prev) => (Math.min(prev + 10, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
     }
   }
 
@@ -521,17 +522,17 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
             />
           </StyledView>
 
-          {properties.length === 0 ? (
+          {properties.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No inventory added yet."
               sub_text="Contact your KAM on Whatsapp to add an inventory."
               icon={<FontAwesome name="whatsapp" size={20} color="white" />}
               buttonText="Add Inventory"
               handleOnPress={handleWhatsAppEnquiry}
+              loading={loading?.propertiesLoading || bufferring}
             />
           ) : (
             properties.slice(0, batchSize).map((property, index) => {
-              if (index === batchSize - 1) renderMore();
               return (
                 <PropertyCard
                   key={property.propertyId}
@@ -556,17 +557,17 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
             />
           </StyledView>
 
-          {requirements?.length === 0 ? (
+          {requirements?.length === 0 || bufferring ? (
             <EmptyTabContent
               text="You haven't added any requirements"
               sub_text="Upload details of property type you need"
               icon={<Ionicons name="document-text-outline" size={20} color="white" />}
               buttonText="Add Requirement"
               handleOnPress={() => router.navigate('/(tabs)/UserRequirementForm')}
+              loading={loading.requirementsLoading || bufferring}
             />
           ) : (
             requirements.slice(0, batchSize).map((requirement, index) => {
-              if (index === batchSize - 1) renderMore();
               return (
                 <RequirementCard
                   key={requirement.id}
@@ -591,18 +592,18 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
             />
           </StyledView>
 
-          {enquiries.length === 0 ? (
+          {enquiries.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No enquiries made yet."
               sub_text="Browse and enquire about available properties."
               icon={<FontAwesome6 name="house" size={20} color="white" />}
               buttonText="Explore Inventories"
               handleOnPress={() => router.push('/(tabs)/properties')}
+              loading={loading.enquiriesLoading || bufferring}
             />
           ) : (
             <View className='mr-4'>
               {enquiries.slice(0, batchSize).map((enquiry, index) => {
-                if (index === batchSize - 1) renderMore();
                 return (
                   <EnquiryCard
                     key={enquiry.id}
@@ -627,44 +628,28 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       label: "My Inventories",
       icon: "home",
       count: myProperties.length,
+      loading: loading.propertiesLoading
     },
     {
       key: "requirements",
       label: "My Requirements",
       icon: "layers",
       count: myRequirements.length,
+      loading: loading.requirementsLoading
     },
     {
       key: "enquiries",
       label: "My Enquiries",
       icon: "email",
       count: myEnquiries.length,
+      loading: loading.enquiriesLoading
     },
   ];
 
-  const handleOnScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (isBatchSizePendingLock.current)
-      return;
-    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
-
-    // Conditions to trigger load more:
-    // 1. User has scrolled to the bottom
-    const isCloseToBottom =
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - 10000;
-
-    // if (isCloseToBottom) {
-    isBatchSizePendingLock.current = true;
-    // setRenderingNewBatch(true);
-    setBatchSize((prev) => (Math.min(prev + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
-    // }
-  }
-
   useEffect(() => {
     if (isBatchSizePendingLock.current) {
-      // setRenderingNewBatch(false);
+      setRenderingNewBatch(false);
       isBatchSizePendingLock.current = false;
-      renderMore();
     }
   }, [batchSize])
 
@@ -673,8 +658,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     setSelectedPropertyMonth("");
     setSelectedRequirementMonth("");
     setSelectedEnquiryMonth("");
-    setBatchSize(15);
-    // setRenderingNewBatch(false);
+    setBatchSize(10);
+    setBuffering(false);
+    setRenderingNewBatch(false);
     isBatchSizePendingLock.current = false;
   }, [activeTab]);
 
@@ -686,25 +672,17 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       <TabCarousel
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        setBuffering={setBuffering}
         tabData={tabData}
       />
 
       {/* Content Area */}
-      <StyledScrollView
-        onScrollBeginDrag={handleOnScroll}
-        ref={scrollViewRef}
-      >
+      <StyledScrollView>
         {renderTabContent && (
-          <StyledView >{renderTabContent}</StyledView>
+          <StyledView onLayout={renderMore}>{renderTabContent}</StyledView>
         )}
+        {renderingNewBatch && (<ActivityIndicator className="absolute bottom-0 w-full" />)}
       </StyledScrollView>
-      {/* {renderingNewBatch && (<View className="absolute bottom-0 flex items-center justify-center w-full">
-        <Text style={{
-          fontFamily: 'Montserrat_400Regular',
-          color: '#6B7280',
-          fontSize: 16,
-        }}>Loading...</Text>
-      </View>)} */}
     </StyledView >
 
   );
