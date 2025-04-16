@@ -101,7 +101,7 @@ export default function PropertyFilters({
 
 const styles = StyleSheet.create({
   container: {
-    width: '95%',
+    width: '91%',
     borderBottomWidth: 0,
     borderBottomColor: '#E5E7EB',
     alignSelf: 'center',
