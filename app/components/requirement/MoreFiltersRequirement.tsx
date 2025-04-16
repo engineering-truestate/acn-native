@@ -170,9 +170,9 @@ const MoreFiltersRequirement = ({
       }}
 
     >
-      <SafeAreaView className="flex-1 bg-white px-1">
-        <View className="flex-row justify-between items-center px-4 pt-10 pb-4 border-b border-gray-200">
-          <Text className="text-xl font-bold text-black text-center flex-1">More Filters</Text>
+      <View className="flex-1 bg-white">
+        <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+          <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle}>
             <Text className="text-lg text-black">✕</Text>
           </TouchableOpacity>
@@ -230,7 +230,7 @@ const MoreFiltersRequirement = ({
         >
           <Text className="text-white text-lg font-semibold">Show Results</Text>
         </TouchableOpacity>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };
