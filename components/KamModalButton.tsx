@@ -47,9 +47,6 @@ export const KamModalButton = () => {
 
 const styles = StyleSheet.create({
   button: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 2,
+    marginRight: 10,
   },
 });

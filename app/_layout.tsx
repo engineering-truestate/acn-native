@@ -1,8 +1,8 @@
 import { Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View, Dimensions, Platform, SafeAreaView, StyleSheet } from "react-native";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, Dimensions, Platform, SafeAreaView, StyleSheet, Text } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -13,15 +13,43 @@ import {
 } from '@expo-google-fonts/montserrat';
 import 'react-native-reanimated';
 import '../global.css';
+import { HamburgerMenuButton } from '@/components/HamburgerMenuButton';
 import { HamburgerMenu } from '@/components/HamburgerMenu';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ReduxProvider from '@/providers/ReduxProvider';
 import FlashMessage from '../components/Toast';
 import { KamModalButton } from "@/components/KamModalButton";
+import ProfileModal from '@/app/modals/ProfileModal';
 
 SplashScreen.preventAutoHideAsync();
 
+// Custom header component to apply the desired styling
+const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMenuPress: () => void; isMenuOpen: boolean }) => {
+  const insets = useSafeAreaInsets();
+  
+  return (
+    <View style={[
+      styles.headerContainer,
+      { paddingTop: insets.top }
+    ]}>
+      <View style={styles.headerContent}>
+        <View style={styles.headerLeft}>
+          <HamburgerMenuButton onPress={onMenuPress} isOpen={isMenuOpen} />
+        </View>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>{title}</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <KamModalButton />
+        </View>
+      </View>
+    </View>
+  );
+};
+
 export default function RootLayout() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
   const colorScheme = useColorScheme();
   const [topMargin, setTopMargin] = useState(10);
   const [fontsLoaded] = useFonts({
@@ -85,15 +113,16 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            {/* <View style={styles.navContainer} > */}
-            <HamburgerMenu />
             <Stack
               screenOptions={{
                 headerStyle: { backgroundColor: '#fff' },
                 headerTintColor: '#000',
                 headerTitleAlign: 'center',
-                headerTitleStyle: { fontWeight: 'bold' },
                 headerBackVisible: false,
+                header: ({ route, options }) => {
+                  const title = options.title || route.name;
+                  return <CustomHeader title={title} onMenuPress={() => setIsMenuOpen(true)} isMenuOpen={isMenuOpen} />;
+                },
               }}
             >
               <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
@@ -104,45 +133,60 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)/help" options={{ title: 'Help' }} />
               <Stack.Screen name="(tabs)/dashboardTab" options={{ title: 'Dashboard' }} />
 
-            {/* <Stack.Screen name="LandingPage" /> */}
-            <Stack.Screen name="components/Auth" options={{ headerShown: false }}/>
-            <Stack.Screen name="components/Auth/Signin" options={{ headerShown: false }}/>
-            <Stack.Screen name="components/Auth/OTPage" options={{ headerShown: false }}/>
-            <Stack.Screen name="components/Auth/VerificationPage" options={{ headerShown: false }}/>
-            <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }}/>
-            <Stack.Screen name="not-found" options={{ headerShown: false }} />
-            {/* <Stack.Screen
-              name="(tabs)"
-              options={{
-                headerShown: false,
-              }}
+              <Stack.Screen name="components/Auth" options={{ headerShown: false }} />
+              <Stack.Screen name="components/Auth/Signin" options={{ headerShown: false }} />
+              <Stack.Screen name="components/Auth/OTPage" options={{ headerShown: false }} />
+              <Stack.Screen name="components/Auth/VerificationPage" options={{ headerShown: false }} />
+              <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }} />
+              <Stack.Screen name="not-found" options={{ headerShown: false }} />
+            </Stack>
+            <HamburgerMenu 
+              visible={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              onOpenProfile={() => setProfileModalVisible(true)}
             />
-            <Stack.Screen
-              name="property/[id]"
-              options={{
-                headerShown: false,
-              }}
-            /> */}
-          </Stack>
-          <KamModalButton />
-          <FlashMessage position="top" />
-          <StatusBar style="auto" />
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
-    </ReduxProvider >
+            <ProfileModal
+              visible={profileModalVisible}
+              setVisible={setProfileModalVisible}
+            />
+            <FlashMessage position="top" />
+            <StatusBar style="auto" />
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </ReduxProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  navContainer: {
+  headerContainer: {
+    backgroundColor: '#fff',
+    width: '100%',
+  },
+  headerContent: {
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    height: 60,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  headerLeft: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  headerTitleContainer: {
+    flex: 2,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontFamily: 'Montserrat_700Bold',
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000',
+  },
+  headerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
 });
