@@ -165,7 +165,7 @@ const MoreFilters = ({
       <View className="flex-1 bg-white" style={{ zIndex: 1 }}>
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-          <Text className="font-semibold text-lg text-gray-800">More Filters</Text>
+          <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle} >
             <Ionicons name="close" size={24} color="#374151" />
           </TouchableOpacity>
