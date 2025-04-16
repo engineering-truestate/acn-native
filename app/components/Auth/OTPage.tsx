@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
 import Spinner from '../SpinnerComponent';
 import { OtpInput } from "react-native-otp-entry";
+import { AntDesign } from '@expo/vector-icons';
 const { width, height } = Dimensions.get('window');
 
 export default function OTPage() {
@@ -112,21 +113,23 @@ export default function OTPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.heading, { fontSize: width * 0.08 }]}>Welcome to ACN</Text>
-      <Text style={[styles.otpInfo, { fontSize: width * 0.04 }]}>
-        OTP sent to <Text style={styles.phone}> {phonenumber}</Text>
+      <Text style={[styles.heading, { fontSize: 28 }]}>Welcome to ACN</Text>
+      <Text style={[styles.otpInfo, { fontSize: 16 }]}>
+        OTP sent to <Text style={styles.phone}> {phonenumber?.slice(0, 3)} {phonenumber?.slice(3)}</Text>
       </Text>
       <TouchableOpacity
         onPress={handleResend}
-        style={styles.resendButton}
+        style={[
+          styles.resendButton,
+          canResend ? styles.resendButtonActive : styles.resendButtonDisabled
+        ]}
         disabled={!canResend}
       >
         <Text style={[
           styles.resendText,
-          { fontSize: width * 0.04 },
-          !canResend && styles.resendTextDisabled
+          canResend ? styles.resendTextActive : styles.resendTextDisabled
         ]}>
-          {canResend ? 'Resend Code' : `Resend in ${resendTimer}s`}
+          {canResend ? 'Resend Code' : `Resend Code (${resendTimer})`}
         </Text>
       </TouchableOpacity>
 
@@ -139,10 +142,12 @@ export default function OTPage() {
             pinCodeContainerStyle: styles.pinCodeContainer,
             focusStickStyle: styles.focusStick,
             focusedPinCodeContainerStyle: styles.activePinCodeContainer,
+            pinCodeTextStyle: styles.otpText,
           }}
+          
         />
       </View>
-      <View style={{ marginBottom: height * 0.04, minHeight: 24 }}>
+      <View style={{ marginBottom: 40, minHeight: 24 }}>
         {errorMessage && (
           <Text style={{ color: '#EF4444', fontFamily: 'System', fontSize: 12, lineHeight: 21 }}>
             *{errorMessage}
@@ -153,7 +158,7 @@ export default function OTPage() {
         style={[
           styles.verifyButton,
           otp.length === 6 && !isVerifying && styles.verifyButtonActive,
-          { padding: width * 0.04 },
+          // { padding: width * 0.04 },
         ]}
         onPress={handleVerify}
         disabled={otp.length !== 6 || isVerifying}
@@ -162,52 +167,90 @@ export default function OTPage() {
           {isVerifying ?
             <ActivityIndicator size="large" color="#ffffff" />
             :
-            "Login/Sign Up"
+            "Verify OTP"
           }
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleBack}>
-        <Text style={[styles.backText, { fontSize: width * 0.04 }]}>← Back</Text>
+      <TouchableOpacity style={styles.backContiner} onPress={handleBack}>
+        <AntDesign name="arrowleft" size={20} color="#153E3B" />
+        <Text style={[styles.backText, { fontSize: 18 }]}>Back</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fff' },
-  heading: { fontWeight: 'bold', marginBottom: 6, marginTop: 0, textAlign: 'center' },
-  otpInfo: { color: '#888', marginBottom: 10, textAlign: 'center', marginTop: 8 },
-  phone: { fontWeight: 'bold', color: '#153E3B' },
-  resendButton: { marginTop: 8, marginBottom: 24, alignSelf: 'center' },
-  resendText: { color: '#023020', fontWeight: 'bold' },
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 48, backgroundColor: '#fff' },
+  heading: { fontWeight: 'bold', marginBottom: 12, marginTop: 0, textAlign: 'left' },
+  otpInfo: { color: '#888', marginBottom: 11, textAlign: 'left', marginTop: 8 },
+  phone: { fontWeight: 'bold', color: '#153E3B', textDecorationLine: 'underline' },
+  resendButton: {
+    marginTop: 11,
+    // marginBottom: 40,
+    alignSelf: 'flex-start',
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 6,
+  },
+  resendButtonActive: {
+    backgroundColor: '#F0FFFF',
+    borderColor: '#153E3B',
+  },
+  resendButtonDisabled: {
+    backgroundColor: 'rgba(240, 255, 255, 0.2)',
+    borderColor: 'rgba(21, 62, 59, 0.2)',
+  },
+  resendText: {
+    fontWeight: 'semibold',
+    fontSize: 12,
+    fontFamily: 'sans-serif',
+    lineHeight: 18,
+  },
+  resendTextActive: {
+    color: '#153E3B',
+  },
   resendTextDisabled: {
-    color: '#888',
+    color: 'rgba(21, 62, 59, 0.5)',
   },
   otpRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingHorizontal: 10,
+    // marginBottom: 40,
+    marginTop: 40,
   },
   otpInput: {
     borderBottomWidth: 2,
     borderColor: '#ccc',
     textAlign: 'center',
   },
+  otpText: {
+    fontWeight: 'semibold',
+    fontSize: 20,
+    fontFamily: 'sans-serif',
+  },
   verifyButton: {
     backgroundColor: '#ccc',
     alignItems: 'center',
-    borderRadius: 10,
+    justifyContent: "center",
+    borderRadius: 12,
+    height: 60,
   },
   verifyButtonActive: {
     backgroundColor: '#153E3B',
   },
-  verifyText: { color: '#fff', fontWeight: 'bold' },
-  backText: {
+  verifyText: { color: '#fff', fontWeight: 'bold', fontSize: 16, },
+  backContiner: {
+    flexDirection: "row",
     marginTop: 24,
     textAlign: 'center',
-    color: '#023020',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  backText: {
+    
+    color: '#153E3B',
     fontWeight: 'bold',
   },
   inlineRow: {

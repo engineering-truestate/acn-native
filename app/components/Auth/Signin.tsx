@@ -12,6 +12,7 @@ import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
 import auth from '@react-native-firebase/auth';
 import Spinner from '../SpinnerComponent';
+import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -199,20 +200,20 @@ export default function SignUp() {
         onPress={handleCheckUser}
         disabled={!isPhoneValid || loading || addingNewAgent || isSendingOTP}
       >
-        <Text style={styles.buttonText}>
+        <View>
           {(loading || addingNewAgent || isSendingOTP) ?
-            <ActivityIndicator size="large" color="#ffffff" />
+            <ActivityIndicator size="large" color="white" />
             :
-            "Login/Sign Up"
+            <View className='flex flex-row items-center justify-between gap-[10px]'>
+              <FontAwesome6 name="arrow-right-to-bracket" size={20} color="white" />
+              <Text style={styles.buttonText}>Login/Sign Up</Text>
+            </View>
           }
-        </Text>
+        </View>
       </TouchableOpacity>
 
       <View style={styles.whatsappRow}>
-        <Image
-          source={require('../../../assets/icons/Whatsapp.svg')}
-          style={styles.whatsappIcon}
-        />
+      <FontAwesome5 name="whatsapp" size={16} color="black" />
         <Text style={styles.whatsappText}>WhatsApp number mandatory!</Text>
       </View>
 
@@ -236,19 +237,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   heading: {
-    fontSize: width * 0.08,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 6,
   },
   subheading: {
-    fontSize: width * 0.045,
+    fontSize: 16,
     color: '#888',
     marginBottom: height * 0.04,
   },
   label: {
-    fontSize: width * 0.045,
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   inputRow: {
     flexDirection: 'row',
@@ -256,7 +257,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countryCodeBox: {
-    paddingVertical: height * 0.015,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // paddingVertical: height * 0.015,
     paddingHorizontal: width * 0.035,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -269,7 +273,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingVertical: height * 0.015,
+    height: 56,
+    // paddingVertical: height * 0.0135,
     paddingHorizontal: width * 0.04,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -279,7 +284,9 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#ccc',
-    paddingVertical: height * 0.018,
+    height: 60,
+    justifyContent: "center",
+    // paddingVertical: height * 0.018,
     alignItems: 'center',
     borderRadius: 12,
     marginBottom: 16,
@@ -290,12 +297,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: width * 0.045,
+    fontSize: 16,
   },
   whatsappRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: height * 0.04,
+    marginBottom: height * 0.08,
+    gap: 6,
   },
   whatsappIcon: {
     width: width * 0.05,
@@ -304,14 +312,15 @@ const styles = StyleSheet.create({
   },
   whatsappText: {
     color: '#555',
-    fontSize: width * 0.038,
+    fontSize: 14,
   },
   footerText: {
     textAlign: 'center',
-    fontSize: width * 0.04,
+    fontSize: 16,
+    fontWeight: 500,
   },
   clickHere: {
-    color: '#1a0dab',
-    textDecorationLine: 'underline',
+    color: '#4866FF',
+    // textDecorationLine: 'underline',
   },
 });
