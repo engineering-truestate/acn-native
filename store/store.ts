@@ -21,7 +21,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage, // 👈 RN-compatible storage
-  whitelist: [],
+  whitelist: ["auth", "agent", "kam"], // Only persist these slices
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

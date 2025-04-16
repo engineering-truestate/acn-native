@@ -160,7 +160,7 @@ export const HamburgerMenu = () => {
     <>
       {(isAuthenticated && pathname != "/" && pathname != "/components/Auth/Signin" && pathname != "/components/Auth/OTPage" && pathname != "/components/Auth/BlacklistedPage" && pathname != "/components/Auth/VerificationPage") &&
         <>
-        {/* <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={toggleMenu}
             className="absolute top-10 left-5 z-20 p-2"
             style={styles.hamburgerButton}
@@ -179,6 +179,8 @@ export const HamburgerMenu = () => {
             </View>
           </TouchableOpacity>
 
+          {/* <Text className="absolute top-10 left-20 z-20 font-bold text-[18] ">ACN</Text> */}
+
           {/* <Animated.View
             style={[
               {
@@ -196,7 +198,7 @@ export const HamburgerMenu = () => {
             <Pressable style={{ flex: 1 }} onPress={handleOverlayPress} />
           </Animated.View> */}
 
-<Animated.View
+          <Animated.View
             style={[
               styles.overlay,
               { opacity: overlayOpacity, display: isOpen ? 'flex' : 'none' },
@@ -220,7 +222,7 @@ export const HamburgerMenu = () => {
             ]}
           > */}
 
-<Animated.View
+          <Animated.View
             style={[
               styles.menuContainer,
               { transform: [{ translateX }] },
@@ -231,41 +233,46 @@ export const HamburgerMenu = () => {
             <ScrollView contentContainerStyle={[styles.menuContent, { flexGrow: 1 }]}>
               <View className="flex flex-col h-full">
                 {/* Main Menu Items */}
-                <View className="flex flex-col gap-[12px] px-4">
-                  {menuItems.map((item) => (
-                    <SidebarItem
-                      key={item.path}
-                      onClick={() => handleNavigation(item.path)}
-                      icon={item.icon}
-                      label={item.title}
-                      selected={isActive(item.path)}
-                      iconType={item.iconType}
-                    />
-                  ))}
+                <View className='gap-3'>
+                    {menuItems.map((item) => (
+                      <View className="flex flex-col gap-3">
+                      <SidebarItem
+                        key={item.path}
+                        onClick={() => handleNavigation(item.path)}
+                        icon={item.icon}
+                        label={item.title}
+                        selected={isActive(item.path)}
+                        iconType={item.iconType}
+                      />
+                      </View>
+                    ))}
+                  
+                  <View className="flex flex-col gap-3">
+                    <TouchableOpacity
+                      onPress={handleRequirementSubmit}
+                      className="bg-[#153E3B] flex flex-row items-center justify-center gap-2 py-2 rounded-[6px]"
+                    >
+                      <MaterialIcons name="post-add" size={20} color="#fff" />
+                      <Text className="text-white">Add Requirement</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    onPress={handleRequirementSubmit}
-                    className="bg-[#153E3B] flex flex-row items-center justify-center gap-2 px-4 py-2 rounded-[6px]"
-                  >
-                    <MaterialIcons name="post-add" size={20} color="#fff" />
-                    <Text className="text-white">Add Requirement</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
+                    <TouchableOpacity
                       onPress={() => {
                         Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
                           .catch((err) => console.error('Failed to open URL:', err));
                       }}
-                    className="flex flex-row items-center justify-center gap-2 border-[1px] border-[#153E3B] px-4 py-2 rounded-[6px]"
-                  >
-                    <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
-                    <Text className="text-[#153E3B] font-semibold">Join Community</Text>
-                  </TouchableOpacity>
+                      className="flex flex-row items-center justify-center gap-2 border-[1px] border-[#153E3B] px-4 py-2 rounded-[6px]"
+                    >
+                      <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
+                      <Text className="text-[#153E3B] font-semibold">Join Community</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 {/* Bottom Menu Items - Fixed at bottom */}
-                <View className="mt-auto px-4 pb-10">
+                <View className="mt-auto pl-4 pb-10 ">
                   {bottomMenuItems.map((item) => (
+                    <View className="flex flex-col pb-1">
                     <SidebarItem
                       key={item.path}
                       onClick={() => handleNavigation(item.path)}
@@ -274,8 +281,8 @@ export const HamburgerMenu = () => {
                       selected={isActive(item.path)}
                       iconType={item.iconType}
                     />
+                    </View>
                   ))}
-
                   {/* Credits Display */}
                   <View className="flex flex-row justify-between items-center w-full border border-[#E3E3E3] rounded-[20px] px-4 py-3 mt-3">
                     <View className="flex flex-row items-center gap-2">
@@ -422,7 +429,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: width * 0.6,
+    width: width * 0.55,
     height: '100%',
     backgroundColor: '#fff',
     zIndex: 4,
@@ -434,9 +441,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
+    
   },
   menuContent: {
     paddingTop: 100,
-    paddingBottom: 20,
+    paddingBottom: 10,
+    paddingRight: 10,
+    paddingLeft: 10,
+
   },
 });
