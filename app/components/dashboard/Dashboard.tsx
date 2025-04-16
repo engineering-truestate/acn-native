@@ -603,7 +603,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
   }, [activeTab]);
 
   return (
-    <StyledView className="flex-1 bg-gray-50">
+    <StyledView className="flex bg-gray-50 h-full">
       <StatusBar style="auto" />
 
       {/* Carousel Tab Header */}
