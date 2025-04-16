@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Pressable
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ARSecondaryButton from '../components/Button/ARSecondaryButton';
 import ARPrimaryButton from '../components/Button/ARPrimaryButton';
@@ -8,10 +16,11 @@ import { Requirement } from '../types';
 import submitRequirement from '../helpers/submitRequirement';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import CustomSelectDropdown from '../components/CustomSelectDropdown';
 
 const UserRequirementForm = () => {
   const cpId = useSelector((state: RootState) => state?.agent?.docData?.cpId) || null;
-    
+
   const [focusedFields, setFocusedFields] = useState<{ [key: string]: boolean }>({});
   const handleFocus = (fieldName: string) => {
     setFocusedFields((prev) => ({ ...prev, [fieldName]: true }));
@@ -23,10 +32,10 @@ const UserRequirementForm = () => {
   const [propertyName, setPropertyName] = useState('');
   const [requirementDetails, setRequirementDetails] = useState('');
   const [assetType, setAssetType] = useState('');
-  const [area, setArea] = useState<number | null>(null);
+  const [area, setArea] = useState<string>('');
   const [configuration, setConfiguration] = useState('');
-  const [budgetFrom, setBudgetFrom] = useState<number | null>(null);
-  const [budgetTo, setBudgetTo] = useState<number | null>(null);
+  const [budgetFrom, setBudgetFrom] = useState<string>('');
+  const [budgetTo, setBudgetTo] = useState<string>('');
   const [marketValue, setMarketValue] = useState(false);
 
   const [error, setError] = useState<{
@@ -35,6 +44,20 @@ const UserRequirementForm = () => {
     configuration?: string;
     budget?: string;
   }>({});
+
+  const assetTypes = [
+    { label: "Select Asset Type", value: "" },
+    { label: "Apartment", value: "apartment" },
+    { label: "Plot", value: "plot" },
+    { label: "Villa", value: "villa" },
+    { label: "Duplex", value: "duplex" },
+    { label: "Penthouse", value: "penthouse" },
+    { label: "Independent Building", value: "independent building" },
+    { label: "Commercial Building", value: "commercial building" },
+    { label: "Row House", value: "rowhouse" },
+    { label: "Bungalow", value: "bungalow" },
+    { label: "Villament", value: "villament" }
+  ];
 
   const getConfigurations = () => {
     switch (assetType) {
@@ -75,13 +98,15 @@ const UserRequirementForm = () => {
     }
   };
 
+  const isConfigurationDisabled = assetType === "plot";
+
   const handleMarketValueCheckbox = () => {
-    if (marketValue)
-      setMarketValue(false);
-    else
-      setMarketValue(true);
-    setBudgetFrom(null);
-    setBudgetTo(null);
+    setMarketValue(!marketValue);
+    if (!marketValue) {
+      // If enabling market value, clear budget fields
+      setBudgetFrom('');
+      setBudgetTo('');
+    }
   };
 
   const clearForm = () => {
@@ -89,10 +114,10 @@ const UserRequirementForm = () => {
     setPropertyName('');
     setRequirementDetails('');
     setAssetType('');
-    setArea(null);
+    setArea('');
     setConfiguration('');
-    setBudgetFrom(null);
-    setBudgetTo(null);
+    setBudgetFrom('');
+    setBudgetTo('');
     setMarketValue(false); // Reset to default value
 
     // Clear errors
@@ -102,6 +127,22 @@ const UserRequirementForm = () => {
     setFocusedFields({});
   };
 
+  const isBudgetValidRange = () => {
+    if (marketValue) {
+      // If "As per Market Price" is checked, skip budget validation
+      return true;
+    }
+
+    if (budgetTo === '') {
+      return false; // Max budget (budgetTo) is required
+    }
+
+    if (budgetFrom === '') {
+      return true; // Min budget (budgetFrom) can be skipped
+    }
+
+    return parseFloat(budgetTo) >= parseFloat(budgetFrom); // Validate range
+  };
 
   const handleSubmit = async () => {
     const newErrors: any = {};
@@ -111,24 +152,20 @@ const UserRequirementForm = () => {
     }
 
     if (!assetType.trim()) {
-      newErrors.assetType = "Asset type is required";
+      newErrors.assetType = "Please select asset type";
     }
 
-    if (assetType!= "plot" && !configuration.trim()) {
-      newErrors.configuration = "Configuration is required";
+    if (assetType !== "plot" && !configuration.trim()) {
+      newErrors.configuration = "Please select a configuration";
     }
 
-    if (!(budgetFrom && budgetTo) && !marketValue) {
-      newErrors.budget = "Either budget range or market value is required";
-    }
-
-    if (budgetTo && budgetFrom && (budgetTo < budgetFrom)) {
-      newErrors.budget = "Invalid range provided";
+    if (!marketValue && !isBudgetValidRange()) {
+      newErrors.budget = "Please enter a valid maximum budget or select 'As per Market Price'.";
     }
 
     setError(newErrors);
 
-    if (Object.keys(newErrors).length != 0) {
+    if (Object.keys(newErrors).length !== 0) {
       return;
     }
 
@@ -139,293 +176,306 @@ const UserRequirementForm = () => {
         propertyName,
         requirementDetails,
         assetType,
-        area: area || undefined,
+        area: area ? parseFloat(area) : undefined,
         configuration,
         budget: {
-          from: budgetFrom || undefined,
-          to: budgetTo || undefined,
+          from: budgetFrom ? parseFloat(budgetFrom) : undefined,
+          to: budgetTo ? parseFloat(budgetTo) : undefined,
         },
         marketValue: marketValue === true ? "Market Value" : "",
       }
 
       await submitRequirement(userRequirement, cpId);
-
+      clearForm();
+      console.log("requirement submitted");
     } catch (error) {
       console.error("An error occurred:", error);
     } finally {
-      clearForm();
       setSaving(false);
-      console.log("requirement submitted");
     }
   };
 
   const [saving, setSaving] = useState(false);
+
+  // Calculate if form is valid for submit button
+  const isSubmitEnabled = propertyName.trim() !== '' &&
+    assetType.trim() !== '' &&
+    (marketValue || isBudgetValidRange());
+
   return (
     <View style={styles.overlay}>
-      <View style={styles.modalContainer} >
+      <View style={styles.modalContainer}>
 
-        {/* Fixed Header */}
-        <View style={styles.contentContainer}>
+        {/* Scrollable Content */}
+        <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
+          {/* Project Name / Location */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Project Name / Location <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              value={propertyName}
+              onChangeText={(text) => {
+                setPropertyName(text);
+                setError((prev) => ({ ...prev, propertyName: undefined }));
+              }}
+              onFocus={() => handleFocus('propertyName')}
+              onBlur={() => handleBlur('propertyName')}
+              placeholder="Type here"
+              style={[
+                styles.textInput,
+                focusedFields['propertyName'] && styles.focusedInput
+              ]}
+            />
+            {error.propertyName && (
+              <Text style={styles.errorText}>{error.propertyName}</Text>
+            )}
+          </View>
 
-          {/* Scrollable Content */}
-          <ScrollView className="flex-grow p-5 bg-[#F5F6F7] gap-1">
+          {/* Requirement Details */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Requirement Details</Text>
+            <TextInput
+              value={requirementDetails}
+              onChangeText={setRequirementDetails}
+              onFocus={() => handleFocus('requirementDetails')}
+              onBlur={() => handleBlur('requirementDetails')}
+              placeholder="Enter the details"
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              style={[
+                styles.textInput,
+                styles.textArea,
+                focusedFields['requirementDetails'] && styles.focusedInput
+              ]}
+            />
+          </View>
 
-            {/* Propery Name/ Location Feild */}
-            <View className="space-y-2 pb-5 pt-4">
-              <Text className="text-left text-lg" style={{ fontFamily: 'Montserrat_600SemiBold' }}>
-                Project Name / Location <Text className="text-red-500">*</Text>
+          {/* Asset Container */}
+          <View style={styles.containerBox}>
+            {/* Asset Type */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>
+                Asset Type <Text style={styles.required}>*</Text>
               </Text>
-
-              <TextInput
-                value={propertyName}
-                onChangeText={(text) => {
-                  setPropertyName(text);
-                  setError((prev) => ({ ...prev, propertyName: undefined }));
-                }}
-                onFocus={() => handleFocus('propertyName')}
-                onBlur={() => handleBlur('propertyName')}
-                placeholder="Type here"
-                className={`
-                        rounded-xl p-4 w-full text-xl bg-white 
-                        border ${focusedFields['propertyName'] ? 'border-yellow-600 border-2' : 'border-gray-300'}
-                      `}
-              />
-              {error.propertyName && (
-                <Text className="text-red-500 text-base">{error.propertyName}</Text>
+              <View style={[
+                
+                focusedFields['assetType'] && styles.focusedInput
+              ]}>
+                {/* <Picker
+                  selectedValue={assetType}
+                  onValueChange={(itemValue) => {
+                    setAssetType(itemValue);
+                    setError((prev) => ({ ...prev, assetType: "" }));
+                    // Reset configuration when asset type changes
+                    setConfiguration('');
+                  }}
+                  onFocus={() => handleFocus('assetType')}
+                  onBlur={() => handleBlur('assetType')}
+                  style={styles.picker}
+                >
+                  {assetTypes.map((item, index) => (
+                    <Picker.Item 
+                      key={index} 
+                      label={item.label} 
+                      value={item.value} 
+                      style={styles.pickerItem} 
+                    />
+                  ))}
+                </Picker> */}
+                <CustomSelectDropdown
+                  selectedValue={assetType}
+                  onValueChange={setAssetType}
+                  options={assetTypes}
+                  placeholder="Select an asset type"
+                />
+              </View>
+              {error.assetType && (
+                <Text style={styles.errorText}>{error.assetType}</Text>
               )}
             </View>
 
-            {/* Requirement Details */}
-            <View className="space-y-2 pt-4 pb-10">
-              <Text className="text-left text-lg" style={{ fontFamily: 'Montserrat_600SemiBold' }}>
-                Requirement Details
-              </Text>
-
-              <TextInput
-                value={requirementDetails}
-                onChangeText={setRequirementDetails}
-                onFocus={() => handleFocus('requirementDetails')}
-                onBlur={() => handleBlur('requirementDetails')}
-                placeholder="Enter the details"
-                className={`
-                        rounded-xl px-4 w-full text-xl bg-white h-24
-                        border ${focusedFields['requirementDetails'] ? 'border-yellow-600 border-2' : 'border-gray-300'}
-                      `}
-                textAlignVertical="top"
-                multiline
-              />
-            </View>
-
-            {/* Third Container */}
-            <View className="flex-1 px-6 py-7 mb-7 bg-white border border-gray-300 rounded-xl ">
-              {/* Asset Type */}
-              <View className="space-y-4 mb-4">
-                <Text className="text-left text-lg" style={{ fontFamily: "Montserrat_600SemiBold" }}>
-                  Asset Type <Text className="text-red-500">*</Text>
+            {/* Configuration + Area Row */}
+            <View style={styles.rowContainer}>
+              {/* Configuration */}
+              <View style={[styles.inputGroup, styles.halfWidth]}>
+                <Text style={styles.inputLabel}>
+                  Configuration <Text style={styles.required}>*</Text>
                 </Text>
-                <View className="space-y-2 ">
-                  <View
-                    className={`rounded-xl px-2  bg-gray-100 ${focusedFields['assetType']
-                      ? 'border-2 border-yellow-600'
-                      : 'border border-gray-300'
-                      }`}
+                <View style={[
+                 
+                  focusedFields['configuration'] && styles.focusedInput,
+                  isConfigurationDisabled && styles.disabledInput
+                ]}>
+                  {/* <Picker
+                    selectedValue={configuration}
+                    onValueChange={(itemValue) => {
+                      setConfiguration(itemValue);
+                      setError((prev) => ({ ...prev, configuration: "" }));
+                    }}
+                    onFocus={() => handleFocus('configuration')}
+                    onBlur={() => handleBlur('configuration')}
+                    enabled={!isConfigurationDisabled}
+                    style={styles.picker}
                   >
-                    <Picker
-                      selectedValue={assetType}
-                      onValueChange={(itemValue) => {
-                        setAssetType(itemValue);
-                        setError((prev) => ({ ...prev, assetType: "" }));
-                      }}
-                      onFocus={() => handleFocus('assetType')}
-                      onBlur={() => handleBlur('assetType')}
-                      dropdownIconColor={"#000"}
-                    >
-                      <Picker.Item label="Select Asset Type" value="" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Apartment" value="apartment" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Plot" value="plot" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Villa" value="villa" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Duplex" value="duplex" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Penthouse" value="penthouse" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Independent Building" value="independent building" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Commercial Building" value="commercial building" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Row House" value="rowhouse" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Bungalow" value="bungalow" style={{ fontSize: 20 }} />
-                      <Picker.Item label="Villament" value="villament" style={{ fontSize: 20 }} />
-                    </Picker>
-                  </View>
+                    <Picker.Item
+                      label={isConfigurationDisabled ? "Not applicable" : "Select Configuration"}
+                      value=""
+                      style={styles.pickerItem}
+                    />
+                    {getConfigurations().map((config, index) => (
 
-                  {error.assetType && (
-                    <Text className="text-red-500 text-base">{error.assetType}</Text>
-                  )}
+                      <Picker.Item
+                        key={index}
+                        label={config}
+                        value={config}
+                        style={styles.pickerItem}
+                      />
+                    ))}
+                  </Picker> */}
+                  <CustomSelectDropdown
+                    selectedValue={configuration}
+                    onValueChange={setConfiguration}
+                    options={[
+                      { label: "Select Configuration", value: "" },
+                      ...getConfigurations().map((config) => ({
+                        label: config,
+                        value: config,
+                      })),
+                    ]}
+                    placeholder="Select Configuration"
+                    // disabled={isConfigurationDisabled}
+                    />
                 </View>
-              </View>
-
-              {/* Configuration + Area Row */}
-              <View className="flex-row gap-x-4 ">
-                {/* Configuration */}
-                <View className="space-y-4 flex-1">
-                  <Text className="text-left text-lg" style={{ fontFamily: "Montserrat_600SemiBold" }}>
-                    Configuration <Text className="text-red-500">*</Text>
-                  </Text>
-
-                  <View className="space-y-2">
-                    <View
-                      className={`rounded-xl px-2 bg-gray-100 ${focusedFields['configuration']
-                        ? 'border-2 border-yellow-600'
-                        : 'border border-gray-300'
-                        } ${getConfigurations().length == 0 ? 'opacity-50' : ''}`}
-                    >
-                      <Picker
-                        selectedValue={configuration}
-                        onValueChange={(itemValue) => {
-                          setConfiguration(itemValue);
-                          setError((prev) => ({ ...prev, configuration: "" }));
-                        }}
-                        onFocus={() => handleFocus('configuration')}
-                        onBlur={() => handleBlur('configuration')}
-                        dropdownIconColor={"#000"}
-                        enabled={getConfigurations().length > 0}
-                      >
-                        <Picker.Item
-                          label={getConfigurations().length == 0 ? "Not applicable" : "Select Configuration"}
-                          value=""
-                          style={{ fontSize: 20 }}
-                        />
-                        {getConfigurations().map((config, index) => (
-                          <Picker.Item key={index} label={config} value={config} style={{ fontSize: 20 }} />
-                        ))}
-                      </Picker>
-                    </View>
-
-                    {error.configuration && (
-                      <Text className="text-red-500 text-base">{error.configuration}</Text>
-                    )}
-                  </View>
-                </View>
-
-                {/* Area */}
-                <View className="space-y-4 flex-1">
-                  <Text className="text-left text-lg" style={{ fontFamily: "Montserrat_600SemiBold" }}>
-                    Area (Sqft)
-                  </Text>
-                  <TextInput
-                    value={area !== null ? area.toString() : ''}
-                    onChange={(e) => {
-                      const text = e.nativeEvent.text;
-                      if (/^\d*$/.test(text)) {
-                        setArea(text === '' ? null : parseInt(text, 10));
-                      }
-                    }}
-                    onFocus={() => handleFocus('area')}
-                    onBlur={() => handleBlur('area')}
-                    keyboardType="number-pad"
-                    placeholder="0000"
-                    className={`
-                            rounded-xl p-4 w-full text-xl bg-gray-100
-                            border ${focusedFields['area'] ? 'border-yellow-600 border-2' : 'border-gray-300'}
-                          `}
-                  />
-                </View>
-              </View>
-            </View>
-
-            {/* Fourth Container */}
-            {/* Budget */}
-            <View className="space-y-10 bg-white rounded-xl border border-gray-200 px-6 py-8 mb-16">
-              <View className="space-y-2">
-                <Text className="text-left text-lg " style={{ fontFamily: 'Montserrat_600SemiBold' }}>
-                  Budget (Cr) <Text className="text-red-500">*</Text>
-                </Text>
-
-                <View className="flex-row items-center space-x-2">
-                  {/* Budget From */}
-                  <TextInput
-                    placeholder="From"
-                    value={budgetFrom !== null ? budgetFrom.toString() : ''}
-                    onFocus={() => handleFocus('budgetFrom')}
-                    onBlur={() => handleBlur('budgetFrom')}
-                    onChangeText={(text) => {
-                      let numericValue = text.replace(/[^0-9.]/g, "");
-                      const parts = numericValue.split(".");
-                      if (parts.length > 2) {
-                        numericValue = `${parts[0]}.${parts[1]}`;
-                      }
-                      if (parts.length > 1) {
-                        parts[1] = parts[1].slice(0, 2);
-                        numericValue = `${parts[0]}.${parts[1]}`;
-                      }
-                      setBudgetFrom(numericValue === '' ? null : parseFloat(numericValue));
-                    }}
-                    className={`
-                            flex-1 rounded-lg px-3 py-3 text-lg
-                            border border-gray-300
-                            ${marketValue ? "bg-stone-100 text-gray-500" : "bg-white text-black"}
-                            ${focusedFields['budgetFrom'] ? 'border-yellow-600 border-2' : 'border-gray-300'}
-                          `}
-                    editable={!marketValue}
-                    keyboardType="decimal-pad"
-                  />
-
-                  <Text className="text-lg">To</Text>
-
-                  {/* Budget To */}
-                  <TextInput
-                    placeholder="To"
-                    value={budgetTo !== null ? budgetTo.toString() : ''}
-                    onFocus={() => handleFocus('budgetTo')}
-                    onBlur={() => handleBlur('budgetTo')}
-                    onChangeText={(text) => {
-                      let numericValue = text.replace(/[^0-9.]/g, "");
-                      const parts = numericValue.split(".");
-                      if (parts.length > 2) {
-                        numericValue = `${parts[0]}.${parts[1]}`;
-                      }
-                      if (parts.length > 1) {
-                        parts[1] = parts[1].slice(0, 2);
-                        numericValue = `${parts[0]}.${parts[1]}`;
-                      }
-                      setBudgetTo(numericValue === '' ? null : parseFloat(numericValue));
-                    }}
-                    className={`
-                            flex-1 rounded-lg px-3 py-3 text-lg
-                            border border-gray-300
-                            ${marketValue ? "bg-stone-100 text-gray-500" : "bg-white text-black"}
-                            ${focusedFields['budgetTo'] ? 'border-yellow-600 border-2' : 'border-gray-300'}
-                          `}
-                    editable={!marketValue}
-                    keyboardType="decimal-pad"
-                  />
-                </View>
-
-                {error.budget && (
-                  <Text className="text-red-500 text-base">{error.budget}</Text>
+                {error.configuration && (
+                  <Text style={styles.errorText}>{error.configuration}</Text>
                 )}
               </View>
 
-              {/* Checkbox */}
-              <View className="flex-row items-center space-x-2">
-                <TouchableOpacity
-                  onPress={handleMarketValueCheckbox}
-                  className={`w-5 h-5 rounded border ${marketValue ? "bg-yellow-500 border-yellow-600" : "border-gray-400"
-                    }`}
-                >
-                  {/* Show a checkmark when marketValue is true */}
-                  {marketValue && (
-                    <View className="w-full h-full bg-blue-500 rounded justify-center items-center">
-                      {/* Using a Unicode tick symbol or FontAwesome icon can be used instead of the box */}
-                      <Text className="text-white text-center">✔</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-
-                <Text className="text-xl font-semibold">As per Market Price</Text>
+              {/* Area */}
+              <View style={[styles.inputGroup, styles.halfWidth]}>
+                <Text style={styles.inputLabel}>Area (Sqft)</Text>
+                <TextInput
+                  value={area}
+                  onChangeText={(text) => {
+                    // Allow only numbers and decimals
+                    const numericValue = text.replace(/[^0-9.]/g, "");
+                    // Handle multiple decimal points
+                    const parts = numericValue.split(".");
+                    if (parts.length > 2) {
+                      setArea(`${parts[0]}.${parts[1]}`);
+                    } else {
+                      setArea(numericValue);
+                    }
+                  }}
+                  onFocus={() => handleFocus('area')}
+                  onBlur={() => handleBlur('area')}
+                  placeholder="0000"
+                  keyboardType="decimal-pad"
+                  style={[
+                    styles.textInput,
+                    focusedFields['area'] && styles.focusedInput
+                  ]}
+                />
               </View>
             </View>
+          </View>
 
-          </ScrollView>
-        </View>
+          {/* Budget Container */}
+          <View style={styles.containerBox}>
+            {/* Budget */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>
+                Budget (Cr) <Text style={styles.required}>*</Text>
+              </Text>
+              <View style={styles.rowContainer}>
+                {/* Budget From */}
+                <TextInput
+                  placeholder="From"
+                  value={budgetFrom}
+                  onChangeText={(text) => {
+                    // Allow only numbers and decimals
+                    const numericValue = text.replace(/[^0-9.]/g, "");
+                    // Handle multiple decimal points
+                    const parts = numericValue.split(".");
+                    if (parts.length > 2) {
+                      setBudgetFrom(`${parts[0]}.${parts[1]}`);
+                    } else if (parts.length > 1) {
+                      // Limit to 2 decimal places
+                      parts[1] = parts[1].slice(0, 2);
+                      setBudgetFrom(`${parts[0]}.${parts[1]}`);
+                    } else {
+                      setBudgetFrom(numericValue);
+                    }
+                    setError((prev) => ({ ...prev, budget: "" }));
+                  }}
+                  onFocus={() => handleFocus('budgetFrom')}
+                  onBlur={() => handleBlur('budgetFrom')}
+                  keyboardType="decimal-pad"
+                  editable={!marketValue}
+                  style={[
+                    styles.textInput,
+                    styles.budgetInput,
+                    focusedFields['budgetFrom'] && styles.focusedInput,
+                    marketValue && styles.disabledInput
+                  ]}
+                />
 
+                <Text style={styles.toText}>To</Text>
 
+                {/* Budget To */}
+                <TextInput
+                  placeholder="To"
+                  value={budgetTo}
+                  onChangeText={(text) => {
+                    // Allow only numbers and decimals
+                    const numericValue = text.replace(/[^0-9.]/g, "");
+                    // Handle multiple decimal points
+                    const parts = numericValue.split(".");
+                    if (parts.length > 2) {
+                      setBudgetTo(`${parts[0]}.${parts[1]}`);
+                    } else if (parts.length > 1) {
+                      // Limit to 2 decimal places
+                      parts[1] = parts[1].slice(0, 2);
+                      setBudgetTo(`${parts[0]}.${parts[1]}`);
+                    } else {
+                      setBudgetTo(numericValue);
+                    }
+                    setError((prev) => ({ ...prev, budget: "" }));
+                  }}
+                  onFocus={() => handleFocus('budgetTo')}
+                  onBlur={() => handleBlur('budgetTo')}
+                  keyboardType="decimal-pad"
+                  editable={!marketValue}
+                  style={[
+                    styles.textInput,
+                    styles.budgetInput,
+                    focusedFields['budgetTo'] && styles.focusedInput,
+                    marketValue && styles.disabledInput
+                  ]}
+                />
+              </View>
+              {error.budget && (
+                <Text style={styles.errorText}>{error.budget}</Text>
+              )}
+            </View>
+
+            {/* Market Value Checkbox */}
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={handleMarketValueCheckbox}
+            >
+              <View style={[styles.checkbox, marketValue && styles.checkedBox]}>
+                {marketValue && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.checkboxLabel}>As per Market Price</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Bottom spacing */}
+          <View style={{ height: 80 }} />
+        </ScrollView>
 
         {/* Fixed Footer */}
         <View style={styles.footer}>
@@ -458,7 +508,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
-    paddingBottom: 100,
+    paddingBottom: 80,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#fff',
   },
   headerText: {
     fontSize: 18,
@@ -466,9 +525,111 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    flexGrow: 1,
-    // paddingBottom:110,
-    backgroundColor: "#F5F6F7"
+    padding: 16,
+    backgroundColor: "#F5F6F7",
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  required: {
+    color: 'red',
+  },
+  textInput: {
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    backgroundColor: '#fff',
+  },
+  textArea: {
+    height: 80,
+    paddingTop: 12,
+  },
+  focusedInput: {
+    borderColor: '#F59E0B', // Yellow-600 equivalent
+    borderWidth: 2,
+  },
+  disabledInput: {
+    backgroundColor: '#F5F5F4', // Stone-100 equivalent
+    color: '#6B7280', // Gray-500 equivalent
+    opacity: 0.5,
+  },
+  pickerContainer: {
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 45,
+
+  },
+  pickerItem: {
+    fontSize: 14,
+
+  },
+  containerBox: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 16,
+    marginBottom: 16,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  halfWidth: {
+    width: '48%',
+  },
+  budgetInput: {
+    flex: 1,
+  },
+  toText: {
+    marginHorizontal: 8,
+    fontSize: 14,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#9CA3AF', // Gray-400 equivalent
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkedBox: {
+    backgroundColor: '#3B82F6', // Blue-500 equivalent
+    borderColor: '#2563EB', // Blue-600 equivalent
+  },
+  checkmark: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: '#EF4444', // Red-500 equivalent
+    fontSize: 12,
+    marginTop: 4,
   },
   footer: {
     position: 'absolute',
@@ -506,6 +667,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#153E3B',
     flexShrink: 1,
+  },
+  disabledButton: {
+    backgroundColor: '#D1D5DB', // Gray-300
   },
 });
 
