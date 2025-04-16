@@ -1,15 +1,16 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   Pressable,
-  Modal,
-  SafeAreaView
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Linking
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MonthFilterDropdown from '../../components/MonthFilterDropdown';
 import PropertyDetailsScreen from '../../components/property/PropertyDetailsScreen';
 import { styled } from 'nativewind';
@@ -26,6 +27,9 @@ import ShareModal from '@/app/modals/ShareModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMonths, filterRequirementsByMonth, generateEnquiryMonths, filterEnquiriesByMonth } from '../../helpers/dashboardMonthFiltersHelper';
+import { router } from 'expo-router';
+import EmptyTabContent from './EmptyTabContent';
+import { selectKamNumber } from '@/store/slices/kamSlice';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -33,15 +37,17 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledPressable = styled(Pressable);
 const StyledScrollView = styled(ScrollView);
 
-const PropertyCard = React.memo(({ property, onStatusChange}: {
+const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }: {
   property: Property,
-  onStatusChange: (id: string, status: string) => void
+  onStatusChange: (id: string, status: string) => void,
+  index: number,
+  totalCount: number
 }) => {
   // State for share modal
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   // State for property details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [matchingEnquiriesCount,setMatchingEnquiriesCount] = useState("-");
+  const [matchingEnquiriesCount, setMatchingEnquiriesCount] = useState("-");
 
 
   // Function to get property status color
@@ -106,17 +112,17 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
     photo: []
   };
 
-  const fetchMatchingEnquiryCount = async ()=>{
-    const count = await getCountFromServer(query(collection(db, 'enquiries'),where("propertyId","==",property.propertyId)));
+  const fetchMatchingEnquiryCount = async () => {
+    const count = await getCountFromServer(query(collection(db, 'enquiries'), where("propertyId", "==", property.propertyId)));
     setMatchingEnquiriesCount(count.data().count.toString());
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchMatchingEnquiryCount();
-  },[])
+  }, [])
 
   return (
-    <StyledView className="mb-4 rounded-lg bg-white border border-gray-200 overflow-hidden">
+    <StyledView className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
       {/* Share Modal */}
       <ShareModal
         visible={isShareModalOpen}
@@ -176,14 +182,14 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
           {/* Tags section for Asset Type, Unit Type, and Facing */}
           <StyledView className="flex flex-row flex-wrap gap-2 px-0 mb-3">
             {[property.assetType, property.unitType, property.facing]
-            .filter(Boolean)
-            .map((tag, index) => (
-              <StyledView className="bg-gray-100 rounded-full px-3 py-1">
-                <StyledText className="text-xs text-gray-700">
-                  {tag}
-                </StyledText>
-              </StyledView>
-            ))}
+              .filter(Boolean)
+              .map((tag, index) => (
+                <StyledView className="bg-gray-100 rounded-full px-3 py-1">
+                  <StyledText className="text-xs text-gray-700">
+                    {tag}
+                  </StyledText>
+                </StyledView>
+              ))}
           </StyledView>
 
           {/* Price and SBUA (Super Built-Up Area) section */}
@@ -215,17 +221,18 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
           </StyledView>
 
           {/* Status Selector */}
-          <StyledView className="relative">
-          <DashboardDropdown
-            value={property.status || "Available"}
-            setValue={(val) => onStatusChange(property.propertyId, val)}
-            options={[
-              { label: "Available", value: "Available" },
-              { label: "Hold", value: "Hold" },
-              { label: "Sold", value: "Sold" }            
-            ]}
-            type={"inventory"}
-          />
+          <StyledView className={`relative overflow-visible`}>
+            <DashboardDropdown
+              value={property.status || "Available"}
+              setValue={(val) => onStatusChange(property.propertyId, val)}
+              options={[
+                { label: "Available", value: "Available" },
+                { label: "Hold", value: "Hold" },
+                { label: "Sold", value: "Sold" }
+              ]}
+              type={"inventory"}
+              openDropdownUp={index === totalCount - 1 && totalCount > 1}
+            />
           </StyledView>
         </StyledView>
       </StyledTouchableOpacity>
@@ -233,12 +240,13 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
   );
 });
 
-const RequirementCard = React.memo(({ requirement, onStatusChange }: {
+const RequirementCard = React.memo(({ requirement, onStatusChange, index, totalCount }: {
   requirement: Requirement,
   onStatusChange: (id: string, status: string) => void
+  index: number,
+  totalCount: number
 }) => {
 
-  console.log("requirement", requirement);
   // Add state for details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
@@ -337,6 +345,7 @@ const RequirementCard = React.memo(({ requirement, onStatusChange }: {
                 ]}
                 setValue={(val) => onStatusChange(requirement.requirementId || "", val)}
                 type={"requirement"}
+                openDropdownUp={index === (totalCount - 1) && totalCount > 1}
               />
             </StyledView>
           </StyledView>
@@ -359,9 +368,10 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
+  propertyStatusUpdate: Function
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -369,6 +379,11 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
   const [propertyMonthFilter, setPropertyMonthFilter] = useState("");
   const [requirementMonthFilter, setRequirementMonthFilter] = useState("");
   const [enquiryMonthFilter, setEnquiryMonthFilter] = useState("");
+  const [batchSize, setBatchSize] = useState(15);
+  // const [renderingNewBatch, setRenderingNewBatch] = useState(false);
+  const isBatchSizePendingLock = useRef(false);
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (myProperties) {
@@ -392,6 +407,15 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
   const [selectedEnquiryMonth, setSelectedEnquiryMonth] = useState("");
   const enquiryMonthOptions = generateEnquiryMonths(myEnquiries);
 
+  const renderMore = () => {
+    if (isBatchSizePendingLock.current) return;
+
+    if (Math.min(batchSize + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count) > batchSize) {
+      isBatchSizePendingLock.current = true;
+      // setRenderingNewBatch(true);
+      setBatchSize((prev) => (Math.min(prev + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
+    }
+  }
 
   useEffect(() => {
     if (activeTab === 'inventories') {
@@ -410,7 +434,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
         const filteredReqs = filterRequirementsByMonth(myRequirements, selectedRequirementMonth);
         setRequirements(filteredReqs);
       }
-    } else if (activeTab === 'enquiries'){
+    } else if (activeTab === 'enquiries') {
       if (selectedEnquiryMonth === "") {
         setEnquiries(myEnquiries);
       }
@@ -432,7 +456,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           : property
       )
     );
-
+    propertyStatusUpdate(newStatus, id);
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));
@@ -477,6 +501,13 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
     }
   }, []);
 
+  const kam_number = useSelector(selectKamNumber);
+
+  const handleWhatsAppEnquiry = (): void => {
+    if (!kam_number) return;
+    Linking.openURL(`whatsapp://send?phone=${kam_number}`)
+  };
+
   // Memoize the tab rendering to prevent unnecessary re-renders
   const renderTabContent = useMemo(() => {
     if (activeTab === 'inventories') {
@@ -491,19 +522,23 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           </StyledView>
 
           {properties.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledText className="text-gray-500 text-base">No properties found</StyledText>
-            </StyledView>
+            <EmptyTabContent
+              text="No inventory added yet."
+              sub_text="Contact your KAM on Whatsapp to add an inventory."
+              icon={<FontAwesome name="whatsapp" size={20} color="white" />}
+              buttonText="Add Inventory"
+              handleOnPress={handleWhatsAppEnquiry}
+            />
           ) : (
-            properties.map(property => {
-              
-
+            properties.slice(0, batchSize).map((property, index) => {
+              if (index === batchSize - 1) renderMore();
               return (
                 <PropertyCard
                   key={property.propertyId}
                   property={property}
                   onStatusChange={handlePropertyStatusChange}
-                  
+                  index={index}
+                  totalCount={batchSize}
                 />
               );
             })
@@ -522,21 +557,26 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           </StyledView>
 
           {requirements?.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledTouchableOpacity className="flex-row items-center justify-center bg-[#153E3B] py-3 px-4 rounded-lg mb-4">
-                <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
-                <StyledText className="text-base font-medium text-white ml-2">Add Requirement</StyledText>
-              </StyledTouchableOpacity>
-              <StyledText className="text-gray-500 text-base mt-4">No requirements found</StyledText>
-            </StyledView>
+            <EmptyTabContent
+              text="You haven't added any requirements"
+              sub_text="Upload details of property type you need"
+              icon={<Ionicons name="document-text-outline" size={20} color="white" />}
+              buttonText="Add Requirement"
+              handleOnPress={() => router.navigate('/(tabs)/UserRequirementForm')}
+            />
           ) : (
-            requirements.map(requirement => (
-              <RequirementCard
-                key={requirement.id}
-                requirement={requirement}
-                onStatusChange={handleRequirementStatusChange}
-              />
-            ))
+            requirements.slice(0, batchSize).map((requirement, index) => {
+              if (index === batchSize - 1) renderMore();
+              return (
+                <RequirementCard
+                  key={requirement.id}
+                  requirement={requirement}
+                  onStatusChange={handleRequirementStatusChange}
+                  index={index}
+                  totalCount={batchSize}
+                />
+              )
+            })
           )}
         </StyledView>
       );
@@ -552,19 +592,26 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           </StyledView>
 
           {enquiries.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledText className="text-gray-500 text-base">No Enquiries found</StyledText>
-            </StyledView>
+            <EmptyTabContent
+              text="No enquiries made yet."
+              sub_text="Browse and enquire about available properties."
+              icon={<FontAwesome6 name="house" size={20} color="white" />}
+              buttonText="Explore Inventories"
+              handleOnPress={() => router.push('/(tabs)/properties')}
+            />
           ) : (
             <View className='mr-4'>
-              {enquiries.map((enquiry, index) => (
-                <EnquiryCard
-                  key={enquiry.id}
-                  index={index}
-                  enquiry={enquiry}
-                // handleGiveReview={()=>{console.log("Review")}}
-                />
-              ))}
+              {enquiries.slice(0, batchSize).map((enquiry, index) => {
+                if (index === batchSize - 1) renderMore();
+                return (
+                  <EnquiryCard
+                    key={enquiry.id}
+                    index={index}
+                    enquiry={enquiry}
+                  // handleGiveReview={()=>{console.log("Review")}}
+                  />
+                )
+              })}
             </View>
           )}
         </StyledView>
@@ -595,11 +642,40 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
     },
   ];
 
+  const handleOnScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (isBatchSizePendingLock.current)
+      return;
+    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+
+    // Conditions to trigger load more:
+    // 1. User has scrolled to the bottom
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - 10000;
+
+    // if (isCloseToBottom) {
+    isBatchSizePendingLock.current = true;
+    // setRenderingNewBatch(true);
+    setBatchSize((prev) => (Math.min(prev + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
+    // }
+  }
+
+  useEffect(() => {
+    if (isBatchSizePendingLock.current) {
+      // setRenderingNewBatch(false);
+      isBatchSizePendingLock.current = false;
+      renderMore();
+    }
+  }, [batchSize])
+
   useEffect(() => {
     console.log("Changed");
     setSelectedPropertyMonth("");
     setSelectedRequirementMonth("");
     setSelectedEnquiryMonth("");
+    setBatchSize(15);
+    // setRenderingNewBatch(false);
+    isBatchSizePendingLock.current = false;
   }, [activeTab]);
 
   return (
@@ -614,12 +690,22 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
       />
 
       {/* Content Area */}
-      <StyledScrollView>
+      <StyledScrollView
+        onScrollBeginDrag={handleOnScroll}
+        ref={scrollViewRef}
+      >
         {renderTabContent && (
           <StyledView >{renderTabContent}</StyledView>
         )}
       </StyledScrollView>
-    </StyledView>
+      {/* {renderingNewBatch && (<View className="absolute bottom-0 flex items-center justify-center w-full">
+        <Text style={{
+          fontFamily: 'Montserrat_400Regular',
+          color: '#6B7280',
+          fontSize: 16,
+        }}>Loading...</Text>
+      </View>)} */}
+    </StyledView >
 
   );
 } 

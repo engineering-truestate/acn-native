@@ -47,14 +47,14 @@ const useEnquiries = (): UseEnquiriesResult => {
       setLoading(true);
       try {
         // Fetch all enquiries without filtering
-        const enquiriesQuery = query(collection(db, 'enquiries'),where("cpId", "==", cpId));
+        const enquiriesQuery = query(collection(db, 'enquiries'), where("cpId", "==", cpId));
         const enquiriesSnapshot = await getDocs(enquiriesQuery);
-        
+
         const enquiriesData: Enquiry[] = enquiriesSnapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         }));
-        
+
         // Filter for myEnquiries if cpId exists
         if (!cpId) {
           setError('No channel partner ID found. Please login again.');
@@ -63,23 +63,23 @@ const useEnquiries = (): UseEnquiriesResult => {
         }
 
         // Filter myEnquiries with cpId
-        
+
         // Now fetch property details for each of myEnquiries
-        const propertyIds = [...new Set(enquiriesData.map(enquiry=>enquiry.propertyId))];
-        let propertyDocs:Map<string, DocumentData> = new Map();
-        
-        for(let i=0; i<propertyIds.length; i+=30){
-            const batch = propertyIds.slice(i,i+30);
-            // console.log("batch",batch);
-            const properties = await getDocs(query(collection(db, 'ACN123'), where(documentId(),"in", batch)));
-            // console.log("properties",properties.docs);
-            properties.docs.map((item)=>{
-              propertyDocs.set(item.id,item.data());
-            })
+        const propertyIds = [...new Set(enquiriesData.map(enquiry => enquiry.propertyId))];
+        let propertyDocs: Map<string, DocumentData> = new Map();
+
+        for (let i = 0; i < propertyIds.length; i += 30) {
+          const batch = propertyIds.slice(i, i + 30);
+          // console.log("batch",batch);
+          const properties = await getDocs(query(collection(db, 'ACN123'), where(documentId(), "in", batch)));
+          // console.log("properties",properties.docs);
+          properties.docs.map((item) => {
+            propertyDocs.set(item.id, item.data());
+          })
         }
-        
+
         const enquiriesWithProperty = enquiriesData.map((enquiry) => {
-          
+
           if (enquiry.propertyId && propertyDocs.has(enquiry.propertyId)) {
             return {
               ...enquiry,
@@ -132,7 +132,7 @@ const useProperties = (): UsePropertiesResult => {
         const propertiesData: Property[] = querySnapshot.docs.map((docSnap) => ({
           ...docSnap.data(),
         } as Property
-      ));
+        ));
 
         setProperties(propertiesData);
       } catch (err: any) {
@@ -149,13 +149,6 @@ const useProperties = (): UsePropertiesResult => {
   const handlePropertyStatusChange = async (value: string, propertyId: string): Promise<void> => {
     try {
       const newStatus = value;
-      const timestamp = getUnixDateTime();
-
-      await updateDoc(doc(db, 'ACN123', propertyId), {
-        status: newStatus,
-        ageOfStatus: 0,
-        dateOfStatusLastChecked: timestamp,
-      });
 
       // Update local state
       setProperties((prev) =>
@@ -218,7 +211,7 @@ export default function DashboardTab() {
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
-  return( 
-    <Dashboard  myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} />
+  return (
+    <Dashboard myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} propertyStatusUpdate={handlePropertyStatusChange} />
   );
 } 

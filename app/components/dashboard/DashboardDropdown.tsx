@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, LayoutChangeEvent, DimensionValue } from 'react-native';
 import ArrowDownIcon from '../../assets/icons/arrow-down.svg';
 import { Ionicons } from '@expo/vector-icons';
+import { styled } from 'nativewind';
+
+const StyledView = styled(View);
+const StyledText = styled(Text);
+const StyledTouchableOpacity = styled(TouchableOpacity);
 
 interface Option {
   label: string;
@@ -13,6 +18,7 @@ interface DashboardDropdownProps {
   value: string | null;
   setValue: (value: string) => void;
   type?: 'requirement' | 'inventory';
+  openDropdownUp: boolean,
 }
 
 const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
@@ -20,9 +26,11 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
   value,
   setValue,
   type,
+  openDropdownUp,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string | null>("");
+  const [dropdownTop, setDrodownTop] = useState<DimensionValue>(0);
 
   useEffect(() => {
     const selected: string | null = options?.find(
@@ -43,6 +51,11 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
     setIsOpen(false);
   };
 
+  const handleDropdownLayout = (e: LayoutChangeEvent) => {
+    if (openDropdownUp)
+      setDrodownTop(-1 * e.nativeEvent.layout.height)
+  }
+
   // Determine button style based on value
   const getButtonStyle = () => {
     if (value === "Pending" || value === "Available") {
@@ -57,7 +70,7 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ ...styles.container }}>
       <TouchableOpacity
         style={[
           styles.button,
@@ -77,39 +90,24 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
           <Ionicons name="chevron-down" size={16} color={value === 'Closed' ? "#FF0000" : "#153E3B"} />
         )}
       </TouchableOpacity>
-
-      <Modal
-        visible={isOpen}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
-      >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
-          onPress={() => setIsOpen(false)}
-        >
-          <View 
-            style={[
-              styles.dropdown,
-              type === "requirement" ? styles.requirementDropdown : styles.inventoryDropdown
-            ]}
-          >
-            <FlatList
-              data={options}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.option}
-                  onPress={() => handleOptionClick(item.value)}
-                >
-                  <Text style={styles.optionText}>{item.label}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {isOpen && (
+        <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-9999 min-w-[120px]"
+          style={openDropdownUp ? { top: dropdownTop, opacity: dropdownTop ? 1 : 0 } : {}}
+          onLayout={(e) => { handleDropdownLayout(e) }}>
+          {options.map((option, index) => (
+            <StyledTouchableOpacity
+              key={index}
+              className="rounded-md w-full px-3 py-2 mb-1"
+              style={{ backgroundColor: option.value === value ? '#F2F2F2' : 'transparent' }}
+              onPress={() => handleOptionClick(option.value)}
+            >
+              <StyledText className="font-medium text-sm text-black">
+                {option.label}
+              </StyledText>
+            </StyledTouchableOpacity>
+          ))}
+        </StyledView>
+      )}
     </View>
   );
 };
@@ -118,11 +116,12 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     width: '100%',
+    overflow: 'visible',
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 16,
