@@ -137,15 +137,15 @@ const MoreFilters = ({
         {items.map((item) => (
           <TouchableOpacity
             key={item.value}
-            className={`py-2 px-3 border border-gray-300 rounded-md bg-white ${item.isRefined ? 'bg-[#DFF4F3] border-[#10B981]' : ''
+            className={`py-2 px-3 border border-gray-300 rounded-md bg-white ${item.isRefined ? 'bg-[#DFF4F3] border-[#153E3B]' : ''
               }`}
             onPress={() => refine(item.value)}
           >
             <View className="flex-row justify-between items-center">
-              <Text className={`text-sm ${item.isRefined ? 'text-[#10B981]' : 'text-gray-700'}`}>
+              <Text className={`text-sm ${item.isRefined ? 'text-[#153E3B]' : 'text-gray-700'}`}>
                 {item.label}
               </Text>
-              <Text className="text-xs ml-2 px-1 py-0.5 bg-gray-200 rounded text-gray-600">
+              <Text className="text-xs ml-2 px-1 py-0.5 bg-gray-200 rounded text-gray-600 font-bold">
                 {item.count}
               </Text>
             </View>
@@ -162,7 +162,7 @@ const MoreFilters = ({
       transparent={true}
       onRequestClose={handleToggle}
     >
-      <View className="flex-1 bg-white" style={{zIndex: 1}}>
+      <View className="flex-1 bg-white" style={{ zIndex: 1 }}>
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">More Filters</Text>
@@ -200,7 +200,7 @@ const MoreFilters = ({
           </View>
 
           {/* SBUA Range - Lower z-index */}
-          <View style={{zIndex: 10}}>
+          <View style={{ zIndex: 10 }}>
             <RangeMoreFilters
               title={outsideFilters[2].title}
               refine={sbuaRangeState.refine}
@@ -210,7 +210,7 @@ const MoreFilters = ({
           </View>
 
           {/* Total Ask Price Range - Lower z-index */}
-          <View style={{zIndex: 10}}>
+          <View style={{ zIndex: 10 }}>
             <RangeMoreFilters
               title={outsideFilters[3].title}
               refine={totalAskPriceState.refine}
@@ -220,7 +220,7 @@ const MoreFilters = ({
           </View>
 
           {/* Location Filter - Lower z-index */}
-          <View className="border border-gray-200 rounded-xl mb-4" style={{zIndex: 10}}>
+          <View className="border border-gray-200 rounded-xl mb-4" style={{ zIndex: 10 }}>
             {/* Location Tabs */}
             <View className="bg-gray-100 p-1 rounded-t-xl">
               <View className="flex-row">
@@ -261,7 +261,7 @@ const MoreFilters = ({
             {/* Search Input with proper z-index */}
             <View className="p-4">
               {selectedLocationFilter === 'landmark' && (
-                <View style={{zIndex: 15}}>
+                <View style={{ zIndex: 15 }}>
                   <LandmarkDropdownFilters
                     selectedLandmark={selectedLandmark}
                     setSelectedLandmark={setSelectedLandmark}
@@ -276,7 +276,7 @@ const MoreFilters = ({
           </View>
 
           {/* Plot Size Range - Lower z-index */}
-          <View style={{zIndex: 5}}>
+          <View style={{ zIndex: 5 }}>
             <RangeMoreFilters
               title={insideFilters[0].title}
               refine={plotSizeState.refine}
@@ -286,7 +286,7 @@ const MoreFilters = ({
           </View>
 
           {/* Carpet Area Range - Lower z-index */}
-          <View style={{zIndex: 5}}>
+          <View style={{ zIndex: 5 }}>
             <RangeMoreFilters
               title={insideFilters[1].title}
               refine={carpetState.refine}
@@ -296,7 +296,7 @@ const MoreFilters = ({
           </View>
 
           {/* Ask Price/Sqft Range - Lower z-index */}
-          <View style={{zIndex: 5}}>
+          <View style={{ zIndex: 5 }}>
             <RangeMoreFilters
               title={insideFilters[2].title}
               refine={askPricePerSqftState.refine}
@@ -307,7 +307,7 @@ const MoreFilters = ({
 
           <View className="flex-row flex-wrap justify-between mb-4">
             {/* Facing Dropdown with proper z-index */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 15}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 15 }}>
               <Text className="font-semibold text-sm text-gray-700 mb-3">
                 {insideFilters[3].title}
               </Text>
@@ -319,7 +319,7 @@ const MoreFilters = ({
             </View>
 
             {/* Floor Dropdown with slightly lower z-index */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 10}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 10 }}>
               <Text className="font-semibold text-sm text-gray-700 mb-3">
                 {insideFilters[4].title}
               </Text>
@@ -332,7 +332,7 @@ const MoreFilters = ({
           </View>
 
           {/* Status Refinement List - Lower z-index */}
-          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4" style={{zIndex: 5}}>
+          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4" style={{ zIndex: 5 }}>
             <Text className="font-semibold text-sm text-gray-700 mb-3">
               {insideFilters[5].title}
             </Text>
@@ -340,7 +340,7 @@ const MoreFilters = ({
           </View>
 
           {/* Area Refinement List - Lowest z-index */}
-          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4" style={{zIndex: 1}}>
+          <View className="p-4 border border-gray-200 rounded-xl w-full mb-4" style={{ zIndex: 1 }}>
             <Text className="font-semibold text-sm text-gray-700 mb-3">
               {insideFilters[6].title}
             </Text>
