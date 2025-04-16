@@ -1,3 +1,9 @@
+import { db } from '@/app/config/firebase';
+import { updateAgentDocData } from '@/store/slices/agentSlice';
+import { RootState } from '@/store/store';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Modal,
@@ -9,6 +15,14 @@ import {
   Keyboard,
   StyleSheet,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+
+interface UpdateDetails {
+  businessName?: string;
+  gstNo?: string;
+  [key: string]: any;
+}
 
 type BusinessDetailsModalProps = {
   isVisible: boolean;
@@ -16,75 +30,122 @@ type BusinessDetailsModalProps = {
 };
 
 const BusinessDetailsModal: React.FC<BusinessDetailsModalProps> = ({ isVisible, onClose }) => {
-  const [businessName, setBusinessName] = useState('');
-  const [gstNo, setGstNo] = useState('');
+  const dispatch = useDispatch();
+
+  const bName = useSelector((state: RootState) => state?.agent?.docData?.businessName) || null
+  const gNum = useSelector((state: RootState) => state?.agent?.docData?.gstNo) || null;
+  const cpId = useSelector((state: RootState) => state?.agent?.docData?.cpId) || null;
+
+  const [businessName, setBusinessName] = useState(bName || '');
+  const [gstNo, setGstNo] = useState(gNum || '');
   const [saving, setSaving] = useState(false);
 
-  const handleSubmit = () => {
-    const trimmedBusinessName = businessName.trim();
-    const trimmedGstNo = gstNo.trim();
+  const handleSubmit = async () => {
+    setSaving(true);
 
-    if (!trimmedBusinessName && !trimmedGstNo) {
-      console.log('No data entered');
+    if (!cpId) {
+      console.log("cpId not found");
+      showErrorToast("Unexpected Error Occured. Please try again later.")
+      setSaving(false);
       return;
     }
 
-    setSaving(true);
-    console.log('Submitted Data:', {
-      businessName: trimmedBusinessName,
-      gstNo: trimmedGstNo,
-    });
+    const trimmedBusinessName = businessName?.trim() || "";
+    const trimmedGstNo = gstNo?.trim() || "";
+
+    if (!trimmedBusinessName && !trimmedGstNo) {
+      console.log('No data entered');
+      showErrorToast("No data entered.")
+      setSaving(false);
+      return;
+    }
+
+    let updateDetails : UpdateDetails = {};
+
+    if (trimmedBusinessName !== bName) {
+      updateDetails.businessName = trimmedBusinessName;
+  }
+
+  if (trimmedGstNo !== gNum) {
+      updateDetails.gstNo = trimmedGstNo;
+  }
+
+  if (Object.keys(updateDetails).length === 0) {
+    console.log("nothing to submit");
+    showErrorToast("No changes detected. Please fill or change the details to submit.");
     setSaving(false);
+    return;
+}
+
+try {
+  const docRef = doc(db, "agents", cpId);
+  await updateDoc(docRef, updateDetails);
+
+  dispatch(updateAgentDocData(updateDetails));
+
+  showSuccessToast("Business details updated successfully");
+  setSaving(false);
+
+  setTimeout(() => {
     onClose();
+  }, 1000);
+
+  return;
+} catch (error) {
+  console.log(error);
+  showErrorToast("Unexpected Error Occured. Please try again later.");
+  setSaving(false);
+  return;
+}
   };
 
   return (
     <Modal animationType="fade" transparent visible={isVisible} onRequestClose={onClose}>
-        <TouchableWithoutFeedback onPress={onClose}>
-            <View style={styles.overlay}>
-            <TouchableWithoutFeedback onPress={() => {}}>
-                <View style={styles.modalContainer}>
-                <Text style={styles.heading}>Please enter details</Text>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback onPress={() => { }}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.heading}>Please enter details</Text>
 
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>GST No.</Text>
-                    <TextInput
-                    style={styles.input}
-                    value={gstNo}
-                    onChangeText={setGstNo}
-                    placeholder="Enter GST no."
-                    placeholderTextColor="#A9A9A9"
-                    />
-                </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>GST No.</Text>
+                <TextInput
+                  style={styles.input}
+                  value={gstNo}
+                  onChangeText={setGstNo}
+                  placeholder="Enter GST no."
+                  placeholderTextColor="#A9A9A9"
+                />
+              </View>
 
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Business Name</Text>
-                    <TextInput
-                    style={styles.input}
-                    value={businessName}
-                    onChangeText={setBusinessName}
-                    placeholder="Enter business name"
-                    placeholderTextColor="#A9A9A9"
-                    />
-                </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Business Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={businessName}
+                  onChangeText={setBusinessName}
+                  placeholder="Enter business name"
+                  placeholderTextColor="#A9A9A9"
+                />
+              </View>
 
-                <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={handleSubmit}
-                    disabled={saving}
-                >
-                    <Text style={styles.submitButtonText}>
-                    {saving ? 'Submitting...' : 'Submit'}
-                    </Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleSubmit}
+                disabled={saving}
+              >
+                <Text style={styles.submitButtonText}>
+                  {saving ? 'Submitting...' : 'Submit'}
+                </Text>
+              </TouchableOpacity>
 
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                    <Text style={styles.closeButtonText}>X</Text>
-                </TouchableOpacity>
-                </View>
-            </TouchableWithoutFeedback>
+              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
             </View>
-        </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -106,7 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 25,
     position: 'relative',
-    borderWidth :1,
+    borderWidth: 1,
     borderColor: "#E5E5E5",
     elevation: 5,
   },

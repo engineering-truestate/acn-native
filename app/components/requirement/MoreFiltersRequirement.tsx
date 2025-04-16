@@ -170,7 +170,7 @@ const MoreFiltersRequirement = ({
       }}
 
     >
-      <SafeAreaView className="flex-1 bg-white px-4">
+      <SafeAreaView className="flex-1 bg-white px-1">
         <View className="flex-row justify-between items-center px-4 pt-10 pb-4 border-b border-gray-200">
           <Text className="text-xl font-bold text-black text-center flex-1">More Filters</Text>
           <TouchableOpacity onPress={handleToggle}>
@@ -179,8 +179,8 @@ const MoreFiltersRequirement = ({
         </View>
 
         <ScrollView className="px-4">
-          <View className="flex-row flex-wrap justify-between mb-4">
-            <View className="w-[48%] mb-4 z-20">
+          <View className="flex-row flex-wrap justify-between mb-4 mt-4">
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Asset Type</Text>
               <DropdownMoreFilters
                 title="Please Select"
@@ -188,7 +188,7 @@ const MoreFiltersRequirement = ({
                 refine={refineAssetType}
               />
             </View>
-            <View className="w-[48%] mb-4 z-20">
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Configuration</Text>
               <DropdownMoreFilters
                 title="Please Select"

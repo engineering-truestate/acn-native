@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchBox } from 'react-instantsearch';
 import CustomCurrentRefinements from '../CustomCurrentRefinements';
 
@@ -8,37 +8,110 @@ interface RequirementFiltersProps {
   handleToggleMoreFilters: () => void;
 }
 
-const CustomSearchBox = () => {
-  const { query, refine } = useSearchBox();
+// const CustomSearchBox = () => {
+  
 
+//   return (
+//     <View>
+//     <View style={styles.searchBox}>
+//       <TextInput
+//         style={styles.searchInput}
+//         placeholder="Search by project, location..."
+//         value={searchText}
+//         onChangeText={handleSearchChange}
+//         placeholderTextColor="#9CA3AF"
+//       />
+//     </View>
+//     {/* Search Button */}
+//             <View style={styles.filters}>
+//               <TouchableOpacity
+//                 onPress={handleSearchPress}
+//                 style={styles.searchButton}
+//               >
+//                 <Feather name="search" size={24} color="white" />
+//               </TouchableOpacity>
+//             </View>
+    
+//             {/* Clear Button */}
+//             {searchText &&
+//               <View style={styles.filters}>
+//                 <TouchableOpacity
+//                   onPress={handleClear}
+//                   style={styles.clearButton}
+//                 >
+//                   <MaterialCommunityIcons name="close" size={24} color="white" />
+//                 </TouchableOpacity>
+//               </View>
+//             }
+//     </View>
+
+//   );
+// };
+
+
+
+const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps) => {
+  const { query, refine } = useSearchBox();
+  const [searchText, setSearchText] = useState(query);
+
+
+  // Handle text input change
+  const handleSearchChange = (text: string) => {
+    setSearchText(text); // Update the local state with the new search text
+  };
+
+  // Handle search button press (refine action)
+  const handleSearchPress = () => {
+    if (searchText.trim() != query) {
+      refine(searchText);  // Trigger the refine action with the updated search text
+    }
+  };
+
+  const handleClear = () => {
+    setSearchText("");
+    refine("");
+  }
   return (
-    <View style={styles.searchContainer}>
-      <Ionicons name="search" size={20} color="#9CA3AF" style={styles.searchIcon} />
+    <View style={styles.container}>
+      <View style={styles.searchAndFiltersRow}>
+      <View style={styles.searchBox}>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search requirements..."
-        value={query}
-        onChangeText={refine}
+        placeholder="Search by project, location..."
+        value={searchText}
+        onChangeText={handleSearchChange}
         placeholderTextColor="#9CA3AF"
       />
     </View>
-  );
-};
-
-const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps) => {
-  return (
-    <View style={styles.container}>
-      <CustomSearchBox />
-      
-      <View style={styles.filtersContainer}>
-        
-        <TouchableOpacity 
-          style={styles.moreFiltersButton}
-          onPress={handleToggleMoreFilters}
-        >
-          <Text style={styles.moreFiltersText}>More Filters</Text>
-          <Ionicons name="options" size={16} color="#10B981" />
-        </TouchableOpacity>
+    {/* Search Button */}
+            <View style={styles.filters}>
+              <TouchableOpacity
+                onPress={handleSearchPress}
+                style={styles.searchButton}
+              >
+                <Feather name="search" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+    
+            {/* Clear Button */}
+            {searchText &&
+              <View style={styles.filters}>
+                <TouchableOpacity
+                  onPress={handleClear}
+                  style={styles.clearButton}
+                >
+                  <MaterialCommunityIcons name="close" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
+            }
+        <View style={styles.filters}>
+                  <TouchableOpacity
+                    onPress={handleToggleMoreFilters}
+                    style={styles.moreFiltersButton}
+                  >
+                    <Feather name="filter" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
       </View>
 
       <CustomCurrentRefinements />
@@ -53,57 +126,85 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
+  searchAndFiltersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F3F4F6',
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 16,
+    flex: 1, // Allow search box to take remaining space
   },
   searchIcon: {
     marginRight: 8,
   },
-  searchInput: {
+  searchBox: {
     flex: 1,
-    height: 40,
-    fontFamily: 'Montserrat_400Regular',
-    fontSize: 14,
-    color: '#374151',
   },
-  filtersContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    paddingVertical: 8,
+  searchInput: {
+    height: 40, // fixed height
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  filterButtonText: {
-    fontFamily: 'Montserrat_500Medium',
     fontSize: 14,
+    fontFamily: 'Montserrat_400Regular',
     color: '#374151',
+  },
+  filters: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignContent: 'center',
+    alignSelf: 'center',
+  },
+  searchButton: {
+    height: 40,
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#153E3B',
+  },
+  clearButton: {
+    height: 40,
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ff0000',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#ff0000',
   },
   moreFiltersButton: {
-    flexDirection: 'row',
+    height: 40,
+    flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    gap: 8,
+    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
   },
   moreFiltersText: {
     fontFamily: 'Montserrat_500Medium',
+    alignContent: 'center',
+    justifyContent: 'center',
+    top: 10,
     fontSize: 14,
-    color: '#10B981',
+    color: '#374151',
   },
 });
 
-export default RequirementFilters; 
+export default RequirementFilters;
