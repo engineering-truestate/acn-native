@@ -28,38 +28,41 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, tabD
     const isActive = activeTab === item.key;
     return (
       <StyledTouchableOpacity
-        className={`mx-2 p-5 w-44 rounded-2xl ${
+        className={`mx-2 p-5 rounded-2xl ${
           isActive ? "bg-[#153E3B]" : "bg-white border border-gray-300"
         }`}
         onPress={() => handleTabChange(item.key)}
         activeOpacity={0.9}
+        style={{width:200}}
       >
-        <StyledView className="items-center space-y-2">
+        <StyledView className="flex-row items-center gap-[16]">
           <StyledView
-            className={`p-4 rounded-full ${
+            className={`p-[9.3] rounded-full ${
               isActive ? "bg-[#0E2C2A]" : "bg-[#EAF8F6]"
             }`}
           >
             <MaterialCommunityIcons
-              size={28}
+              size={21.33}
               name={item.icon}
               color={isActive ? "#FFFFFF" : "#153E3B"}
             />
           </StyledView>
+          <StyledView className="flex-col items-start space-y-2 gap-[3.5]">
           <StyledText
-            className={`text-sm font-medium ${
+            className={`text-xs font-semibold ${
               isActive ? "text-white" : "text-gray-700"
             }`}
           >
             {item.label}
           </StyledText>
           <StyledText
-            className={`text-xl font-bold mb-8 ${
+            className={`text-xl font-bold ${
               isActive ? "text-white" : "text-black"
             }`}
           >
             {item.count}
           </StyledText>
+          </StyledView>
         </StyledView>
       </StyledTouchableOpacity>
     );
@@ -76,6 +79,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, tabD
         paddingVertical: 8,
       }}
       showsHorizontalScrollIndicator={false}
+      style={{flexGrow:0,flexShrink:0}}
     />
   );
 };

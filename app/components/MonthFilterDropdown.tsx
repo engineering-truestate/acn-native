@@ -47,7 +47,7 @@ const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownPr
   };
 
   return (
-    <StyledView className="flex-row items-center justify-between bg-gray-100 px-4 py-2 rounded-md">
+    <StyledView className="flex-row items-center justify-between bg-gray-100 px-4 py-2 rounded-md z-30">
       <StyledText className="text-sm text-gray-700 font-medium">
         Filter by month:
       </StyledText>
@@ -68,7 +68,7 @@ const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownPr
         </StyledTouchableOpacity>
 
         {isOpen && (
-          <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-30 min-w-[100px]">
+          <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-30 min-w-[120px]">
             {allOptions.map((option, index) => (
               <StyledTouchableOpacity
                 key={index}
