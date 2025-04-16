@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, Platform, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, Platform, Linking, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { listenToAgentChanges, selectBlacklisted, selectVerified, setAgentDataState, setPhonenumber } from '@/store/slices/agentSlice';
@@ -201,7 +201,7 @@ export default function SignUp() {
       >
         <Text style={styles.buttonText}>
           {(loading || addingNewAgent || isSendingOTP) ?
-            <Spinner />
+            <ActivityIndicator size="large" color="#ffffff" />
             :
             "Login/Sign Up"
           }
