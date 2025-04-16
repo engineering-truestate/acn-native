@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, Ionicons, MaterialIcons, SimpleLineIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
@@ -84,11 +84,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                 </View>
                 <View style={styles.infoContainer}>
                   <View style={styles.infoRow}>
-                    <MaterialIcons name="person" size={20} color="#726C6C" />
+                    {/* <MaterialIcons name="person" size={20} color="#726C6C" /> */}
+                    <Feather name="user" size={24} color="black" />
                     <Text style={styles.infoText}>{toCapitalizedWords(name)}</Text>
                   </View>
                   <View style={styles.infoRow}>
-                    <MaterialIcons name="call" size={20} color="#726C6C" />
+                    {/* <MaterialIcons name="call" size={20} color="#726C6C" /> */}
+                    <Ionicons name="call-outline" size={24} color="black" />
                     <Text style={styles.infoText}>{phonenumber?.slice(3)}</Text>
                   </View>
                 </View>
@@ -96,7 +98,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
 
               {/* 🔴 Logout Button */}
               <TouchableOpacity style={styles.logoutButton} onPress={handleLogOut} >
-                <MaterialIcons name="logout" size={18} color="#DE1135" />
+                {/* <MaterialIcons name="logout" size={18} color="#DE1135" /> */}
+                <SimpleLineIcons name="logout" size={18} color="#DE1135" />
                 <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
             </View>
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#726C6C',
     marginLeft: 8,
   },
@@ -186,11 +189,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 4,
+    gap: 4,
   },
   logoutText: {
     color: '#DE1135',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 16,
     marginLeft: 6,
   },
 });

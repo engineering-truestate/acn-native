@@ -167,17 +167,17 @@ const styles = StyleSheet.create({
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   headerLeft: {
-    flex: 1,
+    width: 40, // Fixed width for the hamburger menu button
     alignItems: 'flex-start',
   },
   headerTitleContainer: {
-    flex: 2,
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'flex-start',
+    marginLeft: 16, // Add margin from hamburger icon
   },
   headerTitle: {
     fontFamily: 'Montserrat_700Bold',
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   headerRight: {
-    flex: 1,
+    width: 40, // Fixed width for the right button
     alignItems: 'flex-end',
   },
 });

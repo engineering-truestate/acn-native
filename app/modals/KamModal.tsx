@@ -90,7 +90,7 @@ const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
 
               <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.callButton} onPress={handleCallPress}>
-                  <Ionicons name="call" size={20} color="#0A0B0A" style={styles.iconMargin} />
+                  <Ionicons name="call-outline" size={20} color="black" />
                   <Text style={styles.callText}>
                     {kamNumber.slice(0, 3)} {kamNumber.slice(3)}
                   </Text>
@@ -103,7 +103,7 @@ const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
               </View>
 
               <TouchableOpacity style={styles.closeButton} onPress={() => setVisible(false)}>
-                <Ionicons name="close" size={20} color="black" />
+                <Ionicons name="close" size={24} color="black" />
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
   },
   textContainer: {
     flexDirection: "column",
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: "#CCCBCB",
-    marginVertical: 12,
+    marginVertical: 24,
   },
   buttonContainer: {
     gap: 12,
@@ -171,6 +170,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 4,
     marginBottom: 12,
+    gap: 4,
   },
   whatsappButton: {
     flexDirection: "row",

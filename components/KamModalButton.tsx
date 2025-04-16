@@ -29,6 +29,7 @@ export const KamModalButton = () => {
                 backgroundColor: '#153E3B',
                 justifyContent: 'center',
                 alignItems: 'center',
+                paddingHorizontal: 12,
               }}
               icon={
                 <Image
