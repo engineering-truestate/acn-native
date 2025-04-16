@@ -37,7 +37,9 @@ const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMen
           <HamburgerMenuButton onPress={onMenuPress} isOpen={isMenuOpen} />
         </View>
         <View style={styles.headerTitleContainer}>
+          {!isMenuOpen &&
           <Text style={styles.headerTitle}>{title}</Text>
+}
         </View>
         <View style={styles.headerRight}>
           <KamModalButton />

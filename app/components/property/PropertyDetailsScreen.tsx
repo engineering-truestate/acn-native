@@ -55,7 +55,7 @@ const formatDate = (timestamp?: number) => {
 const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetailsScreenProps) => {
   const router = useRouter();
   const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
-  const [ localImages, setLocalImages ] = useState<string[]>([]);
+  const [localImages, setLocalImages] = useState<string[]>([]);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCPID, setSelectedCPID] = useState(property.cpCode);
@@ -97,7 +97,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   // Update useEffect to handle loading state
   useEffect(() => {
     const initializeContent = async () => {
-      
+
       try {
         // Initialize images array
         const images = [
@@ -105,10 +105,10 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           ...(property.video || []),
         ];
         setLocalImages(images);
-        
+
       } catch (error) {
         console.error('Error loading images:', error);
-      } 
+      }
     };
 
     initializeContent();
@@ -265,10 +265,10 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             styles.contentContainer,
             { flexGrow: 1 }  // Add this to ensure content is scrollable
           ]}
-        
+
         >
           {/* Image carousel */}
-          
+          {localImages.length > 0 &&
             <ImageCarousel
               images={localImages}
               onImagePress={() => {
@@ -276,65 +276,66 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
                 setIsImageViewerVisible(true);
               }}
             />
-          
+          }
 
-        
-              {/* Basic Property Information */}
-              <View style={styles.infoSection}>
-                <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
-                <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
-                <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
-                <InfoRow label="Facing" value={property.facing} />
-                <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
-                <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
-                <InfoRow label="Floor" value={property.floorNo} />
+
+
+          {/* Basic Property Information */}
+          <View style={styles.infoSection}>
+            <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
+            <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
+            <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
+            <InfoRow label="Facing" value={property.facing} />
+            <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
+            <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
+            <InfoRow label="Floor" value={property.floorNo} />
+          </View>
+
+          {/* Location Details Section */}
+          <View style={styles.locationSection}>
+            <View style={styles.locationDetails}>
+              <View style={styles.locationItem}>
+                <Text style={styles.locationLabel}>Micromarket</Text>
+                <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
               </View>
+              <View style={styles.locationItem}>
+                <Text style={styles.locationLabel}>Area</Text>
+                <Text style={styles.locationValue}>{property.area || "-"}</Text>
+              </View>
+            </View>
 
-              {/* Location Details Section */}
-              <View style={styles.locationSection}>
-                <View style={styles.locationDetails}>
-                  <View style={styles.locationItem}>
-                    <Text style={styles.locationLabel}>Micromarket</Text>
-                    <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
+            <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
+              <Text style={styles.mapButtonText}>Open in Google Maps</Text>
+              <Ionicons name="arrow-forward" size={16} color="#10302D" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Extra Details Section */}
+          <View style={styles.extraDetailsSection}>
+            <Text style={styles.extraDetailsTitle}>Extra Details</Text>
+            <View style={styles.extraDetailsContent}>
+              {property?.extraDetails ? (
+                property?.extraDetails?.split("\n")?.map((detail, index) => (
+                  <View key={index} style={styles.detailItem}>
+                    <Text style={styles.bulletPoint}>•</Text>
+                    <Text style={styles.detailText}>{detail}</Text>
                   </View>
-                  <View style={styles.locationItem}>
-                    <Text style={styles.locationLabel}>Area</Text>
-                    <Text style={styles.locationValue}>{property.area || "-"}</Text>
-                  </View>
-                </View>
+                ))
+              ) : (
+                <Text style={styles.noDetailsText}>No extra details available.</Text>
+              )}
+            </View>
+          </View>
 
-                <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
-                  <Text style={styles.mapButtonText}>Open in Google Maps</Text>
-                  <Ionicons name="arrow-forward" size={16} color="#10302D" />
-                </TouchableOpacity>
-              </View>
+          {/* Additional Property Information */}
+          <View style={styles.additionalInfo}>
+            <InfoRow label="Building Khata" value={property.buildingKhata} />
+            <InfoRow label="Land Khata" value={property.landKhata} />
+            <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
+            <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
+            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+          </View>
 
-              {/* Extra Details Section */}
-              <View style={styles.extraDetailsSection}>
-                <Text style={styles.extraDetailsTitle}>Extra Details</Text>
-                <View style={styles.extraDetailsContent}>
-                  {property?.extraDetails ? (
-                    property?.extraDetails?.split("\n")?.map((detail, index) => (
-                      <View key={index} style={styles.detailItem}>
-                        <Text style={styles.bulletPoint}>•</Text>
-                        <Text style={styles.detailText}>{detail}</Text>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noDetailsText}>No extra details available.</Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Additional Property Information */}
-              <View style={styles.additionalInfo}>
-                <InfoRow label="Building Khata" value={property.buildingKhata} />
-                <InfoRow label="Land Khata" value={property.landKhata} />
-                <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
-                <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-                <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
-              </View>
-            
         </ScrollView>
 
         <ShareModal
@@ -344,19 +345,19 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           visible={isShareModalOpen}
         />
         <EnquiryCPModal
-            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
-            generatingEnquiry={false}
-            visible={isEnquiryModelOpen}
-            selectedCPID={selectedCPID || ""}
-          />
-          <ConfirmModal
-            title="Confirm Enquiry"
-            message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
-            onConfirm={onConfirmEnquiry}
-            onCancel={handleCancel}
-            generatingEnquiry={false}
-            visible={isConfirmModelOpen}
-          />
+          setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+          generatingEnquiry={false}
+          visible={isEnquiryModelOpen}
+          selectedCPID={selectedCPID || ""}
+        />
+        <ConfirmModal
+          title="Confirm Enquiry"
+          message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+          onConfirm={onConfirmEnquiry}
+          onCancel={handleCancel}
+          generatingEnquiry={false}
+          visible={isConfirmModelOpen}
+        />
 
         {/* Fixed share button */}
         <TouchableOpacity style={styles.shareButton} onPress={handleShareButtonPress}>

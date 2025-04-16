@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import RequirementDetailsScreen from './RequirementDetailsScreen';
 import { useRouter } from 'expo-router';
 import { Budget, Requirement } from '@/app/types';
+import { formatCost2 } from '@/app/helpers/common';
 
 interface RequirementCardProps {
   requirement: Requirement;
@@ -19,15 +20,18 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
   const formatBudget = (budget: Budget) => {
     if (!budget) return "N/A";
 
+    const from = (budget?.from ? budget?.from * 100 : 0);
+    const to = (budget?.to ? budget?.to * 100 : 0);
+
     if (budget.from === 0) {
-      return `₹${budget.to || 0}`;
+      return formatCost2(to);
     }
 
     if (budget.from === budget.to) {
-      return `₹${budget.to || 0}`;
+      return formatCost2(to);
     }
 
-    return `₹${budget.from || 0} - ₹${budget.to || 0}`;
+    return `${formatCost2(from)} - ${formatCost2(to)}`;
   };
 
   // Format property type and configuration
@@ -96,7 +100,12 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
           <View className="flex-row items-center gap-2">
             <Ionicons name="cash-outline" size={20} color="#4B5563" />
             <Text className="text-neutral-600 text-sm font-medium">
-              {formatBudget(requirement.budget)}
+              {requirement?.marketValue ? 
+              "Market Value" 
+            :
+            formatBudget(requirement?.budget)
+            }
+              
             </Text>
           </View>
 
