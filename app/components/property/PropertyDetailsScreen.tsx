@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
@@ -13,36 +13,6 @@ import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
-// Define Property interface based on available data
-// interface Property {
-//   propertyId: string;
-//   title?: string;
-//   nameOfTheProperty?: string;
-//   micromarket?: string;
-//   assetType?: string;
-//   unitType?: string;
-//   facing?: string;
-//   totalAskPrice?: number;
-//   askPricePerSqft?: number;
-//   sbua?: number;
-//   plotSize?: number;
-//   carpet?: number;
-//   floorNo?: string;
-//   handoverDate?: string;
-//   buildingKhata?: string;
-//   landKhata?: string;
-//   buildingAge?: string;
-//   tenanted?: boolean;
-//   area?: string;
-//   dateOfInventoryAdded?: number;
-//   extraDetails?: string;
-//   driveLink?: string;
-//   photo?: string[];
-//   video?: string[];
-//   mapLocation?: string;
-//   cpId?: string;
-//   cpCode?: string;
-// }
 
 interface AgentData {
   phonenumber: string;
@@ -51,7 +21,6 @@ interface AgentData {
 
 interface PropertyDetailsScreenProps {
   property: Property;
-  agentData: AgentData;
   onClose: () => void;
 }
 
@@ -83,8 +52,10 @@ const formatDate = (timestamp?: number) => {
 };
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: PropertyDetailsScreenProps) => {
+const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetailsScreenProps) => {
   const router = useRouter();
+  const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
+  const [ localImages, setLocalImages ] = useState<string[]>([]);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCPID, setSelectedCPID] = useState(property.cpCode );
@@ -115,22 +86,23 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
     return property.nameOfTheProperty;
   };
 
-  // Combine images and videos for carousel
-  const localImages = [
-    ...(property.photo || []),
-    ...(property.video || [])
-  ];
+  useEffect(() => {
+    const photos = property.photo || [];
+    const videos = property.video || [];
+    setLocalImages([...photos, ...videos]);
+  }, [property.photo, property.video]);
 
   // Dummy handler functions
   const handleOpenGoogleMap = () => {
     if (!property.mapLocation) return;
-    // Implementation would open map link
+    Linking.openURL(property.mapLocation)
     console.log("Opening map location:", property.mapLocation);
   };
 
   const handleOpenDriveDetails = () => {
     if (!property.driveLink) return;
     // Implementation would open drive link
+    Linking.openURL(property.driveLink);
     console.log("Opening drive details:", property.driveLink);
   };
 
@@ -341,7 +313,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
             setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
             generatingEnquiry={false}
             visible={isEnquiryModelOpen}
-            selectedCPID={selectedCPID}
+            selectedCPID={selectedCPID || ""}
           />
           <ConfirmModal
             title="Confirm Enquiry"

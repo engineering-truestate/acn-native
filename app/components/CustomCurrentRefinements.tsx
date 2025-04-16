@@ -17,6 +17,16 @@ export default function CustomCurrentRefinements({
     return null;
   }
 
+  console.log("selectedLandmark", selectedLandmark);
+  
+  // Flatten refinements from all items into a single array for inline display
+  const allRefinements = items.flatMap(item => 
+    item.refinements.map(refinement => ({
+      attribute: item.attribute,
+      refinement: refinement
+    }))
+  );
+
   return (
     <ScrollView 
       horizontal 
@@ -31,6 +41,23 @@ export default function CustomCurrentRefinements({
           >
             <Text style={styles.chipText}>
               {selectedLandmark.name} ({selectedLandmark.radius}km)
+            </Text>
+            <Text style={styles.removeIcon}>×</Text>
+          </TouchableOpacity>
+        )}
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        {selectedLandmark && (
+          <TouchableOpacity
+            onPress={() => {setSelectedLandmark && setSelectedLandmark(null)}}
+            style={styles.chip}
+          >
+            <Text style={styles.chipText}>
+              {selectedLandmark.name} ({selectedLandmark.radius/1000}km)
             </Text>
             <Text style={styles.removeIcon}>×</Text>
           </TouchableOpacity>
@@ -54,6 +81,34 @@ export default function CustomCurrentRefinements({
         ))}
       </View>
     </ScrollView>
+        {allRefinements.map((item, index) => (
+          <TouchableOpacity
+            key={`${item.attribute}-${item.refinement.value || index}`}
+            onPress={() => refine(item.refinement)}
+            style={styles.chip}
+          >
+            <Text style={styles.chipText}>
+              {item.refinement.label}
+            </Text>
+            <Text style={styles.removeIcon}>×</Text>
+          </TouchableOpacity>
+        ))}
+
+        {(items.length > 0 || selectedLandmark) && (
+          <TouchableOpacity 
+            onPress={() => { 
+              clearRefinements(); 
+              { setSelectedLandmark && setSelectedLandmark(null); } 
+            }}
+            style={styles.clearButton}
+          >
+            <View style={styles.clearButtonContent}>
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+      </View>
+    </ScrollView>
   );
 }
 
@@ -66,6 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     gap: 8,
+    alignItems: 'center',
   },
   chip: {
     flexDirection: 'row',
@@ -85,4 +141,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
   },
-}); 
+  clearButton: {
+    marginLeft: 4,
+  },
+  clearButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E11E1E',
+    backgroundColor: 'rgba(225, 30, 30, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  clearButtonText: {
+    fontFamily: 'Montserrat_600SemiBold',
+    fontSize: 12,
+    color: '#E11E1E',
+  }
+});

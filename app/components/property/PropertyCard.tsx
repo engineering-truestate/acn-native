@@ -186,31 +186,41 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
   return (
     <>
+    {showDetails && (
+        <PropertyDetailsScreen 
+          property={property}
+          onClose={() => setShowDetails(false)} 
+        />
+      )}
       <TouchableOpacity 
         className="border border-[#CCCBCB] rounded-lg p-4 bg-white mb-4 flex-col"
         onPress={openPropertyDetails}
       >
         <View className="flex-col mb-3">
           {/* Header section with Property ID and MicroMarket */}
-          <View className="flex-row justify-between items-center">
-            {/* Property ID */}
-            <View className="flex-row">
-              <Text className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
-                {property.propertyId}
-              </Text>
-            </View>
-            
-            {/* Micromarket */}
-            <View className="flex-row items-center bg-[#747474] px-2 py-1 rounded-full">
-              <Ionicons name="location-outline" size={14} color="#FAFBFC" />
-              <Text className="text-[#FAFBFC] text-xs ml-1">
-                {property.micromarket || "-"}
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
-                      <Ionicons name="share-social" size={18} color="#153E3B" />
-                    </TouchableOpacity>
-          </View>
+          <View className="flex-row items-center">
+      {/* Property ID on the left - using width fit-content approach */}
+      <View className="flex-1" style={{ flexShrink: 1 }}>
+        <View style={{ alignSelf: 'flex-start' }}>
+          <Text className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
+            {property.propertyId}
+          </Text>
+        </View>
+      </View>
+      
+      {/* Micromarket in the middle-right */}
+      <View className="flex-row items-center bg-[#747474] px-2 py-1 rounded-full mr-2">
+        <Ionicons name="location-outline" size={14} color="#FAFBFC" />
+        <Text className="text-[#FAFBFC] text-xs ml-1">
+          {property.micromarket || "-"}
+        </Text>
+      </View>
+      
+      {/* Share button on the far right */}
+      <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
+        <Ionicons name="share-social" size={18} color="#153E3B" />
+      </TouchableOpacity>
+    </View>
 
           {/* Property Name */}
           <Text className="text-black font-bold text-base mt-2">
@@ -297,13 +307,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       </TouchableOpacity>
 
       {/* Property Details Screen */}
-      {showDetails && (
-        <PropertyDetailsScreen 
-          property={property} 
-          agentData={agentData}
-          onClose={() => setShowDetails(false)} 
-        />
-      )}
+      
     </>
   );
 };
