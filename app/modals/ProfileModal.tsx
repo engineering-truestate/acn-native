@@ -23,7 +23,7 @@ type ProfileModalProps = {
 };
 
 // ✅ Avatar logic
-const getInitials = (name: string): string => {
+const getInitials = (name: string | null): string => {
   if(!name) return "";
   const names = name.trim().split(' ');
   const initials =
@@ -40,7 +40,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
   const router = useRouter();
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
 
-  const {name, phonenumber} = useSelector((state: RootState) => state.agent.docData)
+  const name: string | null = useSelector((state: RootState) => state?.agent?.docData?.name) || "";
+  const phonenumber : string | null = useSelector((state: RootState) => state?.agent?.docData?.phonenumber) || "";
+
+  // const {name, phonenumber} = useSelector((state: RootState) => state.agent.docData)
   // const name = 'John Doe';
   // const phoneNumber = '+919876543210';
   const initials = getInitials(name);
@@ -86,7 +89,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                   </View>
                   <View style={styles.infoRow}>
                     <MaterialIcons name="call" size={20} color="#726C6C" />
-                    <Text style={styles.infoText}>{phonenumber.slice(3)}</Text>
+                    <Text style={styles.infoText}>{phonenumber?.slice(3)}</Text>
                   </View>
                 </View>
               </View>

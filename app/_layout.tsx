@@ -17,7 +17,7 @@ import { HamburgerMenuButton } from '@/components/HamburgerMenuButton';
 import { HamburgerMenu } from '@/components/HamburgerMenu';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ReduxProvider from '@/providers/ReduxProvider';
-import FlashMessage from '../components/Toast';
+import Toast from 'react-native-toast-message';
 import { KamModalButton } from "@/components/KamModalButton";
 import ProfileModal from '@/app/modals/ProfileModal';
 
@@ -149,7 +149,7 @@ export default function RootLayout() {
               visible={profileModalVisible}
               setVisible={setProfileModalVisible}
             />
-            <FlashMessage position="top" />
+            <Toast />
             <StatusBar style="auto" />
           </View>
         </SafeAreaView>
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'Montserrat_700Bold',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000',
   },

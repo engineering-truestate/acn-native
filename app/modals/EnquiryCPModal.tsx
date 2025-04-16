@@ -3,8 +3,6 @@ import * as Clipboard from 'expo-clipboard';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { showMessage } from 'react-native-flash-message';
-import { showToast } from '../helpers/toastUtils';
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
 

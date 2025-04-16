@@ -66,3 +66,11 @@ export interface Enquiry {
 export interface EnquiryWithProperty extends Enquiry {
   property?: Property | null;
 }
+
+export interface Coupon {
+  name: string;
+        code: string;
+        description: string;
+        discount: number; // in rupees
+        active: boolean;
+}
