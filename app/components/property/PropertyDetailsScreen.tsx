@@ -86,6 +86,11 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     return property.nameOfTheProperty;
   };
 
+  useEffect(() => {
+    const photos = property.photo || [];
+    const videos = property.video || [];
+    setLocalImages([...photos, ...videos]);
+  }, [property.photo, property.video]);
 
 
 
@@ -339,19 +344,19 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           visible={isShareModalOpen}
         />
         <EnquiryCPModal
-          setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
-          generatingEnquiry={false}
-          visible={isEnquiryModelOpen}
-          selectedCPID={selectedCPID || ""}
-        />
-        <ConfirmModal
-          title="Confirm Enquiry"
-          message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
-          onConfirm={onConfirmEnquiry}
-          onCancel={handleCancel}
-          generatingEnquiry={false}
-          visible={isConfirmModelOpen}
-        />
+            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+            generatingEnquiry={false}
+            visible={isEnquiryModelOpen}
+            selectedCPID={selectedCPID || ""}
+          />
+          <ConfirmModal
+            title="Confirm Enquiry"
+            message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+            onConfirm={onConfirmEnquiry}
+            onCancel={handleCancel}
+            generatingEnquiry={false}
+            visible={isConfirmModelOpen}
+          />
 
         {/* Fixed share button */}
         <TouchableOpacity style={styles.shareButton} onPress={handleShareButtonPress}>

@@ -88,11 +88,11 @@ export default function PropertyFilters({
         </View>
       </View>
       <View style={styles.refinements}>
-        {/* Applied Filters */}
-        <CustomCurrentRefinements
-          selectedLandmark={selectedLandmark}
-          setSelectedLandmark={setSelectedLandmark}
-        />
+      {/* Applied Filters */}
+      <CustomCurrentRefinements
+        selectedLandmark={selectedLandmark}
+        setSelectedLandmark={setSelectedLandmark}
+      />
       </View>
     </View>
   );
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     borderBottomColor: '#E5E7EB',
     alignSelf: 'center',
-    // backgroundColor: '#fff',
-    paddingTop: 16,
+    backgroundColor: '#fff',
+    paddingVertical: 16,
     borderRadius: 16,
   },
   contentWrapper: {
@@ -140,37 +140,14 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignSelf: 'center',
   },
-  searchButton: {
-    height: 40,
-    flexDirection: 'column',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    backgroundColor: '#153E3B',
-  },
-  clearButton: {
-    height: 40,
-    flexDirection: 'column',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ff0000',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    backgroundColor: '#ff0000',
-  },
   moreFiltersButton: {
-    height: 40,
+    height: 40, // same fixed height
     flexDirection: 'column',
-    alignItems: 'center',
+    // alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
   },
   moreFiltersText: {
