@@ -1,13 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
 import { useSearchBox } from 'react-instantsearch';
+import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
+import { Property } from '../types';
 
-interface RequirementFiltersProps {
+interface PropertyFiltersProps {
   handleToggleMoreFilters: () => void;
+  selectedLandmark?: any;
+  setSelectedLandmark?: (landmark: any) => void;
 }
 
-const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps) => {
+
+export default function PropertyFilters({ 
+  handleToggleMoreFilters, 
+  selectedLandmark, 
+  setSelectedLandmark 
+}: PropertyFiltersProps) {
   const { query, refine } = useSearchBox();
 
   return (
@@ -20,7 +29,7 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
         <View style={styles.searchBox}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search requirements..."
+            placeholder="Search by project, location..."
             value={query}
             onChangeText={refine}
             placeholderTextColor="#9CA3AF"
@@ -38,14 +47,17 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
           </TouchableOpacity>
         </View>
       </View>
-      
       <View style={styles.refinements}>
-        {/* Applied Filters */}
-        <CustomCurrentRefinements />
+      {/* Applied Filters */}
+      <CustomCurrentRefinements
+        selectedLandmark={selectedLandmark}
+        setSelectedLandmark={setSelectedLandmark}
+      />
       </View>
     </View>
   );
-};
+}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -56,6 +68,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingVertical: 16,
     borderRadius: 16,
+  },
+  contentWrapper: {
+    flexDirection: 'column',
+    // paddingHorizontal: 16,
+    // paddingVertical: 8,
   },
   content: {
     flexDirection: 'column',
@@ -86,6 +103,7 @@ const styles = StyleSheet.create({
   moreFiltersButton: {
     height: 40, // same fixed height
     flexDirection: 'column',
+    // alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 6,
@@ -101,6 +119,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   refinements: {
+    // marginTop: 8,
     flexDirection: 'row',
     left: -15,
   },
@@ -109,5 +128,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-export default RequirementFilters;
