@@ -28,7 +28,9 @@ export default function PropertyFilters({
 
   // Handle search button press (refine action)
   const handleSearchPress = () => {
-    refine(searchText);  // Trigger the refine action with the updated search text
+    if(searchText.trim() != query) {
+      refine(searchText);  // Trigger the refine action with the updated search text
+    }
   };
 
   const handleClear = () => {
