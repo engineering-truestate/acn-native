@@ -606,6 +606,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
     <StyledView className="flex bg-gray-50 h-full">
       <StatusBar style="auto" />
 
+      <View>
       {/* Carousel Tab Header */}
       <TabCarousel
         activeTab={activeTab}
@@ -619,6 +620,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           <StyledView >{renderTabContent}</StyledView>
         )}
       </StyledScrollView>
+      </View>
     </StyledView>
 
   );

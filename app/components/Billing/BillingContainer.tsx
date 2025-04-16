@@ -168,7 +168,7 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
                 <View style={styles.keyBenefitsSection}>
                   <View style={styles.keyBenefitsHeader}>
                     <Text style={styles.keyBenefitsTitle}>KEY BENEFITS</Text>
-                    <TouchableOpacity onPress={toggleKeyBenefits}>
+                    <TouchableOpacity onPress={toggleKeyBenefits} style={styles.keyBenefitsTitle}>
                       <FA5Icon
                         name="chevron-down"
                         size={24}
@@ -360,16 +360,17 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 60
+        paddingBottom: 12
     },
     container: {
         width: '100%',
         height: '100%',
         backgroundColor: '#F5F6F7',
-        paddingHorizontal: 20,
-        paddingTop: 80,
+        paddingHorizontal: 12,
+        paddingTop: 12,
         alignItems: 'center',
         justifyContent: 'flex-start',
+        
     },
     innerContainer: {
         width: '100%',
@@ -389,13 +390,14 @@ const styles = StyleSheet.create({
         paddingVertical: 30,
     },
     header: {
+        
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    title: {
+    title: { 
         fontFamily: 'Montserrat_700Bold',
-        fontSize: 20,
+        fontSize: 18,
         lineHeight: 27,
         color: '#433F3E',
     },
@@ -410,7 +412,7 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
     description: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '600',
         lineHeight: 24,
         color: '#5A5555',
@@ -483,14 +485,14 @@ const styles = StyleSheet.create({
     },
     refundText: {
         fontFamily: 'System',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '500',
         lineHeight: 21,
         color: '#433F3E',
     },
     gstText: {
         fontFamily: 'System',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '400',
         lineHeight: 24,
         color: '#433F3E',

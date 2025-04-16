@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';

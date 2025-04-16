@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, FlatList, Dimensions, Image, Modal, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
@@ -13,6 +13,7 @@ import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
+// import { FlatList } from 'react-native-gesture-handler';
 // Define Property interface based on available data
 // interface Property {
 //   propertyId: string;
@@ -63,7 +64,7 @@ interface IdGenerationResult {
 // Helper function to format currency similar to web implementation
 const formatCost = (value: number) => {
   if (!value) return "N/A";
-  
+
   if (value >= 100) {
     return `₹${(value / 100).toFixed(2)} Cr`;
   } else {
@@ -85,16 +86,17 @@ const formatDate = (timestamp?: number) => {
 // Use React.memo to fix the static flag issue
 const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: PropertyDetailsScreenProps) => {
   const router = useRouter();
+  const [localImages, setLocalImages] = useState<string[]>([]);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedCPID, setSelectedCPID] = useState(property.cpCode );
+  const [selectedCPID, setSelectedCPID] = useState(property.cpCode);
   const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
   const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
-  const [ isShareModalOpen, setIsShareModalOpen ] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
 
-  
+
   const generateNextEnqId = async (): Promise<string | null> => {
     try {
       const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
@@ -106,7 +108,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
     }
   };
 
-  
+
   // Log property data for debugging
   console.log("PropertyDetailsScreen received:", property);
 
@@ -115,11 +117,28 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
     return property.nameOfTheProperty;
   };
 
-  // Combine images and videos for carousel
-  const localImages = [
-    ...(property.photo || []),
-    ...(property.video || [])
-  ];
+
+
+
+  // Update useEffect to handle loading state
+  useEffect(() => {
+    const initializeContent = async () => {
+      
+      try {
+        // Initialize images array
+        const images = [
+          ...(property.photo || []),
+          ...(property.video || []),
+        ];
+        setLocalImages(images);
+        
+      } catch (error) {
+        console.error('Error loading images:', error);
+      } 
+    };
+
+    initializeContent();
+  }, [property.photo, property.video]);
 
   // Dummy handler functions
   const handleOpenGoogleMap = () => {
@@ -136,7 +155,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
 
   const handleEnquireNowBtn = (e: any) => {
     setSelectedCPID(property.cpCode || "")
-    if ( monthlyCredits > 0 ) {
+    if (monthlyCredits > 0) {
       setIsConfirmModelOpen(true);
       return;
     }
@@ -190,7 +209,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
 
       if (typeof nextEnqId === "string") {
         await submitEnquiry(nextEnqId);
-      } 
+      }
 
       // ✅ Close the confirmation modal
       setIsConfirmModelOpen(false);
@@ -243,7 +262,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
               <Ionicons name="close" size={24} color="#374151" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.locationInfo}>
             <View style={styles.infoItem}>
               <Ionicons name="location-outline" size={16} color="#374151" />
@@ -265,92 +284,104 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
         </View>
 
         {/* Main Content */}
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+        <ScrollView
+          style={[styles.content]}
+          contentContainerStyle={[
+            styles.contentContainer,
+            { flexGrow: 1 }  // Add this to ensure content is scrollable
+          ]}
+        
+        >
           {/* Image carousel */}
-          <ImageCarousel 
-            images={localImages} 
-            onImagePress={() => {
-              setCurrentImageIndex(0);
-              setIsImageViewerVisible(true);
-            }}
-          />
+          
+            <ImageCarousel
+              images={localImages}
+              onImagePress={() => {
+                setCurrentImageIndex(0);
+                setIsImageViewerVisible(true);
+              }}
+            />
+          
 
-          {/* Basic Property Information */}
-          <View style={styles.infoSection}>
-            <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
-            <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
-            <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
-            <InfoRow label="Facing" value={property.facing} />
-            <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
-            <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
-            <InfoRow label="Floor" value={property.floorNo} />
-          </View>
-
-          {/* Location Details Section */}
-          <View style={styles.locationSection}>
-            <View style={styles.locationDetails}>
-              <View style={styles.locationItem}>
-                <Text style={styles.locationLabel}>Micromarket</Text>
-                <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
+        
+              {/* Basic Property Information */}
+              <View style={styles.infoSection}>
+                <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
+                <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
+                <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
+                <InfoRow label="Facing" value={property.facing} />
+                <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
+                <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
+                <InfoRow label="Floor" value={property.floorNo} />
               </View>
-              <View style={styles.locationItem}>
-                <Text style={styles.locationLabel}>Area</Text>
-                <Text style={styles.locationValue}>{property.area || "-"}</Text>
-              </View>
-            </View>
 
-            <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
-              <Text style={styles.mapButtonText}>Open in Google Maps</Text>
-              <Ionicons name="arrow-forward" size={16} color="#10302D" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Extra Details Section */}
-          <View style={styles.extraDetailsSection}>
-            <Text style={styles.extraDetailsTitle}>Extra Details</Text>
-            <View style={styles.extraDetailsContent}>
-              {property?.extraDetails ? (
-                property?.extraDetails?.split("\n")?.map((detail, index) => (
-                  <View key={index} style={styles.detailItem}>
-                    <Text style={styles.bulletPoint}>•</Text>
-                    <Text style={styles.detailText}>{detail}</Text>
+              {/* Location Details Section */}
+              <View style={styles.locationSection}>
+                <View style={styles.locationDetails}>
+                  <View style={styles.locationItem}>
+                    <Text style={styles.locationLabel}>Micromarket</Text>
+                    <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
                   </View>
-                ))
-              ) : (
-                <Text style={styles.noDetailsText}>No extra details available.</Text>
-              )}
-            </View>
-          </View>
+                  <View style={styles.locationItem}>
+                    <Text style={styles.locationLabel}>Area</Text>
+                    <Text style={styles.locationValue}>{property.area || "-"}</Text>
+                  </View>
+                </View>
 
-          {/* Additional Property Information */}
-          <View style={styles.additionalInfo}>
-            <InfoRow label="Building Khata" value={property.buildingKhata} />
-            <InfoRow label="Land Khata" value={property.landKhata} />
-            <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
-            <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
-          </View>
+                <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
+                  <Text style={styles.mapButtonText}>Open in Google Maps</Text>
+                  <Ionicons name="arrow-forward" size={16} color="#10302D" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Extra Details Section */}
+              <View style={styles.extraDetailsSection}>
+                <Text style={styles.extraDetailsTitle}>Extra Details</Text>
+                <View style={styles.extraDetailsContent}>
+                  {property?.extraDetails ? (
+                    property?.extraDetails?.split("\n")?.map((detail, index) => (
+                      <View key={index} style={styles.detailItem}>
+                        <Text style={styles.bulletPoint}>•</Text>
+                        <Text style={styles.detailText}>{detail}</Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.noDetailsText}>No extra details available.</Text>
+                  )}
+                </View>
+              </View>
+
+              {/* Additional Property Information */}
+              <View style={styles.additionalInfo}>
+                <InfoRow label="Building Khata" value={property.buildingKhata} />
+                <InfoRow label="Land Khata" value={property.landKhata} />
+                <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
+                <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
+                <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+              </View>
+            
         </ScrollView>
+
         <ShareModal
           property={property}
           agentData={agentData}
           setProfileModalOpen={setIsShareModalOpen}
-          visible = {isShareModalOpen}
+          visible={isShareModalOpen}
         />
         <EnquiryCPModal
-            setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
-            generatingEnquiry={false}
-            visible={isEnquiryModelOpen}
-            selectedCPID={selectedCPID}
-          />
-          <ConfirmModal
-            title="Confirm Enquiry"
-            message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
-            onConfirm={onConfirmEnquiry}
-            onCancel={handleCancel}
-            generatingEnquiry={false}
-            visible={isConfirmModelOpen}
-          />
+          setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+          generatingEnquiry={false}
+          visible={isEnquiryModelOpen}
+          selectedCPID={selectedCPID || ""}
+        />
+        <ConfirmModal
+          title="Confirm Enquiry"
+          message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+          onConfirm={onConfirmEnquiry}
+          onCancel={handleCancel}
+          generatingEnquiry={false}
+          visible={isConfirmModelOpen}
+        />
 
         {/* Fixed share button */}
         <TouchableOpacity style={styles.shareButton} onPress={handleShareButtonPress}>
@@ -363,7 +394,7 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
             <Ionicons name="folder-outline" size={20} color="#153E3B" />
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNowBtn}>
             <Ionicons name="call-outline" size={20} color="white" />
             <Text style={styles.primaryButtonText}>Enquire Now</Text>
@@ -371,54 +402,54 @@ const PropertyDetailsScreen = React.memo(({ property, agentData, onClose }: Prop
         </View>
 
         {/* Image Viewer Modal */}
-        <Modal 
-          visible={isImageViewerVisible} 
+        <Modal
+          visible={isImageViewerVisible}
           transparent={true}
           animationType="fade"
           onRequestClose={() => setIsImageViewerVisible(false)}
         >
           <View style={styles.imageViewerContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeImageViewer}
               onPress={() => setIsImageViewerVisible(false)}
             >
               <Ionicons name="close" size={28} color="white" />
             </TouchableOpacity>
-            
+
             {localImages.length > 0 && (
-              <Image 
-                source={{ uri: localImages[currentImageIndex] }} 
-                style={styles.fullImage} 
+              <Image
+                source={{ uri: localImages[currentImageIndex] }}
+                style={styles.fullImage}
                 resizeMode="contain"
               />
             )}
-            
+
             <View style={styles.imageNavigation}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.navButton}
                 disabled={currentImageIndex === 0}
                 onPress={() => setCurrentImageIndex(prev => prev - 1)}
               >
-                <Ionicons 
-                  name="chevron-back" 
-                  size={28} 
-                  color={currentImageIndex === 0 ? "#999999" : "white"} 
+                <Ionicons
+                  name="chevron-back"
+                  size={28}
+                  color={currentImageIndex === 0 ? "#999999" : "white"}
                 />
               </TouchableOpacity>
-              
+
               <Text style={styles.imageCounter}>
                 {currentImageIndex + 1}/{localImages.length}
               </Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={styles.navButton}
                 disabled={currentImageIndex === localImages.length - 1}
                 onPress={() => setCurrentImageIndex(prev => prev + 1)}
               >
-                <Ionicons 
-                  name="chevron-forward" 
-                  size={28} 
-                  color={currentImageIndex === localImages.length - 1 ? "#999999" : "white"} 
+                <Ionicons
+                  name="chevron-forward"
+                  size={28}
+                  color={currentImageIndex === localImages.length - 1 ? "#999999" : "white"}
                 />
               </TouchableOpacity>
             </View>
@@ -444,6 +475,20 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#CFCECE',
+  },
+  noImagePlaceholder: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E1E1E1',
+  },
+  noImageText: {
+    fontSize: 14,
+    color: '#9CA3AF',
   },
   headerTop: {
     flexDirection: 'row',

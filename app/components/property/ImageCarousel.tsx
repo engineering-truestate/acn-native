@@ -32,6 +32,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, onImagePress }) =
           source={{ uri: item }} 
           style={styles.image}
           resizeMode="cover"
+          
         />
       </TouchableOpacity>
     );
@@ -101,6 +102,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, onImagePress }) =
               styles.paginationDot, 
               index === activeIndex && styles.activeDot
             ]} 
+
           />
         ))}
       </View>

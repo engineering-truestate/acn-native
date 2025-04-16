@@ -187,11 +187,11 @@ function MobileHits() {
         })}
         </View>
       
-      <PropertyDetailsModal
+      {/* <PropertyDetailsModal
         isOpen={!!selectedProperty}
         onClose={() => setSelectedProperty(null)}
         property={selectedProperty}
-      />
+      /> */}
     </>
     // <View className="grid grid-cols-1 gap-4 p-4 pb-12">
     //   {hits.map((property) => (

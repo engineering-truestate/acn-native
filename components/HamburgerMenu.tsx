@@ -188,11 +188,12 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
           { transform: [{ translateX }] },
         ]}
       >
-        <ScrollView contentContainerStyle={[styles.menuContent, { paddingTop: insets.top + 56 }]}>
+        <ScrollView contentContainerStyle={[styles.menuContent, { flexGrow: 1 }]}>
           <View className="flex flex-col h-full">
             {/* Main Menu Items */}
-            <View className="flex flex-col gap-[12px] px-4">
+            <View className="gap-3">
               {menuItems.map((item) => (
+                <View className='flex flex-col gap-3'>
                 <SidebarItem
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
@@ -201,8 +202,10 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                   selected={isActive(item.path)}
                   iconType={item.iconType}
                 />
+                </View>
               ))}
 
+              <View className='flex flex-col gap-3 pr-[10]'>
               <TouchableOpacity
                 onPress={handleRequirementSubmit}
                 className="bg-[#153E3B] flex flex-row items-center justify-center gap-2 px-4 py-2 rounded-[6px]"
@@ -221,11 +224,13 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                 <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
                 <Text className="text-[#153E3B] font-semibold">Join Community</Text>
               </TouchableOpacity>
+              </View>
             </View>
 
             {/* Bottom Menu Items */}
             <View className="mt-auto px-4 pb-10">
               {bottomMenuItems.map((item) => (
+                <View className='flex flex-col pb-1'>
                 <SidebarItem
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
@@ -234,6 +239,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                   selected={isActive(item.path)}
                   iconType={item.iconType}
                 />
+                </View>
               ))}
 
               {/* Credits Display */}
@@ -309,7 +315,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: width * 0.6,
+    width: width * 0.55,
     height: '100%',
     backgroundColor: '#fff',
     zIndex: 4,
@@ -321,8 +327,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
+    
   },
   menuContent: {
+    paddingTop: 100,
     paddingBottom: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 });
