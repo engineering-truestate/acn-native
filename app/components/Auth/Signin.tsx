@@ -11,6 +11,7 @@ import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'fireb
 import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
 import auth from '@react-native-firebase/auth';
+import Spinner from '../SpinnerComponent';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,17 +21,13 @@ export default function SignUp() {
 
   const [phoneInput, setPhoneInput] = useState("");
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [isSendingOTP, setIsSendingOTP] = useState(false);
-  const [confirm, setConfirm] = useState<any>(null);
-  const [step, setStep] = useState(1);
 
   const [isPhoneValid, setIsPhoneValid] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [addingNewAgent, setAddingNewAgent] = useState(false);
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState("");
   const { loading, phonenumber, isAgentInDb } = useSelector((state: RootState) => state.agent);
-  const isVerified = useSelector(selectVerified);
-  const isBlacklisted = useSelector(selectBlacklisted);
 
   const handlePhoneInputChange = (value: string) => {
     const fullPhoneNumber = '+91' + value;
@@ -64,24 +61,24 @@ export default function SignUp() {
       setErrorMessage("Please enter a valid phone number and country code.");
       return;
     }
-  
+
     try {
-      const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();  
-      
+      const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();
+
       // If agent exists in DB
       dispatch(listenToAgentChanges(result.docId));
       const agentData = result.docData;
-  
+
       if (agentData?.blacklisted) {
         router.push('/components/Auth/BlacklistedPage');
         return;
       }
-  
+
       if (!agentData?.verified) {
         router.push('/components/Auth/VerificationPage');
         return;
       }
-  
+
       // Proceed with Firebase phone sign-in
       await signInWithPhoneNumber();
     } catch (error) {
@@ -90,7 +87,7 @@ export default function SignUp() {
       dispatch(setPhonenumber(phoneNumber));
     }
   };
-  
+
 
   const handleNewAgent = async () => {
     if (phonenumber && isPhoneValid && !isAgentInDb && !addingNewAgent) {
@@ -119,6 +116,7 @@ export default function SignUp() {
       }
       finally {
         router.push('/components/Auth/VerificationPage')
+        setAddingNewAgent(false);
       }
     }
   }
@@ -128,49 +126,46 @@ export default function SignUp() {
     setErrorMessage(""); // Reset any previous errors
 
     try {
-        console.log('📱 Attempting to send OTP to:', phoneNumber);
+      console.log('📱 Attempting to send OTP to:', phoneNumber);
 
-        // Configure reCAPTCHA verifier if needed
-        if (!auth().settings.appVerificationDisabledForTesting) {
-            console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
-        }
+      // Configure reCAPTCHA verifier if needed
+      if (!auth().settings.appVerificationDisabledForTesting) {
+        console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
+      }
 
-        // Send OTP using Firebase
-        const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
-        console.log('✅ OTP sent successfully, confirmation received');
+      // Send OTP using Firebase
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
+      console.log('✅ OTP sent successfully, confirmation received');
 
-        setIsSendingOTP(false);
-        setConfirm(confirmation);
-          // Show success message to user
-       
-          router.push({ 
-            pathname: '/components/Auth/OTPage', 
-            params: { verificationId: confirmation.verificationId } 
-          });
+      router.push({
+        pathname: '/components/Auth/OTPage',
+        params: { verificationId: confirmation.verificationId }
+      });
+      setIsSendingOTP(false);
 
     } catch (error: any) {
-        console.error("❌ Error during OTP send:", {
-            message: error.message,
-            code: error.code,
-            nativeErrorMessage: error.nativeErrorMessage
-        });
+      console.error("❌ Error during OTP send:", {
+        message: error.message,
+        code: error.code,
+        nativeErrorMessage: error.nativeErrorMessage
+      });
 
-        // Handle specific error cases
-        if (error.code === 'auth/invalid-phone-number') {
-            setErrorMessage("Please enter a valid phone number.");
-        } else if (error.code === 'auth/too-many-requests') {
-            setErrorMessage("Too many attempts. Please try again later.");
-        } else if (error.code === 'auth/operation-not-allowed') {
-            setErrorMessage("Phone authentication is not enabled. Please contact support.");
-        } else {
-            setErrorMessage(error.message || "Failed to send OTP. Please try again.");
-        }
+      // Handle specific error cases
+      if (error.code === 'auth/invalid-phone-number') {
+        setErrorMessage("Please enter a valid phone number.");
+      } else if (error.code === 'auth/too-many-requests') {
+        setErrorMessage("Too many attempts. Please try again later.");
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setErrorMessage("Phone authentication is not enabled. Please contact support.");
+      } else {
+        setErrorMessage(error.message || "Failed to send OTP. Please try again.");
+      }
+      setIsSendingOTP(false);
     } finally {
-        setErrorMessage('');
-        setIsSendingOTP(false);
-        
+      setErrorMessage('');
+      setIsSendingOTP(false);
     }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -200,11 +195,17 @@ export default function SignUp() {
       </View>
 
       <TouchableOpacity
-        style={[styles.button, isPhoneValid && styles.buttonActive]}
+        style={[styles.button, !(!isPhoneValid || loading || addingNewAgent || isSendingOTP) && styles.buttonActive]}
         onPress={handleCheckUser}
-        disabled={!isPhoneValid || loading || addingNewAgent}
+        disabled={!isPhoneValid || loading || addingNewAgent || isSendingOTP}
       >
-        <Text style={styles.buttonText}>{loading ? "Wait..." : "Login/Sign Up"}</Text>
+        <Text style={styles.buttonText}>
+          {(loading || addingNewAgent || isSendingOTP) ?
+            <Spinner />
+            :
+            "Login/Sign Up"
+          }
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.whatsappRow}>

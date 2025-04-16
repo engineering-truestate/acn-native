@@ -6,13 +6,8 @@ import { clearAgentListener } from './listenerSlice';
 import { resetKamState } from './kamSlice';
 import { setVersionListener, clearVersionListener } from './listenerSlice';
 import { doc, onSnapshot } from 'firebase/firestore';
-import 
-{ 
-  db,
-  // auth
-} from '../../app/config/firebase';
-// import { signOut as firebaseSignOut } from 'firebase/auth';
-import { Platform } from 'react-native';
+import { db } from '../../app/config/firebase';
+import auth from '@react-native-firebase/auth';
 import { router } from 'expo-router';
 
 let timeoutId: NodeJS.Timeout | null = null;
@@ -88,7 +83,7 @@ export const logOut = (): ThunkAction<
   dispatch(setLoading(true));
 
   try {
-    // await firebaseSignOut(auth);
+    await auth().signOut();
     dispatch(clearAgentListener());
     dispatch(clearVersionListener());
     dispatch(resetAgentState());

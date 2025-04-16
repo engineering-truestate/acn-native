@@ -22,6 +22,7 @@ import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
 import { listenToAgentChanges, setAgentDataState } from '@/store/slices/agentSlice';
+import Spinner from '../SpinnerComponent';
 const { width, height } = Dimensions.get('window');
 
 export default function OTPage() {
@@ -32,12 +33,13 @@ export default function OTPage() {
 
   const { phonenumber } = useSelector((state: RootState) => state.agent);
   const [errorMessage, setErrorMessage] = useState('');
-  const [confirm, setConfirm] = useState<any>(null);
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [isValid, setIsValid] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(true);
   const inputRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
+
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const { verificationId } = useLocalSearchParams();
 
@@ -123,25 +125,23 @@ export default function OTPage() {
 
 
   const handleVerify = async () => {
+    setErrorMessage('');
+    setIsVerifying(true);
     const code = otp.join('');
     if (!code || code.length < 6) {
       setErrorMessage('Please enter a valid 6-digit OTP');
+      setIsVerifying(false);
       return;
     }
 
     try {
-      console.log('🔑 Confirming OTP code');
-
-      console.log(verificationId, "hello")
       const credential = auth.PhoneAuthProvider.credential(verificationId as string, code);
-      //const credential = await confirmation?.confirm(code);
+
       console.log('✅ OTP confirmed successfully');
 
       const userCredential = await auth().signInWithCredential(credential);
 
       console.log(userCredential, "userCredential")
-
-      console.log(userCredential?.user?.phoneNumber, "userCredential?.user?.phoneNumber")
 
       if (userCredential?.user?.phoneNumber) {
         console.log('👤 User authenticated:', {
@@ -149,58 +149,33 @@ export default function OTPage() {
           phonenumber: userCredential.user.phoneNumber
         });
 
-        // First update auth state
         dispatch(signIn());
-
-        // Then fetch agent data
-        const result = await dispatch(setAgentDataState(userCredential.user.phoneNumber)).unwrap();
-        console.log('📊 Agent data after OTP:', {
-          hasDocId: !!result?.docId,
-          docData: result?.docData,
-          verified: result?.docData?.verified
-        });
-
-        if (result?.docId) {
-          dispatch(listenToAgentChanges(result.docId));
-          setErrorMessage('');
-          router.dismissAll();
-          router.replace('/(tabs)/properties');
-        } else {
-          console.error('❌ No agent document found after OTP confirmation');
-          setErrorMessage('Failed to load user data. Please try again.');
-          handleSignOut();
-        }
+        router.dismissAll();
+        router.replace('/(tabs)/properties');
+        setIsVerifying(false);
       } else {
         console.error('❌ No user or phone number after OTP confirmation');
         setErrorMessage('Failed to sign in. Please try again.');
+        setIsVerifying(false);
       }
     } catch (error: any) {
       console.error('❌ OTP confirmation error:', error);
       setErrorMessage('Invalid OTP code.');
+      setIsVerifying(false);
     }
   };
 
   const handleResend = async () => {
     if (!canResend) return;
-    
+
     try {
       const confirmation = await auth().signInWithPhoneNumber(phonenumber || '', true);
-      setConfirm(confirmation);
       setResendTimer(30);
       setCanResend(false);
       Alert.alert('Success', `OTP resent to ${phonenumber}`);
     } catch (error: any) {
       console.error('Failed to resend OTP:', error);
       Alert.alert('Error', 'Failed to resend OTP. Please try again.');
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await auth().signOut();
-      dispatch(logOut());
-    } catch (error) {
-      console.error('Error signing out:', error);
     }
   };
 
@@ -215,13 +190,13 @@ export default function OTPage() {
       <Text style={[styles.otpInfo, { fontSize: width * 0.04 }]}>
         OTP sent to <Text style={styles.phone}> {phonenumber}</Text>
       </Text>
-      <TouchableOpacity 
-        onPress={handleResend} 
+      <TouchableOpacity
+        onPress={handleResend}
         style={styles.resendButton}
         disabled={!canResend}
       >
         <Text style={[
-          styles.resendText, 
+          styles.resendText,
           { fontSize: width * 0.04 },
           !canResend && styles.resendTextDisabled
         ]}>
@@ -243,17 +218,29 @@ export default function OTPage() {
           />
         ))}
       </View>
-
+      <View style={{ marginBottom: height * 0.04, minHeight: 24 }}>
+        {errorMessage && (
+          <Text style={{ color: '#EF4444', fontFamily: 'System', fontSize: 12, lineHeight: 21 }}>
+            *{errorMessage}
+          </Text>
+        )}
+      </View>
       <TouchableOpacity
         style={[
           styles.verifyButton,
-          otp.every((val) => val) && styles.verifyButtonActive,
+          isValid && styles.verifyButtonActive,
           { padding: width * 0.04 },
         ]}
         onPress={handleVerify}
-        disabled={!otp.every((val) => val)}
+        disabled={!isValid || isVerifying}
       >
-        <Text style={[styles.verifyText, { fontSize: width * 0.045 }]}>Verify OTP</Text>
+        <Text style={[styles.verifyText, { fontSize: width * 0.045 }]}>
+          {isVerifying ?
+            <Spinner />
+            :
+            "Login/Sign Up"
+          }
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleBack}>
