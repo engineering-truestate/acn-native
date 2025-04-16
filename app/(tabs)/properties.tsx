@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal, Dimensions } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal, Dimensions, ActivityIndicator } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -94,57 +94,8 @@ interface PropertyDetailsModalProps {
 // Set display name for debugging
 // PropertyDetailsModal.displayName = 'PropertyDetailsModal';
 
-export default function PropertiesScreen() {
-  const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
-  const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
-
-  const handleToggleMoreFilters = () => {
-    setIsMoreFiltersModalOpen((prev) => !prev);
-  };
-
-  return (
-    <View className="flex-1 bg-[#F5F6F7]">
-      <InstantSearch searchClient={searchClient} indexName={indexName}>
-        <Configure
-          analytics={true}
-          hitsPerPage={20}
-          filters={`status:'Available'`}
-          aroundLatLng={
-            selectedLandmark?.lat && selectedLandmark?.lng
-              ? `${selectedLandmark.lat},${selectedLandmark.lng}`
-              : undefined
-          }
-          aroundRadius={selectedLandmark?.radius || undefined}
-        />
-        <View className="flex-1 relative">
-          {/* Filters at the top */}
-          <View className="fixed left-0 right-0 z-10">
-            <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
-          </View>
-          
-          {/* Main content area with padding to account for filters and pagination */}
-          <ScrollView className="fixed flex-1 py-0 my-4" contentContainerStyle={{ paddingBottom: 58 }}>
-            <MobileHits />
-          </ScrollView>
-          
-          {/* Pagination at the bottom */}
-          <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-            <CustomPagination />
-          </View>
-        </View>
-        <MoreFilters 
-          isOpen={isMoreFiltersModalOpen} 
-          setIsOpen={setIsMoreFiltersModalOpen} 
-          handleToggle={handleToggleMoreFilters} 
-          isMobile={true} 
-          selectedLandmark={selectedLandmark} 
-          setSelectedLandmark={setSelectedLandmark} 
-        />
-        {/* <MoreFilters isOpen={isMoreFiltersModalOpen} setIsOpen={setIsMoreFiltersModalOpen} handleToggle={handleToggleMoreFilters} isMobile={true} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} /> */}
-      </InstantSearch>
-    </View>
-  );
-}
+// Removed duplicate implementation of PropertiesScreen
+// PropertyDetailsModal.displayName = 'PropertyDetailsModal';
 
 // Mobile Hits Component
 function MobileHits() {
@@ -166,7 +117,7 @@ function MobileHits() {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <Text style={styles.text}>Loading...</Text>
+        <ActivityIndicator />
       </View>
     );
   }
@@ -202,6 +153,97 @@ function MobileHits() {
   );
 }
 
+
+
+
+export default function PropertiesScreen() {
+  const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
+  const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
+  const [filtersHeight, setFiltersHeight] = useState(0);
+  const [paginationHeight, setPaginationHeight] = useState(0);
+  const filtersRef = useRef<View>(null);
+  const paginationRef = useRef<View>(null);
+  
+  useEffect(() => {
+    // Measure the height of the filters component
+    if (filtersRef.current) {
+      filtersRef.current.measure((_x: number, _y: number, _width: number, height: number) => {
+        setFiltersHeight(height);
+      });
+    }
+    
+    // Measure the height of the pagination component
+    if (paginationRef.current) {
+      paginationRef.current.measure((_x: number, _y: number, _width: number, height: number) => {
+        setPaginationHeight(height);
+      });
+    }
+  }, []);
+
+  const handleToggleMoreFilters = () => {
+    setIsMoreFiltersModalOpen((prev) => !prev);
+  };
+
+  // Calculate the content height dynamically
+  const windowHeight = Dimensions.get('window').height;
+  const contentHeight = windowHeight - filtersHeight - paginationHeight;
+
+  return (
+    <View className="flex-1 bg-[#F5F6F7]">
+      <InstantSearch searchClient={searchClient} indexName={indexName}>
+        <Configure
+          analytics={true}
+          hitsPerPage={20}
+          filters={`status:'Available'`}
+          aroundLatLng={
+            selectedLandmark?.lat && selectedLandmark?.lng
+              ? `${selectedLandmark.lat},${selectedLandmark.lng}`
+              : undefined
+          }
+          aroundRadius={selectedLandmark?.radius || undefined}
+        />
+        <View className="flex-1 relative">
+          {/* Filters at the top */}
+          <View 
+            ref={filtersRef}
+            className="bg-white border-b border-gray-200"
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setFiltersHeight(height);
+            }}
+          >
+            <PropertyFilters 
+              handleToggleMoreFilters={handleToggleMoreFilters} 
+              selectedLandmark={selectedLandmark} 
+              setSelectedLandmark={setSelectedLandmark} 
+            />
+          </View>
+          
+          {/* Main content area with dynamic height */}
+          <ScrollView 
+            style={{ height: contentHeight }}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          >
+            <MobileHits />
+          </ScrollView>
+          
+          {/* Pagination at the bottom */}
+          <View 
+            ref={paginationRef}
+            className="bg-white border-t border-gray-200"
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setPaginationHeight(height);
+            }}
+          >
+            <CustomPagination />
+          </View>
+        </View>
+        
+      </InstantSearch>
+    </View>
+  );
+}
 
 
 

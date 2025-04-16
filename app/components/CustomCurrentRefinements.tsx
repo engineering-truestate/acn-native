@@ -30,24 +30,7 @@ export default function CustomCurrentRefinements({
   );
 
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        {selectedLandmark && (
-          <TouchableOpacity
-            onPress={() => setSelectedLandmark?.(null)}
-            style={styles.chip}
-          >
-            <Text style={styles.chipText}>
-              {selectedLandmark.name} ({selectedLandmark.radius/1000} Km)
-            </Text>
-            <Text style={styles.removeIcon}>×</Text>
-          </TouchableOpacity>
-        )}
-    {/* <ScrollView
+    <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       style={styles.container}
@@ -65,24 +48,6 @@ export default function CustomCurrentRefinements({
           </TouchableOpacity>
         )}
 
-        {items.map((item) => (
-          <View key={item.attribute}>
-            {item.refinements.map((refinement) => (
-              <TouchableOpacity
-                key={refinement.value}
-                onPress={() => refine(refinement)}
-                style={styles.chip}
-              >
-                <Text style={styles.chipText}>
-                  {refinement.label}
-                </Text>
-                <Text style={styles.removeIcon}>×</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ScrollView> */}
         {allRefinements.map((item, index) => (
           <TouchableOpacity
             key={`${item.attribute}-${item.refinement.value || index}`}

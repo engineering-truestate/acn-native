@@ -64,14 +64,17 @@ const getIconComponent = (type: MenuItem['iconType'], name: string, size: number
   }
 };
 
+// Standardized SidebarItem with consistent dimensions
 const SidebarItem = forwardRef<View, SidebarItemProps>(({ onClick, icon, label, selected, iconType }, ref) => (
   <TouchableOpacity
     onPress={onClick}
-    className={`flex flex-row items-center py-2 px-4 gap-2 ${selected ? 'bg-[#B9D7D2] rounded-lg' : ''}`}
+    style={[styles.standardButton, selected ? styles.selectedButton : {}]}
     ref={ref}
   >
-    {getIconComponent(iconType, icon, 18)}
-    {label && <Text className="mt-1 font-sans text-lg text-[#252626] font-medium">{label}</Text>}
+    <View style={styles.iconContainer}>
+      {getIconComponent(iconType, icon, 20)}
+    </View>
+    {label && <Text style={styles.buttonLabel}>{label}</Text>}
   </TouchableOpacity>
 ));
 
@@ -188,75 +191,82 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
           { transform: [{ translateX }] },
         ]}
       >
-        <ScrollView contentContainerStyle={[styles.menuContent, { flexGrow: 1 }]}>
-          <View className="flex flex-col h-full">
+        <ScrollView 
+          contentContainerStyle={styles.menuContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.menuWrapper}>
             {/* Main Menu Items */}
-            <View className="gap-3">
+            <View style={styles.menuSection}>
               {menuItems.map((item) => (
-                <View className='flex flex-col gap-3'>
-                <SidebarItem
-                  key={item.path}
-                  onClick={() => handleNavigation(item.path)}
-                  icon={item.icon}
-                  label={item.title}
-                  selected={isActive(item.path)}
-                  iconType={item.iconType}
-                />
+                <View key={item.path} style={styles.menuItemContainer}>
+                  <SidebarItem
+                    onClick={() => handleNavigation(item.path)}
+                    icon={item.icon}
+                    label={item.title}
+                    selected={isActive(item.path)}
+                    iconType={item.iconType}
+                  />
                 </View>
               ))}
 
-              <View className='flex flex-col gap-3 pr-[10]'>
-              <TouchableOpacity
-                onPress={handleRequirementSubmit}
-                className="bg-[#153E3B] flex flex-row items-center justify-center gap-2 px-4 py-2 rounded-[6px]"
-              >
-                <MaterialIcons name="post-add" size={20} color="#fff" />
-                <Text className="text-white">Add Requirement</Text>
-              </TouchableOpacity>
+              <View style={styles.menuItemContainer}>
+                <TouchableOpacity
+                  onPress={handleRequirementSubmit}
+                  style={[styles.standardButton, styles.primaryButton]}
+                >
+                  <View style={styles.iconContainer}>
+                    <MaterialIcons name="post-add" size={20} color="#fff" />
+                  </View>
+                  <Text style={styles.actionButtonText}>Add Requirement</Text>
+                </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
-                    .catch((err) => console.error('Failed to open URL:', err));
-                }}
-                className="flex flex-row items-center justify-center gap-2 border-[1px] border-[#153E3B] px-4 py-2 rounded-[6px]"
-              >
-                <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
-                <Text className="text-[#153E3B] font-semibold">Join Community</Text>
-              </TouchableOpacity>
+              <View style={styles.menuItemContainer}>
+                <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
+                      .catch((err) => console.error('Failed to open URL:', err));
+                  }}
+                  style={[styles.standardButton, styles.secondaryButton]}
+                >
+                  <View style={styles.iconContainer}>
+                    <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
+                  </View>
+                  <Text style={styles.communityButtonText}>Join Community</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
             {/* Bottom Menu Items */}
-            <View className="mt-auto px-4 pb-10">
+            <View style={styles.bottomSection}>
               {bottomMenuItems.map((item) => (
-                <View className='flex flex-col pb-1'>
-                <SidebarItem
-                  key={item.path}
-                  onClick={() => handleNavigation(item.path)}
-                  icon={item.icon}
-                  label={item.title}
-                  selected={isActive(item.path)}
-                  iconType={item.iconType}
-                />
+                <View key={item.path} style={styles.menuItemContainer}>
+                  <SidebarItem
+                    onClick={() => handleNavigation(item.path)}
+                    icon={item.icon}
+                    label={item.title}
+                    selected={isActive(item.path)}
+                    iconType={item.iconType}
+                  />
                 </View>
               ))}
 
               {/* Credits Display */}
-              <View className="flex flex-row justify-between items-center w-full border border-[#E3E3E3] rounded-[20px] px-4 py-3 mt-3">
-                <View className="flex flex-row items-center gap-2">
+              <View style={styles.creditsContainer}>
+                <View style={styles.creditsInfoContainer}>
                   <MaterialIcons name="monetization-on" size={20} color="#FFD700" />
-                  <Text className="font-sans font-medium text-[14px] leading-[21px] text-[#5A5555]">
+                  <Text style={styles.creditsText}>
                     {monthlyCredits} Credits
                   </Text>
                 </View>
-                <View className="relative">
+                <View style={styles.tooltipContainer}>
                   <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)}>
                     <MaterialIcons name="info-outline" size={18} color="#5A5555" />
                   </TouchableOpacity>
                   {showTooltip && (
-                    <View className="absolute top-[-40px] right-0 bg-[#2B2928] p-2 rounded-lg z-50 min-w-[180px] shadow-lg">
-                      <Text className="text-[12px] text-white">1 Credit is used per enquiry.</Text>
+                    <View style={styles.tooltip}>
+                      <Text style={styles.tooltipText}>1 Credit is used per enquiry.</Text>
                     </View>
                   )}
                 </View>
@@ -264,15 +274,15 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
 
               <TouchableOpacity
                 onPress={handleOpenProfile}
-                className={`flex flex-row items-center border border-[#E3E3E3] rounded-[6px] py-2 gap-2 mt-3 ${isActive('/profile') ? 'bg-[#B9D7D2]' : ''}`}
+                style={[styles.profileButton, isActive('/profile') ? styles.selectedButton : {}]}
               >
-                <View className="w-[28px] h-[28px] rounded-full bg-[#153E3B] items-center justify-center">
+                <View style={styles.profileIconContainer}>
                   <MaterialIcons name="person" size={16} color="#fff" />
                 </View>
-                <View className="flex flex-col gap-1">
-                  <Text className="text-[14px] text-[#2B2928] font-bold">{toCapitalizedWords(agentName) || 'Agent Name'}</Text>
-                  <View className="flex flex-row items-center gap-1">
-                    <Text className="text-[12px] text-[#205E59]">Check profile</Text>
+                <View style={styles.profileInfoContainer}>
+                  <Text style={styles.profileName}>{toCapitalizedWords(agentName) || 'Agent Name'}</Text>
+                  <View style={styles.profileLinkContainer}>
+                    <Text style={styles.profileLinkText}>Check profile</Text>
                     <MaterialIcons name="arrow-forward" size={12} color="#205E59" />
                   </View>
                 </View>
@@ -291,14 +301,6 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
 }
 
 const styles = StyleSheet.create({
-  hamburgerLine: {
-    height: 3,
-    backgroundColor: '#000',
-    borderRadius: 2,
-  },
-  hamburgerLineOpen: {
-    backgroundColor: '#000',
-  },
   overlay: {
     position: 'absolute',
     top: 0,
@@ -327,12 +329,162 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
-    
   },
   menuContent: {
     paddingTop: 100,
     paddingBottom: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingHorizontal: 16,
+    flexGrow: 1,
+  },
+  menuWrapper: {
+    flex: 1,
+    flexDirection: 'column',
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  menuSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginBottom: 20,
+  },
+  bottomSection: {
+    marginTop: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    paddingBottom: 10,
+  },
+  menuItemContainer: {
+    width: '100%',
+    marginBottom: 12,
+  },
+  standardButton: {
+    height: 50,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  selectedButton: {
+    backgroundColor: '#B9D7D2',
+  },
+  primaryButton: {
+    backgroundColor: '#153E3B',
+    justifyContent: 'center',
+  },
+  secondaryButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#153E3B',
+    justifyContent: 'center',
+  },
+  buttonLabel: {
+    fontFamily: 'System',
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#252626',
+  },
+  iconContainer: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  communityButtonText: {
+    color: '#153E3B',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  creditsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#E3E3E3',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 12,
+    height: 50,
+  },
+  creditsInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  creditsText: {
+    fontFamily: 'System',
+    fontWeight: '500',
+    fontSize: 14,
+    color: '#5A5555',
+  },
+  tooltipContainer: {
+    position: 'relative',
+  },
+  tooltip: {
+    position: 'absolute',
+    top: -40,
+    right: 0,
+    backgroundColor: '#2B2928',
+    padding: 8,
+    borderRadius: 8,
+    zIndex: 50,
+    minWidth: 180,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  tooltipText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
+  profileButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E3E3E3',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
+    height: 60,
+  },
+  profileIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#153E3B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInfoContainer: {
+    flexDirection: 'column',
+    gap: 4,
+  },
+  profileName: {
+    fontSize: 14,
+    color: '#2B2928',
+    fontWeight: 'bold',
+  },
+  profileLinkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  profileLinkText: {
+    fontSize: 12,
+    color: '#205E59',
   },
 });
+
+export default HamburgerMenu;
