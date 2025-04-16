@@ -4,6 +4,7 @@ import { useSearchBox } from 'react-instantsearch';
 import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
 import { Property } from '../types';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface PropertyFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -12,12 +13,28 @@ interface PropertyFiltersProps {
 }
 
 
-export default function PropertyFilters({ 
-  handleToggleMoreFilters, 
-  selectedLandmark, 
-  setSelectedLandmark 
+export default function PropertyFilters({
+  handleToggleMoreFilters,
+  selectedLandmark,
+  setSelectedLandmark
 }: PropertyFiltersProps) {
   const { query, refine } = useSearchBox();
+  const [searchText, setSearchText] = useState(query);
+
+  // Handle text input change
+  const handleSearchChange = (text: string) => {
+    setSearchText(text); // Update the local state with the new search text
+  };
+
+  // Handle search button press (refine action)
+  const handleSearchPress = () => {
+    refine(searchText);  // Trigger the refine action with the updated search text
+  };
+
+  const handleClear = () => {
+    setSearchText("");
+    refine("");
+  }
 
   return (
     <View style={styles.container}>
@@ -30,29 +47,50 @@ export default function PropertyFilters({
           <TextInput
             style={styles.searchInput}
             placeholder="Search by project, location..."
-            value={query}
-            onChangeText={refine}
+            value={searchText}
+            onChangeText={handleSearchChange}
             placeholderTextColor="#9CA3AF"
           />
         </View>
 
-        {/* Filters */}
+        {/* Search Button */}
         <View style={styles.filters}>
-          {/* More Filters Button */}
+          <TouchableOpacity
+            onPress={handleSearchPress}
+            style={styles.searchButton}
+          >
+            <Feather name="search" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Clear Button */}
+        {searchText &&
+          <View style={styles.filters}>
+            <TouchableOpacity
+              onPress={handleClear}
+              style={styles.clearButton}
+            >
+              <MaterialCommunityIcons name="close" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+        }
+
+        {/* More Filters Button */}
+        <View style={styles.filters}>
           <TouchableOpacity
             onPress={handleToggleMoreFilters}
             style={styles.moreFiltersButton}
           >
-            <Text style={styles.moreFiltersText}>More Filters</Text>
+            <Feather name="filter" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.refinements}>
-      {/* Applied Filters */}
-      <CustomCurrentRefinements
-        selectedLandmark={selectedLandmark}
-        setSelectedLandmark={setSelectedLandmark}
-      />
+        {/* Applied Filters */}
+        <CustomCurrentRefinements
+          selectedLandmark={selectedLandmark}
+          setSelectedLandmark={setSelectedLandmark}
+        />
       </View>
     </View>
   );
@@ -64,8 +102,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     borderBottomColor: '#E5E7EB',
     alignSelf: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 16,
+    // backgroundColor: '#fff',
+    paddingTop: 16,
     borderRadius: 16,
   },
   contentWrapper: {
@@ -99,14 +137,37 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignSelf: 'center',
   },
-  moreFiltersButton: {
-    height: 40, // same fixed height
+  searchButton: {
+    height: 40,
     flexDirection: 'column',
-    // alignItems: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#153E3B',
+  },
+  clearButton: {
+    height: 40,
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ff0000',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#ff0000',
+  },
+  moreFiltersButton: {
+    height: 40,
+    flexDirection: 'column',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 6,
     paddingHorizontal: 12,
+    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
   },
   moreFiltersText: {

@@ -118,12 +118,12 @@ export default function PropertiesScreen() {
         />
         <View className="flex-1 relative">
           {/* Filters at the top */}
-          <View className="absolute top-2 left-0 right-0 z-10 bg-white border-b border-gray-200">
+          <View className="fixed left-0 right-0 z-10">
             <PropertyFilters handleToggleMoreFilters={handleToggleMoreFilters} selectedLandmark={selectedLandmark} setSelectedLandmark={setSelectedLandmark} />
           </View>
           
           {/* Main content area with padding to account for filters and pagination */}
-          <ScrollView className="flex-1 py-6 mt-20" contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView className="fixed flex-1 py-0 my-4" contentContainerStyle={{ paddingBottom: 58 }}>
             <MobileHits />
           </ScrollView>
           
@@ -173,7 +173,7 @@ function MobileHits() {
 
   return (
     <>
-      <View className="w-full p-4">
+      <View className="w-full px-4">
         {hits.map((property) => {
           // Transform property data
           const transformedProperty: Property = property;
