@@ -5,63 +5,14 @@ import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import PropertyDetailsScreen from "../property/PropertyDetailsScreen";
 import ReviewModal from "./ReviewModal";
-
-interface Property {
-  propertyId: string;
-  title?: string;
-  nameOfTheProperty?: string;
-  micromarket?: string;
-  assetType?: string;
-  unitType?: string;
-  facing?: string;
-  totalAskPrice?: number;
-  askPricePerSqft?: number;
-  sbua?: number;
-  plotSize?: number;
-  carpet?: number;
-  floorNo?: string;
-  handoverDate?: string;
-  buildingKhata?: string;
-  landKhata?: string;
-  buildingAge?: string;
-  tenanted?: boolean;
-  area?: string;
-  dateOfInventoryAdded?: number;
-  extraDetails?: string;
-  driveLink?: string;
-  photo?: string[];
-  video?: string[];
-  mapLocation?: string;
-  cpId?: string;
-  cpCode?: string;
-  id?: string;
-}
+import { EnquiryWithProperty } from "@/app/types";
 
 interface CardProps {
   // key:string,
   index: number;
-  enquiry: {
-    id: string;
-    added?: number;
-    cpId?: string;
-    enquiryId?: string;
-    lastModified?: number;
-    propertyId?: string;
-    status?: string;
-    [key: string]: any;
-  };
+  enquiry: EnquiryWithProperty;
   // handleGiveReview: (enquiryId: string) => void;
 }
-
-const fetchPropertyById = async (id: string): Promise<Property> => {
-  const docRef: DocumentReference<DocumentData> = doc(db, "ACN123", id);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return { id: docSnap.id, ...docSnap.data() } as Property;
-  } else {
-    throw new Error("Document not found");
-  }
-};
 
 const EnquiryCard: React.FC<CardProps> = ({
   // key,
@@ -69,39 +20,31 @@ const EnquiryCard: React.FC<CardProps> = ({
   enquiry,
   // handleGiveReview,
 }) => {
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (!enquiry.propertyId) return;
-
-    fetchPropertyById(enquiry.propertyId)
-      .then(setProperty)
-      .catch((err) => console.error("Error fetching property:", err))
-      .finally(() => setLoading(false));
-  }, [enquiry.propertyId]);
-
+  // const [loading,setLoading] = useState(true);
   const giveReviewClick = (e: any, enqId: string) => {
     e.preventDefault();
     e.stopPropagation();
     setIsReviewModalOpen(true);
   };
 
-  if (loading) {
-    return (
-      <View className="border border-gray-300 rounded-lg p-4 bg-white w-full">
-        <ActivityIndicator size="small" color="#000" />
-      </View>
-    );
-  }
+  // useEffect(()=>{
+  //   setLoading(false);
+  // },[])
+
+  // if (loading) {
+  //   return (
+  //     <View className="border border-gray-300 rounded-lg p-4 bg-white w-full">
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
     {isDetailsModalOpen && (
       <PropertyDetailsScreen
-        property={property!}
+        property={enquiry?.property!}
         onClose={() => setIsDetailsModalOpen(false)}
       />
     )}
@@ -115,7 +58,7 @@ const EnquiryCard: React.FC<CardProps> = ({
 
     <Pressable
       className="border border-gray-300 rounded-lg p-4 pr-8 pb-8 bg-white w-full flex flex-col gap-4 m-2"
-      onPress={() => property && setIsDetailsModalOpen(true)}
+      onPress={() => enquiry?.property && setIsDetailsModalOpen(true)}
     >
       {/* Header Section */}
       <View className="flex flex-row justify-between items-center">
@@ -140,7 +83,7 @@ const EnquiryCard: React.FC<CardProps> = ({
 
       {/* Property Name */}
       <Text className=" text-black text-base" style={{fontFamily:"Montserrat_700Bold"}}>
-        {property?.nameOfTheProperty || 'N/A'}
+        {enquiry?.property?.nameOfTheProperty || 'N/A'}
       </Text>
 
       {/* Property Details */}
@@ -149,15 +92,15 @@ const EnquiryCard: React.FC<CardProps> = ({
           {/* Asset Type */}
           <View className="flex flex-row items-center gap-2">
             <MaterialIcons name="home" size={20} color="#6B7280" />
-            <Text className="text-gray-600">{property?.assetType || 'N/A'}</Text>
+            <Text className="text-gray-600">{enquiry?.property?.assetType || 'N/A'}</Text>
           </View>
 
           {/* Unit Type and Area */}
           <View className="flex flex-row items-center gap-2">
             <FontAwesome5 name="bed" size={20} color="#6B7280" />
             <Text className="text-gray-600">
-              {property?.unitType || 'N/A'}{' '}
-              {property?.sbua ? `| ${property.sbua} sq.ft` : ''}
+              {enquiry?.property?.unitType || 'N/A'}{' '}
+              {enquiry?.property?.sbua ? `| ${enquiry?.property.sbua} sq.ft` : ''}
             </Text>
           </View>
         </View>
@@ -176,4 +119,4 @@ const EnquiryCard: React.FC<CardProps> = ({
   );
 };
 
-export default EnquiryCard;
+export default React.memo(EnquiryCard);

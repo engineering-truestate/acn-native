@@ -18,7 +18,7 @@ import TabCarousel from './TabCarousel';
 import { Property, Requirement, EnquiryWithProperty, Enquiry } from '@/app/types';
 import { formatCost2, toCapitalizedWords } from '@/app/helpers/common';
 import DashboardDropdown from './DashboardDropdown';
-import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { collection, getCountFromServer, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import RequirementDetailsModal from '../requirement/RequirementDetailsModal';
 import RequirementDetailsScreen from '../requirement/RequirementDetailsScreen';
@@ -33,15 +33,15 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledPressable = styled(Pressable);
 const StyledScrollView = styled(ScrollView);
 
-const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCount}: {
+const PropertyCard = React.memo(({ property, onStatusChange}: {
   property: Property,
-  onStatusChange: (id: string, status: string) => void,
-  matchingEnquiriesCount: number,
+  onStatusChange: (id: string, status: string) => void
 }) => {
   // State for share modal
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   // State for property details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [matchingEnquiriesCount,setMatchingEnquiriesCount] = useState("-");
 
 
   // Function to get property status color
@@ -105,6 +105,15 @@ const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCo
     assetType: property.assetType,
     photo: []
   };
+
+  const fetchMatchingEnquiryCount = async ()=>{
+    const count = await getCountFromServer(query(collection(db, 'enquiries'),where("propertyId","==",property.propertyId)));
+    setMatchingEnquiriesCount(count.data().count.toString());
+  }
+
+  useEffect(()=>{
+    fetchMatchingEnquiryCount();
+  },[])
 
   return (
     <StyledView className="mb-4 rounded-lg bg-white border border-gray-200 overflow-hidden">
@@ -202,7 +211,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, matchingEnquiriesCo
           {/* Enquiries */}
           <StyledView>
             <StyledText className="text-sm text-black font-semibold">Enquiries Received:</StyledText>
-            <StyledText className="text-sm font-semibold text-black mt-1">{matchingEnquiriesCount} Enquiry</StyledText>
+            <StyledText className="text-sm font-semibold text-black mt-1">{matchingEnquiriesCount ?? "-"} Enquiry</StyledText>
           </StyledView>
 
           {/* Status Selector */}
@@ -350,10 +359,9 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
-  allEnquiries: Enquiry[];
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, allEnquiries }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -488,16 +496,14 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, a
             </StyledView>
           ) : (
             properties.map(property => {
-              const matchingEnquiriesCount: number = allEnquiries.filter(
-                (enquiry) => enquiry.propertyId === property.propertyId
-              ).length;
+              
 
               return (
                 <PropertyCard
                   key={property.propertyId}
                   property={property}
                   onStatusChange={handlePropertyStatusChange}
-                  matchingEnquiriesCount={matchingEnquiriesCount}
+                  
                 />
               );
             })

@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, query, updateDoc, where, getDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where, getDoc, QueryDocumentSnapshot, DocumentData, getCountFromServer, documentId } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { db } from '../config/firebase';
@@ -19,7 +19,6 @@ interface UsePropertiesResult {
 
 interface UseEnquiriesResult {
   myEnquiries: EnquiryWithProperty[];
-  allEnquiries: Enquiry[];
   loading: boolean;
   error: string | null;
 }
@@ -37,7 +36,6 @@ const getUnixDateTime = (): number => {
 
 const useEnquiries = (): UseEnquiriesResult => {
   const [myEnquiries, setMyEnquiries] = useState<EnquiryWithProperty[]>([]);
-  const [allEnquiries, setAllEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,16 +47,13 @@ const useEnquiries = (): UseEnquiriesResult => {
       setLoading(true);
       try {
         // Fetch all enquiries without filtering
-        const allEnquiriesQuery = query(collection(db, 'enquiries'));
-        const allEnquiriesSnapshot = await getDocs(allEnquiriesQuery);
+        const enquiriesQuery = query(collection(db, 'enquiries'),where("cpId", "==", cpId));
+        const enquiriesSnapshot = await getDocs(enquiriesQuery);
         
-        const allEnquiriesData: Enquiry[] = allEnquiriesSnapshot.docs.map((docSnap) => ({
+        const enquiriesData: Enquiry[] = enquiriesSnapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         }));
-        
-        // Set allEnquiries state
-        setAllEnquiries(allEnquiriesData);
         
         // Filter for myEnquiries if cpId exists
         if (!cpId) {
@@ -68,36 +63,38 @@ const useEnquiries = (): UseEnquiriesResult => {
         }
 
         // Filter myEnquiries with cpId
-        const myEnquiriesData = allEnquiriesData.filter(enquiry => enquiry.cpId === cpId);
         
         // Now fetch property details for each of myEnquiries
-        const enquiriesWithPropertyPromises = myEnquiriesData.map(async (enquiry) => {
-          if (enquiry.propertyId) {
-            try {
-              const propertyDoc = await getDoc(doc(db, 'ACN123', enquiry.propertyId));
-              
-              if (propertyDoc.exists()) {
-                return {
-                  ...enquiry,
-                  property: {
-                    ...propertyDoc.data(),
-                  } as Property,
-                };
-              }
-            } catch (propertyErr) {
-              console.error(`Error fetching property for enquiry ${enquiry.id}:`, propertyErr);
-            }
-          }
+        const propertyIds = [...new Set(enquiriesData.map(enquiry=>enquiry.propertyId))];
+        let propertyDocs:Map<string, DocumentData> = new Map();
+        
+        for(let i=0; i<propertyIds.length; i+=30){
+            const batch = propertyIds.slice(i,i+30);
+            // console.log("batch",batch);
+            const properties = await getDocs(query(collection(db, 'ACN123'), where(documentId(),"in", batch)));
+            // console.log("properties",properties.docs);
+            properties.docs.map((item)=>{
+              propertyDocs.set(item.id,item.data());
+            })
+        }
+        
+        const enquiriesWithProperty = enquiriesData.map((enquiry) => {
           
+          if (enquiry.propertyId && propertyDocs.has(enquiry.propertyId)) {
+            return {
+              ...enquiry,
+              property: {
+                ...propertyDocs.get(enquiry.propertyId)
+              } as Property,
+            };
+          }
           // Return the enquiry without property if propertyId doesn't exist or fetch fails
           return {
             ...enquiry,
             property: null,
           };
         });
-
-        const enquiriesWithProperties = await Promise.all(enquiriesWithPropertyPromises);
-        setMyEnquiries(enquiriesWithProperties);
+        setMyEnquiries(enquiriesWithProperty);
       } catch (err: any) {
         setError(err.message || 'Error fetching enquiries');
         console.error('Fetch error:', err);
@@ -109,7 +106,7 @@ const useEnquiries = (): UseEnquiriesResult => {
     fetchEnquiries();
   }, [cpId]);
 
-  return { myEnquiries, allEnquiries, loading, error };
+  return { myEnquiries, loading, error };
 };
 
 const useProperties = (): UsePropertiesResult => {
@@ -217,11 +214,11 @@ const useRequirements = () => {
 };
 
 export default function DashboardTab() {
-  const { myEnquiries, allEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
+  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
   return( 
-    <Dashboard  myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} allEnquiries={allEnquiries} />
+    <Dashboard  myEnquiries={myEnquiries} myProperties={properties} myRequirements={requirements} />
   );
 } 
