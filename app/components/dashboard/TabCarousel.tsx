@@ -25,7 +25,12 @@ interface TabCarouselProps {
 }
 
 const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, setBuffering, tabData, initialLoad }) => {
-  const handleTabChange = (tab: string) => { initialLoad.current = true; setBuffering(true); setTimeout(() => setActiveTab(tab), 0); }
+  const handleTabChange = (tab: string) => {
+    if (tab === activeTab) return;
+    initialLoad.current = true;
+    setBuffering(true);
+    setTimeout(() => setActiveTab(tab), 0);
+  }
 
   const renderTabItem: ListRenderItem<TabItem> = ({ item }) => {
     const isActive = activeTab === item.key;

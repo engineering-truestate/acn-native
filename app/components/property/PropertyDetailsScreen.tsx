@@ -14,6 +14,8 @@ import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 
 interface AgentData {
   phonenumber: string;
@@ -66,7 +68,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
 
-
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const generateNextEnqId = async (): Promise<string | null> => {
     try {
       const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
@@ -190,7 +192,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
       }
 
       // ✅ Deduct credits first
-      await deductMonthlyCredit(phoneNumber, monthlyCredits);
+      await deductMonthlyCredit(phoneNumber, monthlyCredits, dispatch);
 
       if (typeof nextEnqId === "string") {
         await submitEnquiry(nextEnqId);
@@ -229,9 +231,12 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
 
   };
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={true}
+      onShow={() => setForceRender(prev => !prev)}
       animationType="slide"
       transparent={false}
       onRequestClose={onClose}

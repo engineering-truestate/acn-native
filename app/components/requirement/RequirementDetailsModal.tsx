@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -43,10 +43,13 @@ const RequirementDetailsModal: React.FC<RequirementDetailsModalProps> = ({
     return `₹${(typeof requirement.budget === 'number' ? requirement.budget : 0).toLocaleString()} Cr`;
   };
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={isOpen}
       animationType="slide"
+      onShow={() => setForceRender(prev => !prev)}
       transparent={true}
       onRequestClose={onClose}
     >

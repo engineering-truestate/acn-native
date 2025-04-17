@@ -155,9 +155,12 @@ const MoreFilters = ({
     );
   };
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={isOpen}
+      onShow={() => setForceRender(prev => !prev)}
       animationType="slide"
       transparent={true}
       onRequestClose={handleToggle}

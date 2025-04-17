@@ -141,10 +141,13 @@ const RequirementDetailsScreen = React.memo(({
     </View>
   );
 
+  const [forceRender, setForceRender] = useState(false);
+  
   return (
     <Modal
       visible={visible}
       animationType="slide"
+      onShow={() => setForceRender(prev => !prev)}
       onRequestClose={onClose}
       presentationStyle="fullScreen"
     >

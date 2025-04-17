@@ -159,11 +159,12 @@ const MoreFiltersRequirement = ({
   const { items, refine } = useRefinementList({ attribute: 'agentCpid' });
   const { items: marketValueItem, refine: refineMarketValue } = useRefinementList({ attribute: 'marketValue' });
 
-
+  const [forceRender, setForceRender] = useState(false);
   return (
     <Modal
       visible={showFilters}
       animationType="slide"
+      onShow={() => setForceRender(prev => !prev)}
       transparent={true}
       onRequestClose={() => {
         toggleFiltersVisibility()
