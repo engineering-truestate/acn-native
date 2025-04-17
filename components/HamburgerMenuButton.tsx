@@ -9,10 +9,13 @@ interface HamburgerMenuButtonProps {
 export const HamburgerMenuButton = ({ onPress, isOpen }: HamburgerMenuButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View className="w-7 h-5 flex justify-between ml-[6px]">
-        <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-        <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-        <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+      <View className=''>
+        <View className="w-7 h-5 flex justify-between ml-[6px]">
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+        </View>
+        {/* <Text>ACN</Text> */}
       </View>
     </TouchableOpacity>
   );

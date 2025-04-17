@@ -1,15 +1,17 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   Pressable,
-  Modal,
-  SafeAreaView
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Linking,
+  ActivityIndicator
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MonthFilterDropdown from '../../components/MonthFilterDropdown';
 import PropertyDetailsScreen from '../../components/property/PropertyDetailsScreen';
 import { styled } from 'nativewind';
@@ -26,6 +28,9 @@ import ShareModal from '@/app/modals/ShareModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMonths, filterRequirementsByMonth, generateEnquiryMonths, filterEnquiriesByMonth } from '../../helpers/dashboardMonthFiltersHelper';
+import { router } from 'expo-router';
+import EmptyTabContent from './EmptyTabContent';
+import { selectKamNumber } from '@/store/slices/kamSlice';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -33,15 +38,17 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledPressable = styled(Pressable);
 const StyledScrollView = styled(ScrollView);
 
-const PropertyCard = React.memo(({ property, onStatusChange}: {
+const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }: {
   property: Property,
-  onStatusChange: (id: string, status: string) => void
+  onStatusChange: (id: string, status: string) => void,
+  index: number,
+  totalCount: number
 }) => {
   // State for share modal
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   // State for property details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [matchingEnquiriesCount,setMatchingEnquiriesCount] = useState("-");
+  const [matchingEnquiriesCount, setMatchingEnquiriesCount] = useState("-");
 
 
   // Function to get property status color
@@ -106,17 +113,17 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
     photo: []
   };
 
-  const fetchMatchingEnquiryCount = async ()=>{
-    const count = await getCountFromServer(query(collection(db, 'enquiries'),where("propertyId","==",property.propertyId)));
+  const fetchMatchingEnquiryCount = async () => {
+    const count = await getCountFromServer(query(collection(db, 'enquiries'), where("propertyId", "==", property.propertyId)));
     setMatchingEnquiriesCount(count.data().count.toString());
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchMatchingEnquiryCount();
-  },[])
+  }, [])
 
   return (
-    <StyledView className="mb-4 rounded-lg bg-white border border-gray-200 overflow-hidden">
+    <StyledView className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
       {/* Share Modal */}
       <ShareModal
         visible={isShareModalOpen}
@@ -176,14 +183,14 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
           {/* Tags section for Asset Type, Unit Type, and Facing */}
           <StyledView className="flex flex-row flex-wrap gap-2 px-0 mb-3">
             {[property.assetType, property.unitType, property.facing]
-            .filter(Boolean)
-            .map((tag, index) => (
-              <StyledView className="bg-gray-100 rounded-full px-3 py-1">
-                <StyledText className="text-xs text-gray-700">
-                  {tag}
-                </StyledText>
-              </StyledView>
-            ))}
+              .filter(Boolean)
+              .map((tag, index) => (
+                <StyledView className="bg-gray-100 rounded-full px-3 py-1">
+                  <StyledText className="text-xs text-gray-700">
+                    {tag}
+                  </StyledText>
+                </StyledView>
+              ))}
           </StyledView>
 
           {/* Price and SBUA (Super Built-Up Area) section */}
@@ -215,17 +222,18 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
           </StyledView>
 
           {/* Status Selector */}
-          <StyledView className="relative">
-          <DashboardDropdown
-            value={property.status || "Available"}
-            setValue={(val) => onStatusChange(property.propertyId, val)}
-            options={[
-              { label: "Available", value: "Available" },
-              { label: "Hold", value: "Hold" },
-              { label: "Sold", value: "Sold" }            
-            ]}
-            type={"inventory"}
-          />
+          <StyledView className={`relative overflow-visible`}>
+            <DashboardDropdown
+              value={property.status || "Available"}
+              setValue={(val) => onStatusChange(property.propertyId, val)}
+              options={[
+                { label: "Available", value: "Available" },
+                { label: "Hold", value: "Hold" },
+                { label: "Sold", value: "Sold" }
+              ]}
+              type={"inventory"}
+              openDropdownUp={index === totalCount - 1 && totalCount > 1}
+            />
           </StyledView>
         </StyledView>
       </StyledTouchableOpacity>
@@ -233,12 +241,13 @@ const PropertyCard = React.memo(({ property, onStatusChange}: {
   );
 });
 
-const RequirementCard = React.memo(({ requirement, onStatusChange }: {
+const RequirementCard = React.memo(({ requirement, onStatusChange, index, totalCount }: {
   requirement: Requirement,
   onStatusChange: (id: string, status: string) => void
+  index: number,
+  totalCount: number
 }) => {
 
-  console.log("requirement", requirement);
   // Add state for details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
@@ -337,6 +346,7 @@ const RequirementCard = React.memo(({ requirement, onStatusChange }: {
                 ]}
                 setValue={(val) => onStatusChange(requirement.requirementId || "", val)}
                 type={"requirement"}
+                openDropdownUp={index === (totalCount - 1) && totalCount > 1}
               />
             </StyledView>
           </StyledView>
@@ -359,68 +369,95 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
+  propertyStatusUpdate: Function;
+  loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
   const [enquiries, setEnquiries] = useState<EnquiryWithProperty[] | []>([]);
-  const [propertyMonthFilter, setPropertyMonthFilter] = useState("");
-  const [requirementMonthFilter, setRequirementMonthFilter] = useState("");
-  const [enquiryMonthFilter, setEnquiryMonthFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState<string>("");
+  const [monthFilterOptions, setMonthFilterOptions] = useState<Array<{ label: string, value: any }>>([]);
+  const [batchSize, setBatchSize] = useState(10);
+  const [bufferring, setBuffering] = useState(false);
+  const [renderingNewBatch, setRenderingNewBatch] = useState(false);
+
+  const isBatchSizePendingLock = useRef(false);
+  const propertyMonthOptions = useRef(generatePropertyMonths(myProperties));
+  const requirementMonthOptions = useRef(generateRequirementMonths(myRequirements));
+  const enquiryMonthOptions = useRef(generateEnquiryMonths(myEnquiries));
+  const initalLoad = useRef(true);
 
   useEffect(() => {
     if (myProperties) {
       setProperties(myProperties);
+      propertyMonthOptions.current = generatePropertyMonths(myProperties);
     }
     if (myRequirements) {
       setRequirements(myRequirements);
+      requirementMonthOptions.current = generateRequirementMonths(myRequirements);
     }
     if (myEnquiries) {
       setEnquiries(myEnquiries);
+      enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
     }
   }, [myProperties, myRequirements, myEnquiries])
 
-
-  const [selectedPropertyMonth, setSelectedPropertyMonth] = useState("");
-  const propertyMonthOptions = generatePropertyMonths(myProperties);
-
-  const [selectedRequirementMonth, setSelectedRequirementMonth] = useState("");
-  const requirementMonthOptions = generateRequirementMonths(myRequirements);
-
-  const [selectedEnquiryMonth, setSelectedEnquiryMonth] = useState("");
-  const enquiryMonthOptions = generateEnquiryMonths(myEnquiries);
-
+  const renderMore = () => {
+    if (isBatchSizePendingLock.current) return;
+    let totalCount = 0;
+    switch (activeTab) {
+      case "inventories":
+        totalCount = properties.length;
+        break;
+      case "requirements":
+        totalCount = requirements.length;
+        break;
+      case "enquiries":
+        totalCount = enquiries.length;
+        break;
+      default:
+        break;
+    }
+    if (Math.min(batchSize + 10, totalCount) > batchSize) {
+      isBatchSizePendingLock.current = true;
+      setRenderingNewBatch(true);
+      setBatchSize((prev) => (Math.min(prev + 10, totalCount)));
+    }
+  }
 
   useEffect(() => {
+    if (initalLoad.current)
+      return;
     if (activeTab === 'inventories') {
-      if (selectedPropertyMonth === "") {
+      if (monthFilter === "") {
         setProperties(myProperties);
       }
       else {
-        const filteredProps = filterPropertiesByMonth(myProperties, selectedPropertyMonth);
+        const filteredProps = filterPropertiesByMonth(myProperties, monthFilter);
         setProperties(filteredProps);
       }
     } else if (activeTab === 'requirements') {
-      if (selectedRequirementMonth === "") {
+      if (monthFilter === "") {
         setRequirements(myRequirements);
       }
       else {
-        const filteredReqs = filterRequirementsByMonth(myRequirements, selectedRequirementMonth);
+        const filteredReqs = filterRequirementsByMonth(myRequirements, monthFilter);
         setRequirements(filteredReqs);
       }
-    } else if (activeTab === 'enquiries'){
-      if (selectedEnquiryMonth === "") {
+    } else if (activeTab === 'enquiries') {
+      if (monthFilter === "") {
         setEnquiries(myEnquiries);
       }
       else {
-        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, selectedEnquiryMonth);
+        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, monthFilter);
         setEnquiries(filteredEnqs);
       }
     }
-
-  }, [activeTab, selectedPropertyMonth, selectedEnquiryMonth, selectedRequirementMonth])
+    setBuffering(false);
+  }, [monthFilter])
 
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
@@ -432,7 +469,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
           : property
       )
     );
-
+    propertyStatusUpdate(newStatus, id);
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));
@@ -477,33 +514,36 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
     }
   }, []);
 
+  const kam_number = useSelector(selectKamNumber);
+
+  const handleWhatsAppEnquiry = (): void => {
+    if (!kam_number) return;
+    Linking.openURL(`whatsapp://send?phone=${kam_number}`)
+  };
+
   // Memoize the tab rendering to prevent unnecessary re-renders
   const renderTabContent = useMemo(() => {
     if (activeTab === 'inventories') {
       return (
         <StyledView className="flex-1 p-4">
-          <StyledView className="mb-4">
-            <MonthFilterDropdown
-              options={propertyMonthOptions}
-              value={selectedPropertyMonth}
-              setValue={setSelectedPropertyMonth}
+          {properties.length === 0 || bufferring ? (
+            <EmptyTabContent
+              text="No inventory added yet."
+              sub_text="Contact your KAM on Whatsapp to add an inventory."
+              icon={<FontAwesome name="whatsapp" size={20} color="white" />}
+              buttonText="Add Inventory"
+              handleOnPress={handleWhatsAppEnquiry}
+              loading={loading?.propertiesLoading || bufferring}
             />
-          </StyledView>
-
-          {properties.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledText className="text-gray-500 text-base">No properties found</StyledText>
-            </StyledView>
           ) : (
-            properties.map(property => {
-              
-
+            properties.slice(0, batchSize).map((property, index) => {
               return (
                 <PropertyCard
                   key={property.propertyId}
                   property={property}
                   onStatusChange={handlePropertyStatusChange}
-                  
+                  index={index}
+                  totalCount={batchSize}
                 />
               );
             })
@@ -513,64 +553,60 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
     } else if (activeTab === 'requirements') {
       return (
         <StyledView className="flex-1 p-4">
-          <StyledView className="mb-4">
-            <MonthFilterDropdown
-              options={requirementMonthOptions}
-              value={selectedRequirementMonth}
-              setValue={setSelectedRequirementMonth}
+          {requirements?.length === 0 || bufferring ? (
+            <EmptyTabContent
+              text="You haven't added any requirements"
+              sub_text="Upload details of property type you need"
+              icon={<Ionicons name="document-text-outline" size={20} color="white" />}
+              buttonText="Add Requirement"
+              handleOnPress={() => router.navigate('/(tabs)/UserRequirementForm')}
+              loading={loading.requirementsLoading || bufferring}
             />
-          </StyledView>
-
-          {requirements?.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledTouchableOpacity className="flex-row items-center justify-center bg-[#153E3B] py-3 px-4 rounded-lg mb-4">
-                <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
-                <StyledText className="text-base font-medium text-white ml-2">Add Requirement</StyledText>
-              </StyledTouchableOpacity>
-              <StyledText className="text-gray-500 text-base mt-4">No requirements found</StyledText>
-            </StyledView>
           ) : (
-            requirements.map(requirement => (
-              <RequirementCard
-                key={requirement.id}
-                requirement={requirement}
-                onStatusChange={handleRequirementStatusChange}
-              />
-            ))
+            requirements.slice(0, batchSize).map((requirement, index) => {
+              return (
+                <RequirementCard
+                  key={requirement.id}
+                  requirement={requirement}
+                  onStatusChange={handleRequirementStatusChange}
+                  index={index}
+                  totalCount={batchSize}
+                />
+              )
+            })
           )}
         </StyledView>
       );
     } else {
       return (
         <StyledView className="flex-1 p-4 ">
-          <StyledView className="mb-3">
-            <MonthFilterDropdown
-              options={enquiryMonthOptions}
-              value={selectedEnquiryMonth}
-              setValue={setSelectedEnquiryMonth}
+          {enquiries.length === 0 || bufferring ? (
+            <EmptyTabContent
+              text="No enquiries made yet."
+              sub_text="Browse and enquire about available properties."
+              icon={<FontAwesome6 name="house" size={20} color="white" />}
+              buttonText="Explore Inventories"
+              handleOnPress={() => router.push('/(tabs)/properties')}
+              loading={loading.enquiriesLoading || bufferring}
             />
-          </StyledView>
-
-          {enquiries.length === 0 ? (
-            <StyledView className="flex-1 items-center justify-center">
-              <StyledText className="text-gray-500 text-base">No Enquiries found</StyledText>
-            </StyledView>
           ) : (
             <View className='mr-4'>
-              {enquiries.map((enquiry, index) => (
-                <EnquiryCard
-                  key={enquiry.id}
-                  index={index}
-                  enquiry={enquiry}
-                // handleGiveReview={()=>{console.log("Review")}}
-                />
-              ))}
+              {enquiries.slice(0, batchSize).map((enquiry, index) => {
+                return (
+                  <EnquiryCard
+                    key={enquiry.id}
+                    index={index}
+                    enquiry={enquiry}
+                  // handleGiveReview={()=>{console.log("Review")}}
+                  />
+                )
+              })}
             </View>
           )}
         </StyledView>
       );
     }
-  }, [activeTab, properties, requirements, handlePropertyStatusChange, handleRequirementStatusChange, propertyMonthFilter, requirementMonthFilter, enquiryMonthFilter, propertyMonthOptions, requirementMonthOptions, enquiryMonthOptions]);
+  }, [activeTab, properties, requirements, enquiries, bufferring, loading, batchSize, handlePropertyStatusChange, handleRequirementStatusChange]);
 
 
 
@@ -580,26 +616,54 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
       label: "My Inventories",
       icon: "home",
       count: myProperties.length,
+      loading: loading.propertiesLoading
     },
     {
       key: "requirements",
       label: "My Requirements",
       icon: "layers",
       count: myRequirements.length,
+      loading: loading.requirementsLoading
     },
     {
       key: "enquiries",
       label: "My Enquiries",
       icon: "email",
       count: myEnquiries.length,
+      loading: loading.enquiriesLoading
     },
   ];
 
   useEffect(() => {
-    console.log("Changed");
-    setSelectedPropertyMonth("");
-    setSelectedRequirementMonth("");
-    setSelectedEnquiryMonth("");
+    if (isBatchSizePendingLock.current) {
+      setRenderingNewBatch(false);
+      isBatchSizePendingLock.current = false;
+    }
+  }, [batchSize])
+
+  useEffect(() => {
+    setMonthFilter("");
+    setBatchSize(10);
+    setBuffering(false);
+    setRenderingNewBatch(false);
+    isBatchSizePendingLock.current = false;
+    switch (activeTab) {
+      case "inventories":
+        setProperties(myProperties);
+        setMonthFilterOptions(propertyMonthOptions.current);
+        break;
+      case "requirements":
+        setRequirements(myRequirements);
+        setMonthFilterOptions(requirementMonthOptions.current);
+        break;
+      case "enquiries":
+        setEnquiries(myEnquiries);
+        setMonthFilterOptions(enquiryMonthOptions.current);
+        break;
+      default:
+        break;
+    }
+    initalLoad.current = false;
   }, [activeTab]);
 
   return (
@@ -607,21 +671,34 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements }:
       <StatusBar style="auto" />
 
       <View>
-      {/* Carousel Tab Header */}
-      <TabCarousel
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        tabData={tabData}
-      />
+        {/* Carousel Tab Header */}
+        <TabCarousel
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          setBuffering={setBuffering}
+          initialLoad={initalLoad}
+          tabData={tabData}
+        />
 
-      {/* Content Area */}
-      <StyledScrollView>
-        {renderTabContent && (
-          <StyledView >{renderTabContent}</StyledView>
-        )}
-      </StyledScrollView>
+        <StyledView className="p-4">
+          <MonthFilterDropdown
+            options={monthFilterOptions}
+            value={monthFilter}
+            setValue={setMonthFilter}
+            setBuffering={setBuffering}
+            setBatchSize={setBatchSize}
+          />
+        </StyledView>
+
+        {/* Content Area */}
+        <StyledScrollView>
+          {renderTabContent && (
+            <StyledView onLayout={renderMore}>{renderTabContent}</StyledView>
+          )}
+          {renderingNewBatch && (<ActivityIndicator className="absolute bottom-0 w-full" />)}
+        </StyledScrollView>
       </View>
-    </StyledView>
+    </StyledView >
 
   );
 } 
