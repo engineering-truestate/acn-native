@@ -55,7 +55,7 @@ const EnquiryCard: React.FC<CardProps> = ({
       )}
 
       <Pressable
-        className="border border-gray-300 rounded-lg p-4 pr-8 pb-8 bg-white w-full flex flex-col gap-4 m-2"
+        className="border border-gray-300 rounded-lg p-4 bg-white w-full flex flex-col mb-4"
         onPress={() => enquiry?.property && setIsDetailsModalOpen(true)}
       >
         {/* Header Section */}

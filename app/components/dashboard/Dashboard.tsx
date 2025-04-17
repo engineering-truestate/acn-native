@@ -11,7 +11,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import MonthFilterDropdown from '../../components/MonthFilterDropdown';
 import PropertyDetailsScreen from '../../components/property/PropertyDetailsScreen';
 import { styled } from 'nativewind';
@@ -525,7 +525,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   const renderTabContent = useMemo(() => {
     if (activeTab === 'inventories') {
       return (
-        <StyledView className="flex-1 p-4">
+        <>
           {properties.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No inventory added yet."
@@ -536,23 +536,25 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               loading={loading?.propertiesLoading || bufferring}
             />
           ) : (
-            properties.slice(0, batchSize).map((property, index) => {
-              return (
-                <PropertyCard
-                  key={property.propertyId}
-                  property={property}
-                  onStatusChange={handlePropertyStatusChange}
-                  index={index}
-                  totalCount={batchSize}
-                />
-              );
-            })
+            <View className='mx-3 mb-3'>
+              {properties.slice(0, batchSize).map((property, index) => {
+                return (
+                  <PropertyCard
+                    key={property.propertyId}
+                    property={property}
+                    onStatusChange={handlePropertyStatusChange}
+                    index={index}
+                    totalCount={batchSize}
+                  />
+                );
+              })}
+            </View>
           )}
-        </StyledView>
+        </>
       );
     } else if (activeTab === 'requirements') {
       return (
-        <StyledView className="flex-1 p-4">
+        <>
           {requirements?.length === 0 || bufferring ? (
             <EmptyTabContent
               text="You haven't added any requirements"
@@ -563,23 +565,25 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               loading={loading.requirementsLoading || bufferring}
             />
           ) : (
-            requirements.slice(0, batchSize).map((requirement, index) => {
-              return (
-                <RequirementCard
-                  key={requirement.id}
-                  requirement={requirement}
-                  onStatusChange={handleRequirementStatusChange}
-                  index={index}
-                  totalCount={batchSize}
-                />
-              )
-            })
+            <View className='mx-3 mb-3'>
+              {requirements.slice(0, batchSize).map((requirement, index) => {
+                return (
+                  <RequirementCard
+                    key={requirement.id}
+                    requirement={requirement}
+                    onStatusChange={handleRequirementStatusChange}
+                    index={index}
+                    totalCount={batchSize}
+                  />
+                )
+              })}
+            </View>
           )}
-        </StyledView>
+        </>
       );
     } else {
       return (
-        <StyledView className="flex-1 p-4 ">
+        <>
           {enquiries.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No enquiries made yet."
@@ -590,7 +594,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               loading={loading.enquiriesLoading || bufferring}
             />
           ) : (
-            <View className='mr-4'>
+            <View className='mx-3 mb-3'>
               {enquiries.slice(0, batchSize).map((enquiry, index) => {
                 return (
                   <EnquiryCard
@@ -603,7 +607,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               })}
             </View>
           )}
-        </StyledView>
+        </>
       );
     }
   }, [activeTab, properties, requirements, enquiries, bufferring, loading, batchSize, handlePropertyStatusChange, handleRequirementStatusChange]);
@@ -614,21 +618,21 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     {
       key: "inventories",
       label: "My Inventories",
-      icon: "home",
+      icon: <MaterialCommunityIcons size={21.33} name={"home"} color={activeTab === "inventories" ? "#FFFFFF" : "#153E3B"} />,
       count: myProperties.length,
       loading: loading.propertiesLoading
     },
     {
       key: "requirements",
       label: "My Requirements",
-      icon: "layers",
+      icon: <MaterialCommunityIcons size={21.33} name={"layers"} color={activeTab === "requirements" ? "#FFFFFF" : "#153E3B"} />,
       count: myRequirements.length,
       loading: loading.requirementsLoading
     },
     {
       key: "enquiries",
       label: "My Enquiries",
-      icon: "email",
+      icon: <MaterialIcons name="checklist" size={21.33} color={activeTab === "enquiries" ? "#FFFFFF" : "#153E3B"} />,
       count: myEnquiries.length,
       loading: loading.enquiriesLoading
     },
@@ -679,15 +683,13 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         tabData={tabData}
       />
 
-      <StyledView className="p-4">
-        <MonthFilterDropdown
-          options={monthFilterOptions}
-          value={monthFilter}
-          setValue={setMonthFilter}
-          setBuffering={setBuffering}
-          setBatchSize={setBatchSize}
-        />
-      </StyledView>
+      <MonthFilterDropdown
+        options={monthFilterOptions}
+        value={monthFilter}
+        setValue={setMonthFilter}
+        setBuffering={setBuffering}
+        setBatchSize={setBatchSize}
+      />
 
       {/* Content Area */}
       <StyledScrollView>
