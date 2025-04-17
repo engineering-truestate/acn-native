@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
@@ -25,9 +25,9 @@ const RequirementsList = () => {
 
   return (
     <>
-      <ScrollView style={[styles.mobileContent, { marginTop: '35%' }]} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} className='bg-green-300'>
         {hits.map((requirement: Requirement) => (
-          <RequirementCard 
+          <RequirementCard
             key={requirement.requirementId}
             requirement={requirement}
             onCardClick={handleCardClick}
@@ -47,14 +47,35 @@ const RequirementsList = () => {
 const RequirementsPage = () => {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
 
+  const [filtersHeight, setFiltersHeight] = useState(0);
+  const [paginationHeight, setPaginationHeight] = useState(0);
+  const filtersRef = useRef<View>(null);
+  const paginationRef = useRef<View>(null);
+
+  useEffect(() => {
+    // Measure the height of the filters component
+    if (filtersRef.current) {
+      filtersRef.current.measure((_x: number, _y: number, _width: number, height: number) => {
+        setFiltersHeight(height);
+      });
+    }
+
+    // Measure the height of the pagination component
+    if (paginationRef.current) {
+      paginationRef.current.measure((_x: number, _y: number, _width: number, height: number) => {
+        setPaginationHeight(height);
+      });
+    }
+  }, []);
+
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen(prev => !prev);
   };
 
   return (
     <View style={styles.container}>
-      <InstantSearch 
-        searchClient={searchClient} 
+      <InstantSearch
+        searchClient={searchClient}
         indexName="acn-agent-requirement"
       >
         <View style={styles.content}>
@@ -65,8 +86,14 @@ const RequirementsPage = () => {
 
           <RequirementsList />
 
-          {/* Pagination */}
-          <View style={styles.paginationContainer}>
+          <View
+            ref={paginationRef}
+            className="bg-white border-t border-gray-200 mt-4"
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setPaginationHeight(height);
+            }}
+          >
             <CustomPagination />
           </View>
 
@@ -88,6 +115,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    position: 'relative',
+    gap: 4,
   },
   filtersContainer: {
     position: 'absolute',
@@ -95,24 +124,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   mobileContent: {
     flex: 1,
-    padding: 16,
-    marginTop: 60, // Add margin to account for the fixed filters
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    marginTop: 60,
+    backgroundColor: ''
   },
 });
 

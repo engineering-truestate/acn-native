@@ -15,7 +15,7 @@ export default function CustomPagination({ isSticky = false }: CustomPaginationP
   } = usePagination();
 
   return (
-    <View style={[styles.container, isSticky && styles.stickyContainer]}>
+    <View style={[styles.container, isSticky && styles.stickyContainer]} >
       <TouchableOpacity
         onPress={() => refine(currentRefinement - 1)}
         disabled={currentRefinement === 0}

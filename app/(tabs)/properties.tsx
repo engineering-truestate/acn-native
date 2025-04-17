@@ -1,21 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Button, Alert, Modal, Dimensions, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
 import PropertyFilters from "../components/PropertyFilters";
 import CustomPagination from "../components/CustomPagination";
 import { Property } from "../types";
-import MoreFilters from "../components/MoreFilters";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import EnquiryCPModal from "../modals/EnquiryCPModal";
-import ConfirmModal from "../modals/ConfirmModal";
-import ShareModal from "../modals/ShareModal";
-import { useSelector } from "react-redux";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../config/firebase";
-import * as Clipboard from 'expo-clipboard';
 import PropertyCard from "../components/property/PropertyCard";
 
 // Initialize Algolia search client
@@ -45,57 +36,6 @@ interface PropertyDetailsModalProps {
   onClose: () => void;
   property: any;
 }
-
-// Use React.memo to fix the static flag issue
-// const PropertyDetailsModal = React.memo(({ isOpen, onClose, property }: PropertyDetailsModalProps) => {
-//   if (!property) return null;
-  
-//   return (
-//     <Modal
-//       animationType="slide"
-//       transparent={true}
-//       visible={isOpen}
-//       onRequestClose={onClose}
-//     >
-//       <View className="flex-1 bg-black bg-opacity-50 justify-end">
-//         <View className="bg-white rounded-t-lg max-h-[80%]">
-//           <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-//             <Text className="text-lg font-bold">Property Details</Text>
-//             <TouchableOpacity onPress={onClose} className="p-2">
-//               <Ionicons name="close" size={24} color="#374151" />
-//             </TouchableOpacity>
-//           </View>
-          
-//           <ScrollView className="p-4">
-//             <Text className="text-lg font-bold mb-2">
-//               {property.title || property.nameOfTheProperty || "Unnamed Property"}
-//             </Text>
-//             {property.propertyId && (
-//               <Text className="text-gray-500">ID: {property.propertyId}</Text>
-//             )}
-            
-//             <View className="mt-4">
-//               <Text className="text-gray-700 font-bold">Available Properties:</Text>
-//               {Object.entries(property).map(([key, value]) => (
-//                 value && typeof value !== 'object' && key !== 'objectID' ? (
-//                   <Text key={key} className="text-gray-600 mt-1">
-//                     {key}: {value.toString()}
-//                   </Text>
-//                 ) : null
-//               ))}
-//             </View>
-//           </ScrollView>
-//         </View>
-//       </View>
-//     </Modal>
-//   );
-// });
-
-// Set display name for debugging
-// PropertyDetailsModal.displayName = 'PropertyDetailsModal';
-
-// Removed duplicate implementation of PropertiesScreen
-// PropertyDetailsModal.displayName = 'PropertyDetailsModal';
 
 // Mobile Hits Component
 function MobileHits() {
@@ -128,28 +68,17 @@ function MobileHits() {
         {hits.map((property) => {
           // Transform property data
           const transformedProperty: Property = property;
-          
+
           return (
-            <PropertyCard 
-              key={property.objectID} 
+            <PropertyCard
+              key={property.objectID}
               property={transformedProperty}
-              onCardClick={handleCardClick} 
+              onCardClick={handleCardClick}
             />
           );
         })}
-        </View>
-      
-      {/* <PropertyDetailsModal
-        isOpen={!!selectedProperty}
-        onClose={() => setSelectedProperty(null)}
-        property={selectedProperty}
-      /> */}
+      </View>
     </>
-    // <View className="grid grid-cols-1 gap-4 p-4 pb-12">
-    //   {hits.map((property) => (
-    //     <PropertyCard key={property.objectID} property={property} />
-    //   ))}
-    // </View>
   );
 }
 
@@ -163,7 +92,7 @@ export default function PropertiesScreen() {
   const [paginationHeight, setPaginationHeight] = useState(0);
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
-  
+
   useEffect(() => {
     // Measure the height of the filters component
     if (filtersRef.current) {
@@ -171,7 +100,7 @@ export default function PropertiesScreen() {
         setFiltersHeight(height);
       });
     }
-    
+
     // Measure the height of the pagination component
     if (paginationRef.current) {
       paginationRef.current.measure((_x: number, _y: number, _width: number, height: number) => {
@@ -186,7 +115,6 @@ export default function PropertiesScreen() {
 
   // Calculate the content height dynamically
   const windowHeight = Dimensions.get('window').height;
-  const contentHeight = windowHeight - filtersHeight - paginationHeight;
 
   return (
     <View className="flex-1 bg-[#F5F6F7]">
@@ -202,33 +130,29 @@ export default function PropertiesScreen() {
           }
           aroundRadius={selectedLandmark?.radius || undefined}
         />
-        <View className="flex-1 relative">
+        <View className="flex-1 relative gap-4">
           {/* Filters at the top */}
-          <View 
+          <View
             ref={filtersRef}
-            className="bg-white border-b border-gray-200"
             onLayout={(event) => {
               const { height } = event.nativeEvent.layout;
               setFiltersHeight(height);
             }}
           >
-            <PropertyFilters 
-              handleToggleMoreFilters={handleToggleMoreFilters} 
-              selectedLandmark={selectedLandmark} 
-              setSelectedLandmark={setSelectedLandmark} 
+            <PropertyFilters
+              handleToggleMoreFilters={handleToggleMoreFilters}
+              selectedLandmark={selectedLandmark}
+              setSelectedLandmark={setSelectedLandmark}
             />
           </View>
-          
+
           {/* Main content area with dynamic height */}
-          <ScrollView 
-            style={{ height: contentHeight }}
-            contentContainerStyle={{ paddingBottom: 10 }}
-          >
+          <ScrollView>
             <MobileHits />
           </ScrollView>
-          
+
           {/* Pagination at the bottom */}
-          <View 
+          <View
             ref={paginationRef}
             className="bg-white border-t border-gray-200"
             onLayout={(event) => {
@@ -239,7 +163,7 @@ export default function PropertiesScreen() {
             <CustomPagination />
           </View>
         </View>
-        
+
       </InstantSearch>
     </View>
   );

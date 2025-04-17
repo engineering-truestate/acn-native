@@ -9,7 +9,7 @@ interface RequirementFiltersProps {
 }
 
 // const CustomSearchBox = () => {
-  
+
 
 //   return (
 //     <View>
@@ -31,7 +31,7 @@ interface RequirementFiltersProps {
 //                 <Feather name="search" size={24} color="white" />
 //               </TouchableOpacity>
 //             </View>
-    
+
 //             {/* Clear Button */}
 //             {searchText &&
 //               <View style={styles.filters}>
@@ -72,46 +72,46 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
     refine("");
   }
   return (
-    <View style={styles.container}>
+    <View style={styles.container} className=''>
       <View style={styles.searchAndFiltersRow}>
-      <View style={styles.searchBox}>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search by project, location..."
-        value={searchText}
-        onChangeText={handleSearchChange}
-        placeholderTextColor="#9CA3AF"
-      />
-    </View>
-    {/* Search Button */}
-            <View style={styles.filters}>
-              <TouchableOpacity
-                onPress={handleSearchPress}
-                style={styles.searchButton}
-              >
-                <Feather name="search" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-    
-            {/* Clear Button */}
-            {searchText &&
-              <View style={styles.filters}>
-                <TouchableOpacity
-                  onPress={handleClear}
-                  style={styles.clearButton}
-                >
-                  <MaterialCommunityIcons name="close" size={24} color="white" />
-                </TouchableOpacity>
-              </View>
-            }
+        <View style={styles.searchBox}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by project, location..."
+            value={searchText}
+            onChangeText={handleSearchChange}
+            placeholderTextColor="#9CA3AF"
+          />
+        </View>
+        {/* Search Button */}
         <View style={styles.filters}>
-                  <TouchableOpacity
-                    onPress={handleToggleMoreFilters}
-                    style={styles.moreFiltersButton}
-                  >
-                    <Feather name="filter" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
+          <TouchableOpacity
+            onPress={handleSearchPress}
+            style={styles.searchButton}
+          >
+            <Feather name="search" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Clear Button */}
+        {searchText &&
+          <View style={styles.filters}>
+            <TouchableOpacity
+              onPress={handleClear}
+              style={styles.clearButton}
+            >
+              <MaterialCommunityIcons name="close" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+        }
+        <View style={styles.filters}>
+          <TouchableOpacity
+            onPress={handleToggleMoreFilters}
+            style={styles.moreFiltersButton}
+          >
+            <Feather name="filter" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <CustomCurrentRefinements />
@@ -122,14 +122,11 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    backgroundColor: '#F5F6F7',
   },
   searchAndFiltersRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
     gap: 8,
   },
   searchContainer: {
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     borderRadius: 8,
     paddingHorizontal: 12,
-    flex: 1, // Allow search box to take remaining space
+    flex: 1,
   },
   searchIcon: {
     marginRight: 8,
@@ -147,7 +144,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchInput: {
-    height: 40, // fixed height
+    height: 40,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E5E7EB',
