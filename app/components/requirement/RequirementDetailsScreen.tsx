@@ -20,6 +20,9 @@ import { Ionicons } from '@expo/vector-icons';
 // Import components and utilities
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { Requirement } from '@/app/types';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { showErrorToast } from '@/utils/toastUtils';
 
 // Define required types
 interface RequirementDetailsScreenProps {
@@ -48,6 +51,8 @@ const RequirementDetailsScreen = React.memo(({
   
   // If no requirement is provided, don't render anything
   if (!requirement) return null;
+
+  const kam_phonenumber = useSelector((state: RootState) => state?.kam?.kamDocData?.phonenumber) || "";
 
   // Log opening of the modal
   useEffect(() => {
@@ -83,9 +88,14 @@ const RequirementDetailsScreen = React.memo(({
   // Handle WhatsApp button press
   const openWhatsapp = () => {
     // In the real implementation, uncomment this:
-    // const phonenumber = kam_phonenumber; 
-    const phonenumber = "919999999999"; // Placeholder
+    const phonenumber = kam_phonenumber; 
+    // const phonenumber = "919999999999"; 
     const reqId = requirement.requirementId;
+
+    if(phonenumber === "" || !reqId) {
+      showErrorToast("Some error occured! Please contact your kam.");
+      return;
+    }
 
     const message = encodeURIComponent(
       `Hello, \nI want to submit a matching inventory for a requirement.\n\n*Requirement ID*: ${reqId}\n\nThe inventory details are as follows:\n`
