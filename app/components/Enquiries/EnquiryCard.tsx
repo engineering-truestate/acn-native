@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import PropertyDetailsScreen from "../property/PropertyDetailsScreen";
 import ReviewModal from "./ReviewModal";
 import { EnquiryWithProperty } from "@/app/types";
