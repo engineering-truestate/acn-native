@@ -15,6 +15,7 @@ import { HamburgerMenuButton } from './HamburgerMenuButton';
 
 
 const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 interface MenuItem {
   title: string;
@@ -192,22 +193,22 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
           { transform: [{ translateX }] },
         ]}
       >
-        <View style={{flexDirection: 'row'}}>
-        <View
-          style={[
-            { marginTop: insets.top + 20, marginLeft: 16 },
-          ]}
-        >
-          <HamburgerMenuButton onPress={onClose} isOpen={false} />
+        <View style={{ flexDirection: 'row' }}>
+          <View
+            style={[
+              { marginTop: insets.top + 20, marginLeft: 16 },
+            ]}
+          >
+            <HamburgerMenuButton onPress={onClose} isOpen={false} />
+          </View>
+          <Text style={[
+            styles.buttonLabel,
+            { marginTop: insets.top + height*0.02, marginLeft: 16, fontSize: 24, fontWeight: 'bold', fontFamily: 'MONTserrat_700Bold', color: '#153E3B' },
+          ]}>
+            ACN
+          </Text>
         </View>
-        <Text style={[
-          styles.buttonLabel,
-          { marginTop: insets.top + 12, marginLeft: 16, fontSize: 24, fontWeight: 'bold', fontFamily:'MONTserrat_700Bold', color: '#153E3B' },
-        ]}>
-          ACN
-        </Text>
-        </View>
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.menuContent}
           showsVerticalScrollIndicator={false}
         >
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   menuContent: {
-    paddingTop: 100,
+    paddingTop: height * 0.03,
     paddingBottom: 20,
     paddingHorizontal: 16,
     flexGrow: 1,
