@@ -44,14 +44,15 @@ export default CheckboxFilter;
 const styles = StyleSheet.create({
   Maincontainer: {
     flexDirection: 'row',
-    gap: 40,
-    paddingVertical: 8,
+    flexWrap: 'wrap',
+    paddingHorizontal: '4%',
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     marginVertical: 8,
     borderColor: '#E6E6E6',
     borderWidth: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   container: {
