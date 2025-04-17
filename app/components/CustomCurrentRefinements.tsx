@@ -20,9 +20,9 @@ export default function CustomCurrentRefinements({
   }
 
   console.log("selectedLandmark", selectedLandmark);
-  
+
   // Flatten refinements from all items into a single array for inline display
-  const allRefinements = items.flatMap(item => 
+  const allRefinements = items.flatMap(item =>
     item.refinements.map(refinement => ({
       attribute: item.attribute,
       refinement: refinement
@@ -38,11 +38,11 @@ export default function CustomCurrentRefinements({
       <View style={styles.content}>
         {selectedLandmark && (
           <TouchableOpacity
-            onPress={() => {setSelectedLandmark && setSelectedLandmark(null)}}
+            onPress={() => { setSelectedLandmark && setSelectedLandmark(null) }}
             style={styles.chip}
           >
             <Text style={styles.chipText}>
-              {selectedLandmark.name} ({selectedLandmark.radius/1000}km)
+              {selectedLandmark.name} ({selectedLandmark.radius / 1000}km)
             </Text>
             <Text style={styles.removeIcon}>×</Text>
           </TouchableOpacity>
@@ -55,17 +55,17 @@ export default function CustomCurrentRefinements({
             style={styles.chip}
           >
             <Text style={styles.chipText}>
-              {item.refinement.label}
+              {item.refinement.attribute === 'agentCpid' ? 'My Requirements' : item.refinement.label}
             </Text>
             <Text style={styles.removeIcon}>×</Text>
           </TouchableOpacity>
         ))}
 
         {(items.length > 0 || selectedLandmark) && (
-          <TouchableOpacity 
-            onPress={() => { 
-              clearRefinements(); 
-              { setSelectedLandmark && setSelectedLandmark(null); } 
+          <TouchableOpacity
+            onPress={() => {
+              clearRefinements();
+              { setSelectedLandmark && setSelectedLandmark(null); }
             }}
             style={styles.clearButton}
           >

@@ -12,6 +12,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { handleIdGeneration } from '@/app/helpers/nextId';
 import deductMonthlyCredit from '@/app/helpers/deductCredit';
+import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
 
 interface PropertyCardProps {
   property: {
@@ -73,8 +74,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     try {
       const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
       const result = await handleIdGeneration(type) as IdGenerationResult;
+      if (!result || !result.nextId) {
+        showErrorToast("Failed to generate Enquiry ID. Please try again later.");
+        return null;
+      }
+      showSuccessToast("Enquiry ID generated successfully!");
       return result.nextId;
     } catch (error) {
+      
+      showErrorToast("Error generating Enquiry ID. Please try again later.");
       console.error("Error generating IDs:", error);
       return null;
     }
@@ -92,9 +100,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   const handleOpenDriveDetails = (e: any) => {
     e.stopPropagation();
     if (!property.driveLink) {
+      showErrorToast("Drive link not available for this property.");
         return;
     }
-
+    
     Linking.openURL(property.driveLink);
   };
 
@@ -118,7 +127,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     try {
       const enquiryDocRef = doc(db, "enquiries", nextEnqId);
       await setDoc(enquiryDocRef, enq);
+      showSuccessToast("Enquiry submitted successfully!");
     } catch (error) {
+      showErrorToast("Failed to submit enquiry. Please try again.");
       console.error("Error in enquiry submission:", error);
     }
   };
@@ -127,13 +138,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     console.log("Selected CPID before enquiry:", selectedCPID);
 
     if (!selectedCPID) {
-      Alert.alert("Error: Seller CPID is missing. Please try again.");
+      // Alert.alert("Error: Seller CPID is missing. Please try again.");
+      showErrorToast("Error: Seller CPID is missing. Please try again.");
       setIsConfirmModelOpen(false);
       return;
     }
 
     if (!(monthlyCredits > 0)) {
-      Alert.alert("You don't have enough credits. Please contact your account manager.");
+      // Alert.alert("You don't have enough credits. Please contact your account manager.");
+      showErrorToast("You don't have enough credits. Please contact your account manager.");
       setIsConfirmModelOpen(false);
       return;
     }
@@ -167,9 +180,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       }, 100);
     } catch (error) {
       console.error("Error during enquiry process:", error);
-      Alert.alert(
-        "An error occurred while processing your enquiry. Please try again."
-      );
+      // Alert.alert(
+      //   "An error occurred while processing your enquiry. Please try again."
+      // );
+      showErrorToast("An error occurred while processing your enquiry. Please try again.");
     }
   };
 

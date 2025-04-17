@@ -13,6 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 // Helper functions 
 const createPropertyMessage = async (property: any, agentPhone?: string) => {
@@ -42,19 +43,21 @@ const shareProperty = async (property: any, agentPhone?: string) => {
     if (canOpen) {
       await Linking.openURL(url);
     } else {
-      Alert.alert(
-        "WhatsApp Not Installed",
-        "WhatsApp is not installed on your device",
-        [{ text: "OK" }]
-      );
+      // Alert.alert(
+      //   "WhatsApp Not Installed",
+      //   "WhatsApp is not installed on your device",
+      //   [{ text: "OK" }]
+      // );
+      showErrorToast("WhatsApp is not installed on your device.");
     }
   } catch (error) {
     console.error('Error sharing via WhatsApp:', error);
-    Alert.alert(
-      "Error",
-      "Could not share via WhatsApp",
-      [{ text: "OK" }]
-    );
+    // Alert.alert(
+    //   "Error",
+    //   "Could not share via WhatsApp",
+    //   [{ text: "OK" }]
+    // );
+    showErrorToast("Failed to share via WhatsApp.");
   }
 };
 
@@ -68,26 +71,27 @@ interface ShareModalProps {
 const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, setProfileModalOpen }) => {
   const handleCopy = async () => {
     try {
-      console.log("Property: ", property);
+     
       let details = await createPropertyMessage(property, agentData?.phonenumber);
-      console.log("Details Fetched: ", details);
-      console.log("Agent's Phone Number: ", agentData);
+      
       details = decodeURIComponent(details);
       Clipboard.setString(details);
       
       // Show confirmation to user
-      Alert.alert(
-        "Copied",
-        "Property details copied to clipboard",
-        [{ text: "OK" }]
-      );
+      // Alert.alert(
+      //   "Copied",
+      //   "Property details copied to clipboard",
+      //   [{ text: "OK" }]
+      // );
+      showSuccessToast("Property details copied to clipboard!");
     } catch (err) {
       console.error('Failed to copy:', err);
-      Alert.alert(
-        "Error",
-        "Could not copy property details",
-        [{ text: "OK" }]
-      );
+      // Alert.alert(
+      //   "Error",
+      //   "Could not copy property details",
+      //   [{ text: "OK" }]
+      // );
+      showErrorToast("Failed to copy property details.");
     }
   };
 

@@ -27,35 +27,56 @@ const CheckboxFilter = ({ attribute, items, refine }: { attribute: string, items
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={handleToggle}>
-      <View style={styles.checkbox}>
-        {isToggled && <View style={styles.checkboxInner} />}
-      </View>
-      <Text style={styles.label}>My Requirements</Text>
-    </TouchableOpacity>
+    <View style={styles.Maincontainer}>
+      <Text style={styles.text}>Requirements :</Text>
+      <TouchableOpacity style={styles.container} onPress={handleToggle}>
+        <View style={styles.checkbox}>
+          {isToggled && <View style={styles.checkboxInner} />}
+        </View>
+        <Text style={styles.label}>My Requirements</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 export default CheckboxFilter;
 
 const styles = StyleSheet.create({
+  Maincontainer: {
+    flexDirection: 'row',
+    gap: 40,
+    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    marginVertical: 8,
+    borderColor: '#E6E6E6',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#b5b3b3',
+    borderColor: '#E6E6E6',
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     marginVertical: 8,
+  },
+  text:{
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+    marginBottom: 8,
   },
   checkbox: {
     width: 20,
     height: 20,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#b5b3b3',
+    borderColor: '#E6E6E6',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

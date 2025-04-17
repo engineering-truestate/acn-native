@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 // Define the AgentData interface separately
 interface AgentData {
@@ -67,10 +68,12 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
 
     try {
       await Clipboard.setStringAsync(agentData.phonenumber);
-      Alert.alert('Success', 'Phone number copied!');
-      console.log("Agent's Phone Number", agentData.phonenumber);
+      // Alert.alert('Success', 'Phone number copied!');
+      showSuccessToast("Phone number copied to clipboard!");
+      //console.log("Agent's Phone Number", agentData.phonenumber);
     } catch (err) {
-      console.error("Failed to copy phone number:", err);
+      showErrorToast("Failed to copy phone number.");
+      //console.error("Failed to copy phone number:", err);
     }
   };
 
@@ -130,7 +133,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
                   </View>
 
                   <TouchableOpacity
-                    onPress={handleCopy}
+                    onPress={handleCopy }
                     style={styles.copyButton}
                   >
                     <Ionicons name='copy' size={24} color="#000" />

@@ -13,6 +13,7 @@ import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 interface AgentData {
   phonenumber: string;
@@ -122,10 +123,14 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   };
 
   const handleOpenDriveDetails = () => {
-    if (!property.driveLink) return;
+    if (!property.driveLink){
+      showErrorToast("Drive link not available.");
+       return;
+    }
     // Implementation would open drive link
     Linking.openURL(property.driveLink);
-    console.log("Opening drive details:", property.driveLink);
+    showSuccessToast("Opening drive details...");
+    //console.log("Opening drive details:", property.driveLink);
   };
 
   const handleEnquireNowBtn = (e: any) => {
@@ -134,7 +139,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
       setIsConfirmModelOpen(true);
       return;
     }
-    Alert.alert("Do not have credits");
+    showErrorToast("You don't have enough credits. Please contact your account manager.");
+    //Alert.alert("Do not have credits");
   };
 
   const handleCancel = () => {
@@ -147,6 +153,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     try {
       const enquiryDocRef = doc(db, "enquiries", nextEnqId);
       await setDoc(enquiryDocRef, enq);
+      showSuccessToast("Enquiry submitted successfully!");
     } catch (error) {
       console.error("Error in enquiry submission:", error);
     }
@@ -156,13 +163,15 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     console.log("Selected CPID before enquiry:", selectedCPID);
 
     if (!selectedCPID) {
-      Alert.alert("Error: Seller CPID is missing. Please try again.");
+      //Alert.alert("Error: Seller CPID is missing. Please try again.");
+      showErrorToast("Error: Seller CPID is missing. Please try again.");
       setIsConfirmModelOpen(false);
       return;
     }
 
     if (!(monthlyCredits > 0)) {
-      Alert.alert("You don't have enough credits. Please contact your account manager.");
+      //Alert.alert("You don't have enough credits. Please contact your account manager.");
+      showErrorToast("You don't have enough credits. Please contact your account manager.");
       setIsConfirmModelOpen(false);
       return;
     }
@@ -172,9 +181,10 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
 
       const nextEnqId = await generateNextEnqId()
       if (!nextEnqId) {
-        Alert.alert(
-          "Failed to generate the next Enquiry ID. Please try again later."
-        );
+        // Alert.alert(
+        //   "Failed to generate the next Enquiry ID. Please try again later."
+        // );
+        showErrorToast("Failed to generate the next Enquiry ID. Please try again later.");
         setIsConfirmModelOpen(false);
         return;
       }
@@ -192,13 +202,16 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
       // ✅ Open EnquireCPModal AFTER confirming
       setTimeout(() => {
         console.log("Opening Enquiry CP Modal for CPID:", selectedCPID);
+
         setIsEnquiryCPModelOpen(true);
       }, 100);
+      
     } catch (error) {
       console.error("Error during enquiry process:", error);
-      Alert.alert(
-        "An error occurred while processing your enquiry. Please try again."
-      );
+      // Alert.alert(
+      //   "An error occurred while processing your enquiry. Please try again."
+      // );
+      showErrorToast("An error occurred while processing your enquiry. Please try again.");
     }
   };
 
