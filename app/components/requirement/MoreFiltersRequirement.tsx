@@ -170,7 +170,7 @@ const MoreFiltersRequirement = ({
       }}
 
     >
-      <View className="flex-1 bg-white gap-3">
+      <View className="flex-1 bg-white">
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle}>
@@ -178,18 +178,18 @@ const MoreFiltersRequirement = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="px-4 py-2">
-          <View className="flex-row flex-wrap justify-between mb-4">
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%]" style={{ zIndex: 30 }}>
-              <Text className="text-base font-semibold text-black mb-3 font-['Montserrat']">Asset Type</Text>
+        <ScrollView className="px-4">
+          <View className="flex-row flex-wrap justify-between mb-4 mt-4">
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Asset Type</Text>
               <DropdownMoreFilters
                 title="Please Select"
                 items={assetTypeItems}
                 refine={refineAssetType}
               />
             </View>
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%]" style={{ zIndex: 30 }}>
-              <Text className="text-base font-semibold text-black mb-3 font-['Montserrat']">Configuration</Text>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+              <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">Configuration</Text>
               <DropdownMoreFilters
                 title="Please Select"
                 items={unitTypeItems}
@@ -198,42 +198,30 @@ const MoreFiltersRequirement = ({
             </View>
           </View>
 
-          
-            <RangeMoreFilters
-              title={"SBUA"}
-              refine={sbuaRangeState.refine}
-              range={sbuaRangeState.range}
-              start={sbuaRangeState.start}
-            />
-          
+          <RangeMoreFilters
+            title={"SBUA"}
+            refine={sbuaRangeState.refine}
+            range={sbuaRangeState.range}
+            start={sbuaRangeState.start}
+          />
+          <CheckboxFilter attribute="agentCpid" items={items} refine={refine} />
+          {/* <BudgetMarketValueFilters
+            isBudgetActive={isBudgetActive}
+            isMarketValueActive={isMarketValueActive}
+            handleRangeFilterChange={handleRangeFilterChange}
+            marketValueItem={marketValueItem}
+            refineMarketValue={refineMarketValue}
 
-          <View className="mb-4">
-            <CheckboxFilter
-              attribute="agentCpid"
-              items={items}
-              refine={refine}
-            />
-          </View>
+          /> */}
+          <RangeMoreFilters
+            title={"Budget"}
+            refine={budgetToRangeState.refine}
+            range={budgetToRangeState.range}
+            start={budgetToRangeState.start}
+          />
 
-          {/* <View className="mb-4">
-    <BudgetMarketValueFilters
-      isBudgetActive={isBudgetActive}
-      isMarketValueActive={isMarketValueActive}
-      handleRangeFilterChange={handleRangeFilterChange}
-      marketValueItem={marketValueItem}
-      refineMarketValue={refineMarketValue}
-    />
-  </View> */}
-
-          <View className="mb-4">
-            <RangeMoreFilters
-              title={"Budget"}
-              refine={budgetToRangeState.refine}
-              range={budgetToRangeState.range}
-              start={budgetToRangeState.start}
-            />
-          </View>
         </ScrollView>
+
         <TouchableOpacity
           className="bg-[#103D35] p-3 mx-4 mb-8 rounded-lg items-center"
           onPress={() => {
@@ -248,4 +236,3 @@ const MoreFiltersRequirement = ({
 };
 
 export default MoreFiltersRequirement;
-

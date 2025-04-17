@@ -212,7 +212,7 @@ export default function DashboardTab() {
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
   return (
-    <View className="flex h-full bg-gray-50">
+    <View style={{flex:1}}>
       <Dashboard
         myEnquiries={myEnquiries}
         myProperties={properties}

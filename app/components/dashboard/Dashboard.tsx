@@ -674,15 +674,14 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     <StyledView className="flex bg-gray-50 h-full">
       <StatusBar style="auto" />
 
-      <View>
-        {/* Carousel Tab Header */}
-        <TabCarousel
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          setBuffering={setBuffering}
-          initialLoad={initalLoad}
-          tabData={tabData}
-        />
+      {/* Carousel Tab Header */}
+      <TabCarousel
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        setBuffering={setBuffering}
+        initialLoad={initalLoad}
+        tabData={tabData}
+      />
 
       <MonthFilterDropdown
         options={monthFilterOptions}
@@ -692,14 +691,13 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         setBatchSize={setBatchSize}
       />
 
-        {/* Content Area */}
-        <StyledScrollView>
-          {renderTabContent && (
-            <StyledView onLayout={renderMore}>{renderTabContent}</StyledView>
-          )}
-          {renderingNewBatch && (<ActivityIndicator className="absolute bottom-0 w-full" />)}
-        </StyledScrollView>
-      </View>
+      {/* Content Area */}
+      <StyledScrollView>
+        {renderTabContent && (
+          <StyledView onLayout={renderMore}>{renderTabContent}</StyledView>
+        )}
+        {renderingNewBatch && (<ActivityIndicator className="absolute bottom-0 w-full" />)}
+      </StyledScrollView>
     </StyledView >
 
   );
