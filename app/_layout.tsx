@@ -30,7 +30,7 @@ const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMen
   return (
     <View style={[
       styles.headerContainer,
-      { paddingTop: insets.top }
+      Platform.OS === 'android' && { paddingTop: insets.top }
     ]}>
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
@@ -14,6 +14,9 @@ import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { UseDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 interface AgentData {
   phonenumber: string;
@@ -55,6 +58,7 @@ const formatDate = (timestamp?: number) => {
 // Use React.memo to fix the static flag issue
 const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetailsScreenProps) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
   const [localImages, setLocalImages] = useState<string[]>([]);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
@@ -190,7 +194,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
       }
 
       // ✅ Deduct credits first
-      await deductMonthlyCredit(phoneNumber, monthlyCredits);
+      await deductMonthlyCredit(phoneNumber, monthlyCredits, dispatch);
 
       if (typeof nextEnqId === "string") {
         await submitEnquiry(nextEnqId);
@@ -236,7 +240,10 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
       transparent={false}
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <SafeAreaView className="flex-1 bg-white"   style={{
+           zIndex: 1,
+           paddingTop: Platform.OS === 'ios' ? 40 : 0,
+         }}>
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -444,7 +451,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             </View>
           </View>
         </Modal>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 });

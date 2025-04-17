@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView, TextInput, Pressable, PanResponder, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView, TextInput, Pressable, PanResponder, Animated, Platform } from 'react-native';
 import { useCurrentRefinements, useRange, useRefinementList } from 'react-instantsearch';
 import DropdownMoreFilters from './DropdownMoreFilters';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import BudgetRangeSlider from './property/BudgetRangeSlider';
 import { Landmark } from '../(tabs)/properties';
 import RangeMoreFilters from './RangeMoreFilters';
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export interface RangeState {
   start: (number | undefined)[];
@@ -162,7 +163,10 @@ const MoreFilters = ({
       transparent={true}
       onRequestClose={handleToggle}
     >
-      <View className="flex-1 bg-white" style={{ zIndex: 1 }}>
+      <SafeAreaView className="flex-1 bg-white"   style={{
+      zIndex: 1,
+      paddingTop: Platform.OS === 'ios' ? 40 : 0,
+    }}>
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
@@ -358,7 +362,7 @@ const MoreFilters = ({
             <Text className="font-semibold text-base text-white">Show Results</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
