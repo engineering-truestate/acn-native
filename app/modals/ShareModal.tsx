@@ -72,7 +72,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
                   <View style={styles.iconWrapper}>
                     <MaterialCommunityIcons name="whatsapp" size={28} color="#25D366" />
                   </View>
-                  <Text style={styles.buttonText}>Share on WhatsApp</Text>
+                  <Text style={styles.buttonText}>WhatsApp</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity style={styles.actionButton} onPress={handleCopy}>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 28,
     height: 58,
     borderWidth: 1,
     borderColor: '#E3E3E3',
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 12,
+    top: 16,
     right: 16,
     width: 30,
     height: 30,

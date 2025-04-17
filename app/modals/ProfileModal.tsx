@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: 'absolute',
-    top: 8,
-    right: 12,
+    top: 16,
+    right: 16,
     zIndex: 10,
   },
   header: {

@@ -1,5 +1,6 @@
 import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { setMonthlyCredit } from "@/store/slices/agentSlice";
 
 /**
  * Deducts 1 credit from the user's monthly credits.
@@ -8,7 +9,7 @@ import { db } from "../config/firebase";
  * @param {Function} dispatch - Redux dispatch function to update state.
  * @returns {Promise<void>} - Resolves when the operation completes.
  */
-const deductMonthlyCredit = async (phoneNumber, currentCredits) => {
+const deductMonthlyCredit = async (phoneNumber, currentCredits, dispatch) => {
     if (!phoneNumber) {
         console.error("Phone number is required.");
         return;
@@ -35,6 +36,8 @@ const deductMonthlyCredit = async (phoneNumber, currentCredits) => {
 
         await updateDoc(docRef, { monthlyCredits: finalCredit });
         console.log("Credits successfully updated in Firestore.");
+
+        dispatch(setMonthlyCredit(finalCredit));
         console.log("Credits successfully updated in Redux state.");
     } catch (error) {
         console.error("Error deducting credits:", error.message || error);

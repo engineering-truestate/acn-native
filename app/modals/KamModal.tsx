@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: "85%",
     maxWidth: 360,
-    position: "relative",
+    position: "absolute",
   },
   headerRow: {
     flexDirection: "row",
@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   callButton: {
-    marginTop:12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -169,7 +168,6 @@ const styles = StyleSheet.create({
     backgroundColor:"#FFFFFF",
     borderWidth: 2,
     borderRadius: 4,
-    marginBottom: 12,
     gap: 4,
   },
   whatsappButton: {
@@ -192,8 +190,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    top: 16,
+    right: 16,
   },
   iconMargin: {
     marginRight: 8,

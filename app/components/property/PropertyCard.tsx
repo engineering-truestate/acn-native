@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet, FlatList } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Octicons } from '@expo/vector-icons';
 import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
@@ -13,6 +13,8 @@ import { db } from '@/app/config/firebase';
 import { handleIdGeneration } from '@/app/helpers/nextId';
 import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 
 interface PropertyCardProps {
   property: {
@@ -45,6 +47,7 @@ interface IdGenerationResult {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) => {
   // Add state for details modal visibility
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   
   const [selectedCPID, setSelectedCPID] = useState("");
   const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
@@ -164,7 +167,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       }
 
       // ✅ Deduct credits first
-      await deductMonthlyCredit(phoneNumber, monthlyCredits);
+      await deductMonthlyCredit(phoneNumber, monthlyCredits, dispatch);
 
       if (typeof nextEnqId === "string") {
         await submitEnquiry(nextEnqId);
@@ -232,7 +235,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       
       {/* Share button on the far right */}
       <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
-        <Ionicons name="share-social" size={18} color="#153E3B" />
+        {/* <Ionicons name="share-social" size={18} color="#153E3B" /> */}
+        <Octicons name="share-android" size={16} color="#153E3B" />
       </TouchableOpacity>
     </View>
 
@@ -336,10 +340,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3E3E3',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
   },
 });

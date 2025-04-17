@@ -84,6 +84,14 @@ const agentSlice = createSlice({
         state.isAgentInDb = false;
       }
     },
+    setMonthlyCredit: (state, action) => {
+      if (state.docData) {
+        state.docData = {
+          ...state.docData,
+          monthlyCredits: action.payload
+        };
+      }
+    },
     resetAgentState: (state) => {
       state.loading = false;
       state.error = null;
@@ -128,24 +136,25 @@ const agentSlice = createSlice({
 export const {
   setPhonenumber,
   setUserDoc,
+  setMonthlyCredit,
   resetAgentState,
   setError,
   updateAgentDocData,
 } = agentSlice.actions;
 
-export const selectVerified = (state: RootState): boolean => 
+export const selectVerified = (state: RootState): boolean =>
   state?.agent?.docData?.verified || false;
 
-export const selectAdmin = (state: RootState): boolean => 
+export const selectAdmin = (state: RootState): boolean =>
   state?.agent?.docData?.admin || false;
 
-export const selectBlacklisted = (state: RootState): boolean => 
+export const selectBlacklisted = (state: RootState): boolean =>
   state?.agent?.docData?.blacklisted || false;
 
-export const selectName = (state: RootState): string => 
+export const selectName = (state: RootState): string =>
   state?.agent?.docData?.name || "";
 
-export const selectMyKam = (state: RootState): any => 
+export const selectMyKam = (state: RootState): any =>
   state?.agent?.docData?.kam || null;
 
 export default agentSlice.reducer;

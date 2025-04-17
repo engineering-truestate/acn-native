@@ -105,7 +105,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
             <Ionicons name="close" size={24} color="#000" />
           </TouchableOpacity>
           
-          <View style={styles.contentContainer}>
+          <View style={styles.contentContainer} >
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Enquire Now</Text>
               <Text style={styles.description}>
@@ -136,7 +136,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
                     onPress={handleCopy }
                     style={styles.copyButton}
                   >
-                    <Ionicons name='copy' size={24} color="#000" />
+                    <Ionicons name="copy-outline" size={24} color="#555" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -183,7 +183,8 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 28,
     width: '100%',
     maxWidth: 440,
     borderWidth: 2,
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
   copyButton: {
     backgroundColor: '#F5F6F7',
     padding: 12,
-    borderRadius: 20,
+    borderRadius: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: '#E3E3E3',
-    borderRadius: 20,
+    borderRadius: '100%',
     padding: 12,
     backgroundColor: 'white',
   },
