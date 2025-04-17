@@ -53,28 +53,29 @@ const MonthFilterDropdown = ({ options, value, setValue, setBuffering, setBatchS
   };
 
   return (
-    <StyledView className="flex-row items-center justify-between bg-gray-100 px-4 py-2 rounded-md z-[999999999]">
+    <StyledView className="flex-row items-center justify-between bg-gray-100 p-3 mx-4 mb-4 rounded-md z-[999999999]">
       <StyledText className="text-sm text-gray-700 font-medium">
         Filter by month:
       </StyledText>
 
       <StyledView className="relative z-[999999999]">
         <StyledTouchableOpacity
-          className="flex-row items-center justify-between bg-white min-w-[80px] px-3 py-1 rounded-md border border-gray-200"
           onPress={toggleDropdown}
         >
-          <StyledText className="text-sm font-medium text-black mr-2">
-            {selectedLabel}
-          </StyledText>
-          <Ionicons
-            name={isOpen ? "chevron-up" : "chevron-down"}
-            size={14}
-            color="#0A0B0A"
-          />
+          <StyledView className="flex flex-row items-center justify-between bg-white min-w-[145px] p-[8px] rounded-[5px] border border-gray-200">
+            <StyledText className="text-sm font-medium text-black">
+              {selectedLabel}
+            </StyledText>
+            <Ionicons
+              name={isOpen ? "chevron-up" : "chevron-down"}
+              size={14}
+              color="#0A0B0A"
+            />
+          </StyledView>
         </StyledTouchableOpacity>
 
         {isOpen && (
-          <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-[999999999] min-w-[120px]">
+          <StyledView className="absolute top-10 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-[999999999] min-w-[145px]">
             {allOptions.map((option, index) => (
               <StyledTouchableOpacity
                 key={index}

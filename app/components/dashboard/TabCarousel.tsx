@@ -11,7 +11,7 @@ const StyledText = styled(Text);
 type TabItem = {
   key: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   count: number;
   loading: boolean;
 };
@@ -37,39 +37,32 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, setB
         activeOpacity={0.9}
         style={{ width: 200 }}
       >
-        <StyledView className="flex-row items-center gap-[16]">
+        <StyledView className="flex flex-row items-center gap-[24px]">
           <StyledView
             className={`p-[9.3] rounded-full ${isActive ? "bg-[#0E2C2A]" : "bg-[#EAF8F6]"
               }`}
           >
-            <MaterialCommunityIcons
-              size={21.33}
-              name={item.icon}
-              color={isActive ? "#FFFFFF" : "#153E3B"}
-            />
+            {item?.icon}
           </StyledView>
-          <StyledView className="flex-col items-start space-y-2 gap-[3.5]">
+          <StyledView className="flex flex-col items-start justify-center gap-[4px]">
             <StyledText
               className={`text-xs font-semibold ${isActive ? "text-white" : "text-gray-700"
                 }`}
+              style={{ marginLeft: 0, marginTop: 0 }}
             >
               {item.label}
             </StyledText>
             {item?.loading ?
               (
-                <>
-                  <ActivityIndicator />
-                </>
+                <ActivityIndicator />
               ) :
               (
-                <>
-                  <StyledText
-                    className={`text-xl font-bold ${isActive ? "text-white" : "text-black"
-                      }`}
-                  >
-                    {item.count}
-                  </StyledText>
-                </>
+                <StyledText
+                  className={`text-xl font-bold ${isActive ? "text-white" : "text-black"
+                    }`}
+                >
+                  {item.count}
+                </StyledText>
               )}
           </StyledView>
         </StyledView>
@@ -84,8 +77,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, setB
       renderItem={renderTabItem}
       keyExtractor={(item) => item.key}
       contentContainerStyle={{
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        padding: 12
       }}
       showsHorizontalScrollIndicator={false}
       style={{ flexGrow: 0, flexShrink: 0 }}

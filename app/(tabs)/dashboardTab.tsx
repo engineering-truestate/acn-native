@@ -212,12 +212,14 @@ export default function DashboardTab() {
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
   return (
-    <Dashboard
-      myEnquiries={myEnquiries}
-      myProperties={properties}
-      myRequirements={requirements}
-      propertyStatusUpdate={handlePropertyStatusChange}
-      loading={{ enquiriesLoading: enquiriesLoading, propertiesLoading: propertiesLoading, requirementsLoading: requirementsLoading }}
-    />
+    <View className="flex h-full bg-gray-50">
+      <Dashboard
+        myEnquiries={myEnquiries}
+        myProperties={properties}
+        myRequirements={requirements}
+        propertyStatusUpdate={handlePropertyStatusChange}
+        loading={{ enquiriesLoading: enquiriesLoading, propertiesLoading: propertiesLoading, requirementsLoading: requirementsLoading }}
+      />
+    </View>
   );
 } 

@@ -25,7 +25,7 @@ const EmptyTabContent: React.FC<EmptyTabContentProps> = ({
     loading
 }) => {
     if (loading)
-        return <ActivityIndicator />;
+        return <ActivityIndicator className="mt-8" />;
     return (
         <StyledView className="flex-1 items-center justify-center gap-[24px] mt-8">
             <StyledView className="flex flex-col items-center justify-center gap-[12px]">
