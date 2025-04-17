@@ -66,7 +66,6 @@ export default function SignUp() {
     try {
       const result = await dispatch(setAgentDataState(phoneNumber)).unwrap();
 
-      // If agent exists in DB
       dispatch(listenToAgentChanges(result.docId));
       const agentData = result.docData;
 
