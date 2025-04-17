@@ -196,17 +196,11 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
         <View style={{ flexDirection: 'row' }}>
           <View
             style={[
-              { marginTop: insets.top + 20, marginLeft: 16 },
+              { marginTop: insets.top + 12, marginLeft: 16 },
             ]}
           >
-            <HamburgerMenuButton onPress={onClose} isOpen={false} />
+            <HamburgerMenuButton onPress={onClose} isOpen={false} showACN={true} />
           </View>
-          <Text style={[
-            styles.buttonLabel,
-            { marginTop: insets.top + height*0.02, marginLeft: 16, fontSize: 24, fontWeight: 'bold', fontFamily: 'MONTserrat_700Bold', color: '#153E3B' },
-          ]}>
-            ACN
-          </Text>
         </View>
         <ScrollView
           contentContainerStyle={styles.menuContent}

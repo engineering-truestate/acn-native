@@ -1,21 +1,29 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 
 interface HamburgerMenuButtonProps {
   onPress: () => void;
   isOpen: boolean;
+  showACN?: boolean
 }
 
-export const HamburgerMenuButton = ({ onPress, isOpen }: HamburgerMenuButtonProps) => {
+export const HamburgerMenuButton = ({ onPress, isOpen, showACN = false }: HamburgerMenuButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View className=''>
+      <View className='flex flex-row gap-10 items-center justify-start'>
         <View className="w-7 h-5 flex justify-between ml-[6px]">
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
         </View>
-        {/* <Text>ACN</Text> */}
+        {showACN &&
+          <Text style={[
+            styles.buttonLabel,
+            { fontSize: 24, fontWeight: 'bold', fontFamily: 'MONTserrat_700Bold', color: '#153E3B' },
+          ]}>
+            ACN
+          </Text>
+        }
       </View>
     </TouchableOpacity>
   );
@@ -28,6 +36,12 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   hamburgerLineOpen: {
-    backgroundColor: '#000',
+    backgroundColor: '#153E3B',
+  },
+  buttonLabel: {
+    fontFamily: 'System',
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#252626',
   },
 }); 
