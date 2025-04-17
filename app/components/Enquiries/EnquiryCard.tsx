@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { View, Text, Pressable } from 'react-native';
+import { FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import PropertyDetailsScreen from "../property/PropertyDetailsScreen";
 import ReviewModal from "./ReviewModal";
 import { EnquiryWithProperty } from "@/app/types";
@@ -40,6 +43,19 @@ const EnquiryCard: React.FC<CardProps> = ({
 
   return (
     <>
+      {isDetailsModalOpen && (
+        <PropertyDetailsScreen
+          property={enquiry?.property!}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
+      {isReviewModalOpen && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          enqId={enquiry['enquiryId']!}
+        />
+      )}
       {isDetailsModalOpen && (
         <PropertyDetailsScreen
           property={enquiry?.property!}
