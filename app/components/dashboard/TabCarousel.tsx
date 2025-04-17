@@ -31,7 +31,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, setB
     const isActive = activeTab === item.key;
     return (
       <StyledTouchableOpacity
-        className={`mx-2 p-5 rounded-2xl ${isActive ? "bg-[#153E3B]" : "bg-white border border-gray-300"
+        className={`p-5 rounded-2xl ${isActive ? "bg-[#153E3B]" : "bg-white border border-gray-300"
           }`}
         onPress={() => handleTabChange(item.key)}
         activeOpacity={0.9}
@@ -77,7 +77,12 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ activeTab, setActiveTab, setB
       renderItem={renderTabItem}
       keyExtractor={(item) => item.key}
       contentContainerStyle={{
-        padding: 12
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        paddingTop: 12,
+        gap: 16
       }}
       showsHorizontalScrollIndicator={false}
       style={{ flexGrow: 0, flexShrink: 0 }}

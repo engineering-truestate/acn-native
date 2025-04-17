@@ -53,7 +53,7 @@ const MonthFilterDropdown = ({ options, value, setValue, setBuffering, setBatchS
   };
 
   return (
-    <StyledView className="flex-row items-center justify-between bg-gray-100 p-3 mx-4 mb-4 rounded-md z-[999999999]">
+    <StyledView className="flex flex-row items-center justify-between bg-gray-100 p-3 m-3 rounded-md z-[999999999]">
       <StyledText className="text-sm text-gray-700 font-medium">
         Filter by month:
       </StyledText>
