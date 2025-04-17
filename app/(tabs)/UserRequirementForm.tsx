@@ -6,7 +6,8 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Pressable
+  Pressable,
+  ActivityIndicator
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ARSecondaryButton from '../components/Button/ARSecondaryButton';
@@ -260,7 +261,7 @@ const UserRequirementForm = () => {
                 Asset Type <Text style={styles.required}>*</Text>
               </Text>
               <View style={[
-                
+
                 focusedFields['assetType'] && styles.focusedInput
               ]}>
                 {/* <Picker
@@ -297,14 +298,14 @@ const UserRequirementForm = () => {
             </View>
 
             {/* Configuration + Area Row */}
-            <View style={styles.rowContainer}>
+            <View style={styles.rowContainer} className='mb-[-24px]'>
               {/* Configuration */}
               <View style={[styles.inputGroup, styles.halfWidth]}>
                 <Text style={styles.inputLabel}>
                   Configuration <Text style={styles.required}>*</Text>
                 </Text>
                 <View style={[
-                 
+
                   focusedFields['configuration'] && styles.focusedInput,
                   isConfigurationDisabled && styles.disabledInput
                 ]}>
@@ -345,8 +346,8 @@ const UserRequirementForm = () => {
                       })),
                     ]}
                     placeholder="Select Configuration"
-                    // disabled={isConfigurationDisabled}
-                    />
+                  // disabled={isConfigurationDisabled}
+                  />
                 </View>
                 {error.configuration && (
                   <Text style={styles.errorText}>{error.configuration}</Text>
@@ -474,22 +475,19 @@ const UserRequirementForm = () => {
           </View>
 
           {/* Bottom spacing */}
-          <View style={{ height: 80 }} />
         </ScrollView>
 
         {/* Fixed Footer */}
-        <View style={styles.footer}>
-          <View style={styles.footerButtons}>
-            {/* Clear Button */}
-            <ARSecondaryButton onPress={clearForm} style={styles.clearButton} >
-              Clear
-            </ARSecondaryButton>
+        <View style={styles.footerButtons}>
+          {/* Clear Button */}
+          <ARSecondaryButton onPress={clearForm} style={styles.clearButton} >
+            Clear
+          </ARSecondaryButton>
 
-            {/* Submit Button */}
-            <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
-              {saving ? "Submitting..." : "Submit"}
-            </ARPrimaryButton>
-          </View>
+          {/* Submit Button */}
+          <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
+            {saving ? <ActivityIndicator size={'small'} color={'white'} />: "Submit"}
+          </ARPrimaryButton>
         </View>
       </View>
     </View>
@@ -508,7 +506,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
-    paddingBottom: 80,
+    // paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
@@ -529,12 +527,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F6F7",
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 24,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   required: {
     color: 'red',
@@ -544,7 +542,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     fontSize: 14,
     backgroundColor: '#fff',
   },
@@ -602,11 +600,11 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    // marginTop: 12,
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
     borderWidth: 1,
     borderColor: '#9CA3AF', // Gray-400 equivalent
     borderRadius: 4,
@@ -623,7 +621,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   checkboxLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   errorText: {
@@ -631,30 +629,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: '#e5e7eb',
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-  },
 
   footerButtons: {
+    position: 'absolute',
+    bottom: 0,
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    gap: "30%",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: "60%",
+    borderTopWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: 'white',
   },
 
   clearButton: {
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 32,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#999',
@@ -662,8 +655,8 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 32,
     borderRadius: 8,
     backgroundColor: '#153E3B',
     flexShrink: 1,

@@ -220,32 +220,32 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                   />
                 </View>
               ))}
-
-              <View style={styles.menuItemContainer}>
-                <TouchableOpacity
-                  onPress={handleRequirementSubmit}
-                  style={[styles.standardButton, styles.primaryButton]}
-                >
-                  <View style={styles.iconContainer}>
-                    <MaterialIcons name="post-add" size={20} color="#fff" />
-                  </View>
-                  <Text style={styles.actionButtonText}>Add Requirement</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.menuItemContainer}>
-                <TouchableOpacity
-                  onPress={() => {
-                    Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
-                      .catch((err) => console.error('Failed to open URL:', err));
-                  }}
-                  style={[styles.standardButton, styles.secondaryButton]}
-                >
-                  <View style={styles.iconContainer}>
-                    <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
-                  </View>
-                  <Text style={styles.communityButtonText}>Join Community</Text>
-                </TouchableOpacity>
+              <View className='mt-[36px]'>
+                <View style={styles.menuItemContainer}>
+                  <TouchableOpacity
+                    onPress={handleRequirementSubmit}
+                    style={[styles.standardButton, styles.primaryButton]}
+                  >
+                    <View style={styles.iconContainer}>
+                      <MaterialIcons name="post-add" size={20} color="#fff" />
+                    </View>
+                    <Text style={styles.actionButtonText}>Add Requirement</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.menuItemContainer}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      Linking.openURL('https://chat.whatsapp.com/KcirtDCrZkA3sdgS6WIB38')
+                        .catch((err) => console.error('Failed to open URL:', err));
+                    }}
+                    style={[styles.standardButton, styles.secondaryButton]}
+                  >
+                    <View style={styles.iconContainer}>
+                      <FontAwesome5 name="whatsapp" size={20} color="#153E3B" />
+                    </View>
+                    <Text style={styles.communityButtonText}>Join Community</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
 
@@ -273,7 +273,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                 </View>
                 <View style={styles.tooltipContainer}>
                   <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)}>
-                    <MaterialIcons name="info-outline" size={18} color="#5A5555" />
+                    <MaterialIcons name="info-outline" size={22} color="#5A5555" />
                   </TouchableOpacity>
                   {showTooltip && (
                     <View style={styles.tooltip}>
@@ -288,7 +288,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                 style={[styles.profileButton, isActive('/profile') ? styles.selectedButton : {}]}
               >
                 <View style={styles.profileIconContainer}>
-                  <MaterialIcons name="person" size={16} color="#fff" />
+                  <MaterialIcons name="person" size={18} color="#fff" />
                 </View>
                 <View style={styles.profileInfoContainer}>
                   <Text style={styles.profileName}>{toCapitalizedWords(agentName) || 'Agent Name'}</Text>
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   menuSection: {
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   bottomSection: {
     marginTop: 'auto',
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderRadius: 8,
   },
   selectedButton: {
@@ -471,9 +471,9 @@ const styles = StyleSheet.create({
     height: 60,
   },
   profileIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 100,
     backgroundColor: '#153E3B',
     alignItems: 'center',
     justifyContent: 'center',

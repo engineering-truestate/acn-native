@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#ffffff',
-    fontSize: 20,
+    fontSize: 14,
     flexShrink: 1,
   },
 });

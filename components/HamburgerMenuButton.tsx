@@ -1,5 +1,6 @@
+import { Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, useFonts } from '@expo-google-fonts/montserrat';
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, Platform } from 'react-native';
 
 interface HamburgerMenuButtonProps {
   onPress: () => void;
@@ -8,19 +9,28 @@ interface HamburgerMenuButtonProps {
 }
 
 export const HamburgerMenuButton = ({ onPress, isOpen, showACN = false }: HamburgerMenuButtonProps) => {
+  const [fontsLoaded] = useFonts({
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
+  });
+
+  // Return a loading indicator or null while fonts are loading
+  if (!fontsLoaded) {
+    return null; // Or a loading spinner component
+  }
+
   return (
     <TouchableOpacity onPress={onPress}>
-      <View className='flex flex-row gap-10 items-center justify-start'>
-        <View className="w-7 h-5 flex justify-between ml-[6px]">
+      <View style={styles.container}>
+        <View style={styles.hamburgerContainer}>
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
           <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
         </View>
         {showACN &&
-          <Text style={[
-            styles.buttonLabel,
-            { fontSize: 24, fontWeight: 'bold', fontFamily: 'MONTserrat_700Bold', color: '#153E3B' },
-          ]}>
+          <Text style={styles.acnText}>
             ACN
           </Text>
         }
@@ -30,6 +40,18 @@ export const HamburgerMenuButton = ({ onPress, isOpen, showACN = false }: Hambur
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  hamburgerContainer: {
+    width: 28,
+    height: 20,
+    justifyContent: 'space-between',
+    marginLeft: 6,
+  },
   hamburgerLine: {
     height: 3,
     backgroundColor: '#000',
@@ -38,10 +60,16 @@ const styles = StyleSheet.create({
   hamburgerLineOpen: {
     backgroundColor: '#153E3B',
   },
+  acnText: {
+    fontFamily: 'Montserrat_700Bold',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+  },
   buttonLabel: {
-    fontFamily: 'System',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto', 
     fontSize: 16,
     fontWeight: '500',
     color: '#252626',
   },
-}); 
+});
