@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { arrayUnion, collection, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
+import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
 
 type Props = {
   isOpen: boolean;
@@ -61,9 +62,11 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
       await updateDoc(docRef, {
         reviews: arrayUnion(newReview),
       });
+      showSuccessToast("Review added successfully!");
 
     } catch (error) {
       console.error("Error adding review:", error);
+      showErrorToast("Failed to add review. Please try again.");
     } finally {
       onClose();
       setRating(0);
