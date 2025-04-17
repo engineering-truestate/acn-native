@@ -8,6 +8,7 @@ import CustomPagination from "../components/CustomPagination";
 import { Property } from "../types";
 import { useRouter } from "expo-router";
 import PropertyCard from "../components/property/PropertyCard";
+import MoreFilters from "../components/MoreFilters";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -163,7 +164,14 @@ export default function PropertiesScreen() {
             <CustomPagination />
           </View>
         </View>
-
+        <MoreFilters 
+          isOpen={isMoreFiltersModalOpen} 
+          setIsOpen={setIsMoreFiltersModalOpen} 
+          handleToggle={handleToggleMoreFilters} 
+          isMobile={true} 
+          selectedLandmark={selectedLandmark} 
+          setSelectedLandmark={setSelectedLandmark} 
+        />
       </InstantSearch>
     </View>
   );
