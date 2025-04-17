@@ -378,74 +378,86 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
   const [enquiries, setEnquiries] = useState<EnquiryWithProperty[] | []>([]);
-  const [propertyMonthFilter, setPropertyMonthFilter] = useState("");
-  const [requirementMonthFilter, setRequirementMonthFilter] = useState("");
-  const [enquiryMonthFilter, setEnquiryMonthFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState<string>("");
+  const [monthFilterOptions, setMonthFilterOptions] = useState<Array<{ label: string, value: any }>>([]);
   const [batchSize, setBatchSize] = useState(10);
   const [bufferring, setBuffering] = useState(false);
   const [renderingNewBatch, setRenderingNewBatch] = useState(false);
+
   const isBatchSizePendingLock = useRef(false);
+  const propertyMonthOptions = useRef(generatePropertyMonths(myProperties));
+  const requirementMonthOptions = useRef(generateRequirementMonths(myRequirements));
+  const enquiryMonthOptions = useRef(generateEnquiryMonths(myEnquiries));
+  const initalLoad = useRef(true);
 
   useEffect(() => {
     if (myProperties) {
       setProperties(myProperties);
+      propertyMonthOptions.current = generatePropertyMonths(myProperties);
     }
     if (myRequirements) {
       setRequirements(myRequirements);
+      requirementMonthOptions.current = generateRequirementMonths(myRequirements);
     }
     if (myEnquiries) {
       setEnquiries(myEnquiries);
+      enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
     }
   }, [myProperties, myRequirements, myEnquiries])
 
-
-  const [selectedPropertyMonth, setSelectedPropertyMonth] = useState("");
-  const propertyMonthOptions = generatePropertyMonths(myProperties);
-
-  const [selectedRequirementMonth, setSelectedRequirementMonth] = useState("");
-  const requirementMonthOptions = generateRequirementMonths(myRequirements);
-
-  const [selectedEnquiryMonth, setSelectedEnquiryMonth] = useState("");
-  const enquiryMonthOptions = generateEnquiryMonths(myEnquiries);
-
   const renderMore = () => {
     if (isBatchSizePendingLock.current) return;
-
-    if (Math.min(batchSize + 15, tabData?.filter((item) => item.key === activeTab)?.[0]?.count) > batchSize) {
+    let totalCount = 0;
+    switch (activeTab) {
+      case "inventories":
+        totalCount = properties.length;
+        break;
+      case "requirements":
+        totalCount = requirements.length;
+        break;
+      case "enquiries":
+        totalCount = enquiries.length;
+        break;
+      default:
+        break;
+    }
+    if (Math.min(batchSize + 10, totalCount) > batchSize) {
       isBatchSizePendingLock.current = true;
       setRenderingNewBatch(true);
-      setBatchSize((prev) => (Math.min(prev + 10, tabData?.filter((item) => item.key === activeTab)?.[0]?.count)));
+      setBatchSize((prev) => (Math.min(prev + 10, totalCount)));
     }
   }
 
   useEffect(() => {
+    if (initalLoad.current)
+      return;
     if (activeTab === 'inventories') {
-      if (selectedPropertyMonth === "") {
+      if (monthFilter === "") {
         setProperties(myProperties);
       }
       else {
-        const filteredProps = filterPropertiesByMonth(myProperties, selectedPropertyMonth);
+        const filteredProps = filterPropertiesByMonth(myProperties, monthFilter);
         setProperties(filteredProps);
       }
     } else if (activeTab === 'requirements') {
-      if (selectedRequirementMonth === "") {
+      if (monthFilter === "") {
         setRequirements(myRequirements);
       }
       else {
-        const filteredReqs = filterRequirementsByMonth(myRequirements, selectedRequirementMonth);
+        const filteredReqs = filterRequirementsByMonth(myRequirements, monthFilter);
         setRequirements(filteredReqs);
       }
     } else if (activeTab === 'enquiries') {
-      if (selectedEnquiryMonth === "") {
+      if (monthFilter === "") {
         setEnquiries(myEnquiries);
       }
       else {
-        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, selectedEnquiryMonth);
+        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, monthFilter);
         setEnquiries(filteredEnqs);
       }
     }
-
-  }, [activeTab, selectedPropertyMonth, selectedEnquiryMonth, selectedRequirementMonth])
+    setBuffering(false);
+  }, [monthFilter])
 
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
@@ -514,14 +526,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     if (activeTab === 'inventories') {
       return (
         <StyledView className="flex-1 p-4">
-          <StyledView className="mb-4">
-            <MonthFilterDropdown
-              options={propertyMonthOptions}
-              value={selectedPropertyMonth}
-              setValue={setSelectedPropertyMonth}
-            />
-          </StyledView>
-
           {properties.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No inventory added yet."
@@ -549,14 +553,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     } else if (activeTab === 'requirements') {
       return (
         <StyledView className="flex-1 p-4">
-          <StyledView className="mb-4">
-            <MonthFilterDropdown
-              options={requirementMonthOptions}
-              value={selectedRequirementMonth}
-              setValue={setSelectedRequirementMonth}
-            />
-          </StyledView>
-
           {requirements?.length === 0 || bufferring ? (
             <EmptyTabContent
               text="You haven't added any requirements"
@@ -584,14 +580,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     } else {
       return (
         <StyledView className="flex-1 p-4 ">
-          <StyledView className="mb-3">
-            <MonthFilterDropdown
-              options={enquiryMonthOptions}
-              value={selectedEnquiryMonth}
-              setValue={setSelectedEnquiryMonth}
-            />
-          </StyledView>
-
           {enquiries.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No enquiries made yet."
@@ -618,7 +606,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         </StyledView>
       );
     }
-  }, [activeTab, properties, requirements, handlePropertyStatusChange, handleRequirementStatusChange, propertyMonthFilter, requirementMonthFilter, enquiryMonthFilter, propertyMonthOptions, requirementMonthOptions, enquiryMonthOptions]);
+  }, [activeTab, properties, requirements, enquiries, bufferring, loading, batchSize, handlePropertyStatusChange, handleRequirementStatusChange]);
 
 
 
@@ -654,14 +642,28 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   }, [batchSize])
 
   useEffect(() => {
-    console.log("Changed");
-    setSelectedPropertyMonth("");
-    setSelectedRequirementMonth("");
-    setSelectedEnquiryMonth("");
+    setMonthFilter("");
     setBatchSize(10);
     setBuffering(false);
     setRenderingNewBatch(false);
     isBatchSizePendingLock.current = false;
+    switch (activeTab) {
+      case "inventories":
+        setProperties(myProperties);
+        setMonthFilterOptions(propertyMonthOptions.current);
+        break;
+      case "requirements":
+        setRequirements(myRequirements);
+        setMonthFilterOptions(requirementMonthOptions.current);
+        break;
+      case "enquiries":
+        setEnquiries(myEnquiries);
+        setMonthFilterOptions(enquiryMonthOptions.current);
+        break;
+      default:
+        break;
+    }
+    initalLoad.current = false;
   }, [activeTab]);
 
   return (
@@ -673,8 +675,19 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         setBuffering={setBuffering}
+        initialLoad={initalLoad}
         tabData={tabData}
       />
+
+      <StyledView className="p-4">
+        <MonthFilterDropdown
+          options={monthFilterOptions}
+          value={monthFilter}
+          setValue={setMonthFilter}
+          setBuffering={setBuffering}
+          setBatchSize={setBatchSize}
+        />
+      </StyledView>
 
       {/* Content Area */}
       <StyledScrollView>

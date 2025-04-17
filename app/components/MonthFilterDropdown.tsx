@@ -16,9 +16,11 @@ interface MonthFilterDropdownProps {
   options: MonthFilterOption[];
   value: string;
   setValue: (value: string) => void;
+  setBuffering: (buffer: boolean) => void;
+  setBatchSize: (batch: number) => void;
 }
 
-const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownProps) => {
+const MonthFilterDropdown = ({ options, value, setValue, setBuffering, setBatchSize }: MonthFilterDropdownProps) => {
   const allOptions = [{ label: "All", value: "" }, ...options];
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState("");
@@ -40,7 +42,11 @@ const MonthFilterDropdown = ({ options, value, setValue }: MonthFilterDropdownPr
 
   const handleOptionClick = (optionValue: string) => {
     if (value !== optionValue) {
-      setValue(optionValue);
+      setBuffering(true);
+      setBatchSize(10);
+      setTimeout(() => {
+        setValue(optionValue);
+      }, 0)
     }
     setIsOpen(false);
     // Add analytics here if needed
