@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions, Keyboard } from 'react-native';
-import { useSearchBox } from 'react-instantsearch';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+import { useInstantSearch, useSearchBox } from 'react-instantsearch';
 import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
 import { Property } from '../types';
@@ -20,7 +20,9 @@ export default function PropertyFilters({
   setSelectedLandmark
 }: PropertyFiltersProps) {
   const { query, refine } = useSearchBox();
+  const { status } = useInstantSearch();
   const [searchText, setSearchText] = useState(query);
+  const [loading, setLoading] = useState(false);
 
   // Handle text input change
   const handleSearchChange = (text: string) => {
@@ -29,17 +31,30 @@ export default function PropertyFilters({
 
   // Handle search button press (refine action)
   const handleSearchPress = () => {
-    if(searchText.trim() != query) {
-      refine(searchText);  // Trigger the refine action with the updated search text
-    }
     Keyboard.dismiss(); // Dismiss the keyboard when searching
+    if (searchText.trim() != query) {
+      setLoading(true);
+      setTimeout(() => {
+        refine(searchText.trim());  // Trigger the refine action with the updated search text
+      }, 0)
+    }
   };
 
   const handleClear = () => {
-    setSearchText("");
-    refine("");
     Keyboard.dismiss(); // Dismiss the keyboard when clearing the search
+    setSearchText("".trim());
+    if ("" !== query) {
+      setLoading(true);
+      setTimeout(() => {
+        refine("");
+      }, 0)
+    }
   }
+
+  // Update loading state based on Algolia search status
+  useEffect(() => {
+    setLoading(status === 'loading');
+  }, [status]);
 
   return (
     <View style={styles.container}>
@@ -64,19 +79,26 @@ export default function PropertyFilters({
           <TouchableOpacity
             onPress={handleSearchPress}
             style={styles.searchButton}
+            disabled={loading}
           >
-            <Feather name="search" size={24} color="white" />
+            {
+              loading ?
+                <ActivityIndicator />
+                :
+                <Feather name="search" size={24} color="white" />
+            }
           </TouchableOpacity>
         </View>
 
         {/* Clear Button */}
-        {searchText &&
+        {searchText.trim() &&
           <View style={styles.filters}>
             <TouchableOpacity
               onPress={handleClear}
               style={styles.clearButton}
+              disabled={loading}
             >
-              <CloseIcon/>
+              <CloseIcon />
             </TouchableOpacity>
           </View>
         }
@@ -92,11 +114,11 @@ export default function PropertyFilters({
         </View>
       </View>
       <View style={styles.refinements}>
-      {/* Applied Filters */}
-      <CustomCurrentRefinements
-        selectedLandmark={selectedLandmark}
-        setSelectedLandmark={setSelectedLandmark}
-      />
+        {/* Applied Filters */}
+        <CustomCurrentRefinements
+          selectedLandmark={selectedLandmark}
+          setSelectedLandmark={setSelectedLandmark}
+        />
       </View>
     </View>
   );
@@ -157,7 +179,8 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     height: 40,
-    flexDirection: 'column',
+    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ff0000',
