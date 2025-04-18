@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Keyboard } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
 import CustomPagination from '../components/CustomPagination';
@@ -70,6 +70,7 @@ const RequirementsPage = () => {
 
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen(prev => !prev);
+    Keyboard.dismiss();
   };
 
   return (

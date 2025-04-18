@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Keyboard } from 'react-native';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchBox } from 'react-instantsearch';
 import CustomCurrentRefinements from '../CustomCurrentRefinements';
@@ -65,6 +65,7 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
     if (searchText.trim() != query) {
       refine(searchText);  // Trigger the refine action with the updated search text
     }
+    Keyboard.dismiss(); // Dismiss the keyboard when searching
   };
 
   const handleClear = () => {
@@ -81,6 +82,7 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
             value={searchText}
             onChangeText={handleSearchChange}
             placeholderTextColor="#9CA3AF"
+            onSubmitEditing={handleSearchPress}
           />
         </View>
         {/* Search Button */}
