@@ -196,13 +196,29 @@ const useRequirements = () => {
     fetchRequirements();
   }, [cpId]);
 
-  return { requirements, loading, error };
+  const hanldeRequirementsStatusChange = async (value: string, requirementsId: string): Promise<void> => {
+    try {
+      const newStatus = value;
+
+      // Update local state
+      setRequirements((prev) =>
+        prev.map((requirements) =>
+          requirements.requirementId === requirementsId ? { ...requirements, status: newStatus } : requirements
+        )
+      );
+    } catch (err) {
+      console.error('Error updating enquiry status:', err);
+      setError('Failed to update enquiry status. Please try again.');
+    }
+  };
+
+  return { requirements, loading, error, hanldeRequirementsStatusChange };
 };
 
 export default function DashboardTab() {
   const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
-  const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
+  const { requirements, loading: requirementsLoading, error: requirementsError, hanldeRequirementsStatusChange: hanldeRequirementsStatusChange } = useRequirements();
 
   return (
     <View style={{ flex: 1 }}>
@@ -211,6 +227,7 @@ export default function DashboardTab() {
         myProperties={properties}
         myRequirements={requirements}
         propertyStatusUpdate={handlePropertyStatusChange}
+        hanldeRequirementsStatusChange={hanldeRequirementsStatusChange}
         loading={{ enquiriesLoading: enquiriesLoading, propertiesLoading: propertiesLoading, requirementsLoading: requirementsLoading }}
       />
     </View>
