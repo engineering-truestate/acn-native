@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions, Keyboard } from 'react-native';
 import { useSearchBox } from 'react-instantsearch';
 import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
@@ -31,11 +31,13 @@ export default function PropertyFilters({
     if(searchText.trim() != query) {
       refine(searchText);  // Trigger the refine action with the updated search text
     }
+    Keyboard.dismiss(); // Dismiss the keyboard when searching
   };
 
   const handleClear = () => {
     setSearchText("");
     refine("");
+    Keyboard.dismiss(); // Dismiss the keyboard when clearing the search
   }
 
   return (
@@ -52,6 +54,7 @@ export default function PropertyFilters({
             value={searchText}
             onChangeText={handleSearchChange}
             placeholderTextColor="#9CA3AF"
+            onSubmitEditing={handleSearchPress}
           />
         </View>
 

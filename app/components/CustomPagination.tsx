@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
 import { usePagination } from 'react-instantsearch';
 
 interface CustomPaginationProps {
@@ -17,7 +17,10 @@ export default function CustomPagination({ isSticky = false }: CustomPaginationP
   return (
     <View style={[styles.container, isSticky && styles.stickyContainer]} >
       <TouchableOpacity
-        onPress={() => refine(currentRefinement - 1)}
+        onPress= {() => {
+          refine(currentRefinement - 1)
+          Keyboard.dismiss();
+        }}
         disabled={currentRefinement === 0}
         style={[
           styles.button,
@@ -40,7 +43,10 @@ export default function CustomPagination({ isSticky = false }: CustomPaginationP
       </View>
 
       <TouchableOpacity
-        onPress={() => refine(currentRefinement + 1)}
+        onPress={() => {
+          refine(currentRefinement + 1)
+          Keyboard.dismiss()
+        }}
         disabled={currentRefinement === nbPages - 1}
         style={[
           styles.button,
