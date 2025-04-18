@@ -80,10 +80,6 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     }
   };
 
-
-  // Log property data for debugging
-  console.log("PropertyDetailsScreen received:", property);
-
   // Get the property name with fallbacks
   const getPropertyName = () => {
     return property.nameOfTheProperty;
@@ -121,18 +117,16 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   const handleOpenGoogleMap = () => {
     if (!property.mapLocation) return;
     Linking.openURL(property.mapLocation)
-    console.log("Opening map location:", property.mapLocation);
   };
 
   const handleOpenDriveDetails = () => {
-    if (!property.driveLink){
+    if (!property.driveLink) {
       showErrorToast("Drive link not available.");
-       return;
+      return;
     }
     // Implementation would open drive link
     Linking.openURL(property.driveLink);
     showSuccessToast("Opening drive details...");
-    //console.log("Opening drive details:", property.driveLink);
   };
 
   const handleEnquireNowBtn = (e: any) => {
@@ -162,8 +156,6 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   };
 
   const onConfirmEnquiry = async () => {
-    console.log("Selected CPID before enquiry:", selectedCPID);
-
     if (!selectedCPID) {
       //Alert.alert("Error: Seller CPID is missing. Please try again.");
       showErrorToast("Error: Seller CPID is missing. Please try again.");
@@ -179,8 +171,6 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
     }
 
     try {
-      console.log("Processing enquiry for CPID:", selectedCPID);
-
       const nextEnqId = await generateNextEnqId()
       if (!nextEnqId) {
         // Alert.alert(
@@ -203,11 +193,9 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
 
       // ✅ Open EnquireCPModal AFTER confirming
       setTimeout(() => {
-        console.log("Opening Enquiry CP Modal for CPID:", selectedCPID);
-
         setIsEnquiryCPModelOpen(true);
       }, 100);
-      
+
     } catch (error) {
       console.error("Error during enquiry process:", error);
       // Alert.alert(

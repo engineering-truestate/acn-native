@@ -35,10 +35,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 
   const handleCopy = async () => {
     try {
-      console.log("Property: ", property)
       let details = await createPropertyMessage(property, agentData?.phonenumber);
-      console.log("Details Fetched: ", details)
-      console.log("Agent's Phone Number: ", agentData);
       details = decodeURIComponent(details);
       Clipboard.setString(details);
     } catch (err) {
@@ -74,7 +71,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
                   </View>
                   <Text style={styles.buttonText}>WhatsApp</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.actionButton} onPress={handleCopy}>
                   <View style={styles.iconWrapper}>
                     <Ionicons name="copy-outline" size={24} color="#555" />
@@ -95,7 +92,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 };
 
 
-export default ShareModal; 
+export default ShareModal;
 
 const styles = StyleSheet.create({
   overlay: {

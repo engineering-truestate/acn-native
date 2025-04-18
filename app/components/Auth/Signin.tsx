@@ -104,7 +104,6 @@ export default function SignUp() {
         };
 
         await addDoc(collection(db, "agents"), newAgent);
-        console.log("New user added to the database:", newAgent);
 
         setAddingNewAgent(false);
         router.push('/components/Auth/VerificationPage')
@@ -126,16 +125,13 @@ export default function SignUp() {
     setErrorMessage(""); // Reset any previous errors
 
     try {
-      console.log('📱 Attempting to send OTP to:', phoneNumber);
-
       // Configure reCAPTCHA verifier if needed
-      if (!auth().settings.appVerificationDisabledForTesting) {
-        console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
-      }
+      // if (!auth().settings.appVerificationDisabledForTesting) {
+      //   console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
+      // }
 
       // Send OTP using Firebase
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
-      console.log('✅ OTP sent successfully, confirmation received');
 
       router.push({
         pathname: '/components/Auth/OTPage',
@@ -212,7 +208,7 @@ export default function SignUp() {
       </TouchableOpacity>
 
       <View style={styles.whatsappRow}>
-      <FontAwesome5 name="whatsapp" size={16} color="black" />
+        <FontAwesome5 name="whatsapp" size={16} color="black" />
         <Text style={styles.whatsappText}>WhatsApp number mandatory!</Text>
       </View>
 

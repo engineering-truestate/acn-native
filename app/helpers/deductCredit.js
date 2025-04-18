@@ -20,7 +20,7 @@ const deductMonthlyCredit = async (phoneNumber, currentCredits, dispatch) => {
         return;
     }
 
-    const finalCredit = Math.max(0, currentCredits - 1); 
+    const finalCredit = Math.max(0, currentCredits - 1);
 
     try {
         const agentsCollection = collection(db, "agents");
@@ -35,10 +35,8 @@ const deductMonthlyCredit = async (phoneNumber, currentCredits, dispatch) => {
         const docRef = querySnapshot.docs[0].ref;
 
         await updateDoc(docRef, { monthlyCredits: finalCredit });
-        console.log("Credits successfully updated in Firestore.");
 
         dispatch(setMonthlyCredit(finalCredit));
-        console.log("Credits successfully updated in Redux state.");
     } catch (error) {
         console.error("Error deducting credits:", error.message || error);
         throw error;

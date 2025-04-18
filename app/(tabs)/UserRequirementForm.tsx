@@ -188,7 +188,6 @@ const UserRequirementForm = () => {
 
       await submitRequirement(userRequirement, cpId);
       clearForm();
-      console.log("requirement submitted");
     } catch (error) {
       console.error("An error occurred:", error);
     } finally {
@@ -486,7 +485,7 @@ const UserRequirementForm = () => {
 
           {/* Submit Button */}
           <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
-            {saving ? <ActivityIndicator size={'small'} color={'white'} />: "Submit"}
+            {saving ? <ActivityIndicator size={'small'} color={'white'} /> : "Submit"}
           </ARPrimaryButton>
         </View>
       </View>

@@ -16,7 +16,7 @@ export const setKamDataState = (kamId: string): ThunkAction<
   // First, set loading
   dispatch(setLoading(true));
   dispatch(resetError());
-  
+
   try {
     const q = query(collection(db, 'kam'), where('kamId', '==', kamId));
     const querySnapshot = await getDocs(q);
@@ -28,7 +28,7 @@ export const setKamDataState = (kamId: string): ThunkAction<
         docData: docDataWithoutAgents,
         docId: docSnap.id,
       };
-      
+
       // Update the state with the new data
       dispatch(setKamId(kamId));
       dispatch(setKamDoc(data));
@@ -36,7 +36,7 @@ export const setKamDataState = (kamId: string): ThunkAction<
       throw new Error('No user found with this phone number.');
     }
   } catch (error: any) {
-    console.log(error.message)
+    console.error(error.message)
     dispatch(setError(error.message));
   } finally {
     // Set loading to false

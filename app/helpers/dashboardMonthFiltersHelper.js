@@ -16,7 +16,6 @@ const formatDateToMonthYear = (dateInput) => {
     // Check if the input is a string
     if (typeof dateInput === "string") {
         try {
-            console.log("here is dateInput:", dateInput);
             // Parse date string in format "DD/MMM/YYYY"
             const [day, month, year] = dateInput.trim().split("/");
             const date = new Date(`${month}/${day}/${year}`);

@@ -15,7 +15,7 @@ interface RequirementCardProps {
 const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCardProps) => {
   // State to control the display of the details modal
   const [showDetails, setShowDetails] = useState(false);
-  
+
   // Format budget display
   const formatBudget = (budget: Budget) => {
     if (!budget) return "N/A";
@@ -39,42 +39,39 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
     const assetType = requirement.assetType;
     const config = requirement.configuration;
     const area = requirement.area ? `${requirement.area} sqft` : '';
-    
+
     if (config && area) {
       return `${assetType} - ${config} / ${area}`;
     }
-    
+
     if (config) {
       return `${assetType} - ${config}`;
     }
-    
+
     if (area) {
       return `${assetType} - ${area}`;
     }
-    
+
     return assetType;
   };
 
   // Handle card click to show details
   const handleCardPress = () => {
-    console.log("Card pressed, showing details for:", requirement.requirementId);
-    
     // Call the original onCardClick for analytics or other purposes
     //onCardClick(requirement);
-    
+
     // Show the details modal
     setShowDetails(true);
   };
 
   // Handle closing the details
   const handleCloseDetails = () => {
-    console.log("Closing details for:", requirement.requirementId);
     setShowDetails(false);
   };
 
   return (
     <>
-      <TouchableOpacity 
+      <TouchableOpacity
         className="border border-[#CCCBCB] rounded-lg p-4 bg-white mb-4 flex-col"
         onPress={handleCardPress}
         activeOpacity={0.7}
@@ -100,12 +97,12 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
           <View className="flex-row items-center gap-2">
             <Ionicons name="cash-outline" size={20} color="#4B5563" />
             <Text className="text-neutral-600 text-sm font-medium">
-              {requirement?.marketValue ? 
-              "Market Value" 
-            :
-            formatBudget(requirement?.budget)
-            }
-              
+              {requirement?.marketValue ?
+                "Market Value"
+                :
+                formatBudget(requirement?.budget)
+              }
+
             </Text>
           </View>
 
@@ -120,7 +117,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
 
         {/* Requirement Details */}
         {requirement.requirementDetails && (
-          <Text 
+          <Text
             className="text-neutral-600 text-sm font-medium mt-4 mb-0"
             numberOfLines={2}
           >
