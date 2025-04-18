@@ -59,7 +59,7 @@ function MobileHits() {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'}  color={'#153E3B'} />
+        <ActivityIndicator size={'large'} color={'#153E3B'} />
         {/* <Text style={styles.text}>The app is loading soooooonnnnnnn</Text> */}
       </View>
     );
@@ -95,6 +95,7 @@ export default function PropertiesScreen() {
   const [paginationHeight, setPaginationHeight] = useState(0);
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     // Measure the height of the filters component
@@ -153,7 +154,7 @@ export default function PropertiesScreen() {
           </View>
 
           {/* Main content area with dynamic height */}
-          <ScrollView>
+          <ScrollView ref={scrollViewRef}>
             <MobileHits />
           </ScrollView>
 
@@ -166,16 +167,16 @@ export default function PropertiesScreen() {
               setPaginationHeight(height);
             }}
           >
-            <CustomPagination />
+            <CustomPagination scrollRef={scrollViewRef} />
           </View>
         </View>
-        <MoreFilters 
-          isOpen={isMoreFiltersModalOpen} 
-          setIsOpen={setIsMoreFiltersModalOpen} 
-          handleToggle={handleToggleMoreFilters} 
-          isMobile={true} 
-          selectedLandmark={selectedLandmark} 
-          setSelectedLandmark={setSelectedLandmark} 
+        <MoreFilters
+          isOpen={isMoreFiltersModalOpen}
+          setIsOpen={setIsMoreFiltersModalOpen}
+          handleToggle={handleToggleMoreFilters}
+          isMobile={true}
+          selectedLandmark={selectedLandmark}
+          setSelectedLandmark={setSelectedLandmark}
         />
       </InstantSearch>
     </View>

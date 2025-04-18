@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { RefObject, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
-import { usePagination } from 'react-instantsearch';
+import { useInstantSearch, usePagination } from 'react-instantsearch';
+import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 interface CustomPaginationProps {
   isSticky?: boolean;
+  scrollRef?: RefObject<ScrollView> | null;
 }
 
-export default function CustomPagination({ isSticky = false }: CustomPaginationProps) {
+export default function CustomPagination({ isSticky = false, scrollRef = null }: CustomPaginationProps) {
+
+  const [loading, setLoading] = useState(false);
+
   const {
     currentRefinement,
     nbPages,
@@ -14,23 +19,34 @@ export default function CustomPagination({ isSticky = false }: CustomPaginationP
     createURL,
   } = usePagination();
 
+  const { status } = useInstantSearch();
+
+  useEffect(() => {
+    if (status === 'loading' && loading === true && scrollRef?.current)
+      scrollRef.current.scrollTo({ y: 0, animated: true })
+    setLoading(status === 'loading');
+  }, [status]);
+
   return (
     <View style={[styles.container, isSticky && styles.stickyContainer]} >
       <TouchableOpacity
-        onPress= {() => {
-          refine(currentRefinement - 1)
+        onPress={() => {
           Keyboard.dismiss();
+          setLoading(true);
+          setTimeout(() => {
+            refine(currentRefinement - 1)
+          }, 0)
         }}
-        disabled={currentRefinement === 0}
+        disabled={currentRefinement === 0 || loading}
         style={[
           styles.button,
           styles.leftButton,
-          currentRefinement === 0 && styles.disabledButton
+          (currentRefinement === 0 || loading) && styles.disabledButton
         ]}
       >
         <Text style={[
           styles.buttonText,
-          currentRefinement === 0 ? styles.disabledButtonText : styles.enabledButtonText
+          currentRefinement === 0 || loading ? styles.disabledButtonText : styles.enabledButtonText
         ]}>
           Previous
         </Text>
@@ -44,19 +60,22 @@ export default function CustomPagination({ isSticky = false }: CustomPaginationP
 
       <TouchableOpacity
         onPress={() => {
-          refine(currentRefinement + 1)
           Keyboard.dismiss()
+          setLoading(true);
+          setTimeout(() => {
+            refine(currentRefinement + 1)
+          }, 0)
         }}
-        disabled={currentRefinement === nbPages - 1}
+        disabled={currentRefinement === nbPages - 1 || loading}
         style={[
           styles.button,
           styles.rightButton,
-          currentRefinement === nbPages - 1 && styles.disabledButton
+          (currentRefinement === nbPages - 1 || loading) && styles.disabledButton
         ]}
       >
         <Text style={[
           styles.buttonText,
-          currentRefinement === nbPages - 1 ? styles.disabledButtonText : styles.enabledButtonText
+          currentRefinement === nbPages - 1 || loading ? styles.disabledButtonText : styles.enabledButtonText
         ]}>
           Next
         </Text>

@@ -32,13 +32,13 @@ const MobileHits = () => {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'} color={'#153E3B'}/>
+        <ActivityIndicator size={'large'} color={'#153E3B'} />
       </View>
     );
   }
 
   return (
-    <ScrollView  contentContainerStyle={{ paddingBottom: 0 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 0 }}>
       {hits.map((requirement) => {
         const transformedRequirement = requirement as Requirement;
         return (
@@ -75,9 +75,9 @@ const RequirementsList = () => {
 
   return (
     <>
-      <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} >
-        <MobileHits />
-      </ScrollView>
+
+      <MobileHits />
+
 
       {/* <RequirementDetailsModal
         isOpen={!!selectedRequirement}
@@ -93,6 +93,7 @@ const RequirementsPage = () => {
 
   const [filtersHeight, setFiltersHeight] = useState(0);
   const [paginationHeight, setPaginationHeight] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null)
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
 
@@ -129,7 +130,9 @@ const RequirementsPage = () => {
             <RequirementFilters handleToggleMoreFilters={handleToggleMoreFilters} />
           </View>
 
-          <RequirementsList />
+          <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} ref={scrollViewRef}>
+            <RequirementsList />
+          </ScrollView>
 
           <View
             ref={paginationRef}
@@ -139,7 +142,7 @@ const RequirementsPage = () => {
               setPaginationHeight(height);
             }}
           >
-            <CustomPagination />
+            <CustomPagination scrollRef={scrollViewRef} />
           </View>
 
           <MoreFiltersRequirement
