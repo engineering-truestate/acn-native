@@ -136,7 +136,8 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
         <PropertyDetailsScreen
           property={property}
           onClose={() => setIsDetailsModalOpen(false)}
-          parent = "inv"
+          parent = "dashboardInventory"
+          onStatusChange={onStatusChange}
         />
       )}
 

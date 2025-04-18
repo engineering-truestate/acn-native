@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, query, updateDoc, where, getDoc, QueryDocumentSnapshot, DocumentData, getCountFromServer, documentId } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where, onSnapshot, QueryDocumentSnapshot, DocumentData, getCountFromServer, documentId } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { db } from '../config/firebase';
@@ -38,28 +38,27 @@ const useEnquiries = (): UseEnquiriesResult => {
   const cpId = useCpId();
 
   useEffect(() => {
-    const fetchEnquiries = async () => {
-      setLoading(true);
-      try {
-        // Fetch all enquiries without filtering
-        const enquiriesQuery = query(collection(db, 'enquiries'), where("cpId", "==", cpId));
-        const enquiriesSnapshot = await getDocs(enquiriesQuery);
+    if (!cpId) {
+      setError('No channel partner ID found. Please login again.');
+      return;
+    }
 
-        const enquiriesData: Enquiry[] = enquiriesSnapshot.docs.map((docSnap) => ({
+    setLoading(true);
+    
+    try {
+      // Create the query the same way as before
+      const enquiriesQuery = query(collection(db, 'enquiries'), where("cpId", "==", cpId));
+      
+      // Set up real-time listener for enquiries
+      const unsubscribe = onSnapshot(enquiriesQuery, async (snapshot) => {
+        const enquiriesData: Enquiry[] = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         }));
 
-        // Filter for myEnquiries if cpId exists
-        if (!cpId) {
-          setError('No channel partner ID found. Please login again.');
-          setLoading(false);
-          return;
-        }
-
-        // Filter myEnquiries with cpId
-
-        // Now fetch property details for each of myEnquiries
+        console.log(enquiriesData);
+        
+        // Now fetch property details for each of myEnquiries - keeping your original logic
         const propertyIds = [...new Set(enquiriesData.map(enquiry => enquiry.propertyId))];
         let propertyDocs: Map<string, DocumentData> = new Map();
 
@@ -68,11 +67,10 @@ const useEnquiries = (): UseEnquiriesResult => {
           const properties = await getDocs(query(collection(db, 'ACN123'), where(documentId(), "in", batch)));
           properties.docs.map((item) => {
             propertyDocs.set(item.id, item.data());
-          })
+          });
         }
 
         const enquiriesWithProperty = enquiriesData.map((enquiry) => {
-
           if (enquiry.propertyId && propertyDocs.has(enquiry.propertyId)) {
             return {
               ...enquiry,
@@ -87,16 +85,23 @@ const useEnquiries = (): UseEnquiriesResult => {
             property: null,
           };
         });
+        
         setMyEnquiries(enquiriesWithProperty);
-      } catch (err: any) {
+        setLoading(false);
+      }, (err) => {
         setError(err.message || 'Error fetching enquiries');
         console.error('Fetch error:', err);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchEnquiries();
+      });
+      
+      // Clean up the listener when the component unmounts
+      return () => unsubscribe();
+      
+    } catch (err: any) {
+      setError(err.message || 'Error fetching enquiries');
+      console.error('Fetch error:', err);
+      setLoading(false);
+    }
   }, [cpId]);
 
   return { myEnquiries, loading, error };
@@ -110,33 +115,40 @@ const useProperties = (): UsePropertiesResult => {
   const cpId = useCpId();
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      if (!cpId) {
-        setError('No channel partner ID found. Please login again.');
-        return;
-      }
+    if (!cpId) {
+      setError('No channel partner ID found. Please login again.');
+      return;
+    }
 
-      setLoading(true);
-      try {
-        // Using the original collection name 'ACN123' as it might be specific to your application
-        const q = query(collection(db, 'ACN123'), where('cpCode', '==', cpId));
-        const querySnapshot = await getDocs(q);
-
+    setLoading(true);
+    
+    try {
+      // Create query the same way as before
+      const q = query(collection(db, 'ACN123'), where('cpCode', '==', cpId));
+      
+      // Set up real-time listener
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const propertiesData: Property[] = querySnapshot.docs.map((docSnap) => ({
           ...docSnap.data(),
-        } as Property
-        ));
+        } as Property));
 
+        console.log(propertiesData);
         setProperties(propertiesData);
-      } catch (err: any) {
+        setLoading(false);
+      }, (err) => {
         setError(err.message || 'Error fetching properties');
         console.error('Fetch error:', err);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchProperties();
+      });
+      
+      // Clean up the listener when the component unmounts
+      return () => unsubscribe();
+      
+    } catch (err: any) {
+      setError(err.message || 'Error fetching properties');
+      console.error('Fetch error:', err);
+      setLoading(false);
+    }
   }, [cpId]);
 
   const handlePropertyStatusChange = async (value: string, propertyId: string): Promise<void> => {
@@ -166,34 +178,42 @@ const useRequirements = () => {
   const cpId = useCpId();
 
   useEffect(() => {
-    const fetchRequirements = async () => {
-      if (!cpId) {
-        setError('No channel partner ID found. Please login again.');
-        return;
-      }
+    if (!cpId) {
+      setError('No channel partner ID found. Please login again.');
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const q = query(
-          collection(db, "requirements"),
-          where("agentCpid", "==", cpId)
-        );
-
-        const querySnapshot = await getDocs(q);
+    setLoading(true);
+    
+    try {
+      const q = query(
+        collection(db, "requirements"),
+        where("agentCpid", "==", cpId)
+      );
+      
+      // Set up real-time listener
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const requirementsData: Requirement[] = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
         } as Requirement));
 
+        console.log(requirementsData);
         setRequirements(requirementsData);
-      } catch (err: any) {
+        setLoading(false);
+      }, (err) => {
         setError(err.message || 'Error fetching requirements');
         console.error('Fetch error:', err);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchRequirements();
+      });
+      
+      // Clean up the listener when the component unmounts
+      return () => unsubscribe();
+      
+    } catch (err: any) {
+      setError(err.message || 'Error fetching requirements');
+      console.error('Fetch error:', err);
+      setLoading(false);
+    }
   }, [cpId]);
 
   const hanldeRequirementsStatusChange = async (value: string, requirementsId: string): Promise<void> => {
@@ -232,4 +252,4 @@ export default function DashboardTab() {
       />
     </View>
   );
-} 
+}

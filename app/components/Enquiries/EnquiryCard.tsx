@@ -44,7 +44,8 @@ const EnquiryCard: React.FC<CardProps> = ({
         <PropertyDetailsScreen
           property={enquiry?.property!}
           onClose={() => setIsDetailsModalOpen(false)}
-          parent = "enq"
+          parent = "dashboardEnquiry"
+          enqId={enquiry['enquiryId']!}
         />
       )}
       {isReviewModalOpen && (
@@ -54,12 +55,12 @@ const EnquiryCard: React.FC<CardProps> = ({
           enqId={enquiry['enquiryId']!}
         />
       )}
-      {isDetailsModalOpen && (
+      {/* {isDetailsModalOpen && (
         <PropertyDetailsScreen
           property={enquiry?.property!}
           onClose={() => setIsDetailsModalOpen(false)}
         />
-      )}
+      )} */}
       {isReviewModalOpen && (
         <ReviewModal
           isOpen={isReviewModalOpen}

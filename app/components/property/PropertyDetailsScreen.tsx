@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert, Linking } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions, Image, Modal, Alert, Linking, Pressable } from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import ImageCarousel from './ImageCarousel';
 import { Enquiry, Property } from '@/app/types';
@@ -16,6 +16,8 @@ import ShareModal from '@/app/modals/ShareModal';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import ReviewModal from '../Enquiries/ReviewModal';
+import DashboardDropdown from '../dashboard/DashboardDropdown';
 
 interface AgentData {
   phonenumber: string;
@@ -26,6 +28,8 @@ interface PropertyDetailsScreenProps {
   property: Property;
   onClose: () => void;
   parent?: string;
+  enqId?: string;
+  onStatusChange?: (id: string, status: string) => void;
 }
 
 interface IdGenerationResult {
@@ -56,7 +60,7 @@ const formatDate = (timestamp?: number) => {
 };
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: PropertyDetailsScreenProps) => {
+const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, onStatusChange }: PropertyDetailsScreenProps) => {
   const router = useRouter();
   const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
   const [localImages, setLocalImages] = useState<string[]>([]);
@@ -68,6 +72,14 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const giveReviewClick = (e: any, enqId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsReviewModalOpen(true);
+  };
 
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const generateNextEnqId = async (): Promise<string | null> => {
@@ -377,11 +389,40 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
             <Ionicons name="folder-outline" size={20} color="#153E3B" />
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
-          {parent === "" &&
+          {parent === "properties" &&
             <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNowBtn}>
               <Ionicons name="call-outline" size={20} color="white" />
               <Text style={styles.primaryButtonText}>Enquire Now</Text>
             </TouchableOpacity>
+          }
+          {parent === "dashboardEnquiry" &&
+            <Pressable
+              // className="bg-gray-200 border border-gray-300 rounded-lg"
+              onPress={(e) => giveReviewClick(e, enqId!)}
+              // style={{ display: "flex", flexDirection: "row", alignItems: "center", paddingVertical: 6, paddingHorizontal: 4, gap: 8 }}
+              style={styles.primaryButton}
+            >
+              <MaterialIcons name="edit" size={20} color="white" />
+              <Text style={styles.primaryButtonText}>Give review</Text>
+            </Pressable>
+          }
+          {parent === "dashboardInventory" &&
+          <View 
+            // style={styles.primaryButton}
+          >
+            <DashboardDropdown
+            value={property.status || "Available"}
+            setValue={(val) => onStatusChange!(property.propertyId, val)}
+            options={[
+              { label: "Available", value: "Available" },
+              { label: "Hold", value: "Hold" },
+              { label: "Sold", value: "Sold" }
+            ]}
+            type={"inventory"}
+            openDropdownUp={true}
+            parent="dashboardInventory"
+          />
+          </View>
           }
         </View>
 
@@ -440,6 +481,13 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
           </View>
         </Modal>
       </View>
+      {isReviewModalOpen && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          enqId={enqId!}
+        />
+      )}
     </Modal>
   );
 });

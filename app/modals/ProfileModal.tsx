@@ -15,6 +15,7 @@ import { logOut } from '@/store/slices/authSlice';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { toCapitalizedWords } from '../helpers/common';
+import { showErrorToast } from '@/utils/toastUtils';
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -49,11 +50,21 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
   const initials = getInitials(name);
   const avatarColor = getRandomColor();
 
-  const handleLogOut = () => {
-    setVisible(false);
-    dispatch(logOut());
-    router.dismissAll();
-    router.replace('/');
+  const handleLogOut = async () => {
+    
+    try {
+      await dispatch(logOut());
+      
+      setTimeout(() => {
+        router.dismissAll();
+        router.replace('/');
+      }, 300)
+    } catch (error) {
+      console.error('Error during logout:', error);
+      showErrorToast("Some error occured. Please try again.")
+    } finally {
+      setVisible(false);
+    }
   }
 
   return (

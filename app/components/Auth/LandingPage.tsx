@@ -76,6 +76,7 @@ export default function LandingPage() {
   const router = useRouter();
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const loadingAuth = useSelector((state: RootState) => state.auth.loading);
   const isMounted = useRef(false);
 
   // Handle redirects safely with isMounted check
@@ -91,7 +92,7 @@ export default function LandingPage() {
     // Only navigate if authenticated and component is still mounted
     let navigationTimeout: NodeJS.Timeout;
     
-    if (isAuthenticated && isMounted.current) {
+    if (isAuthenticated && isMounted.current && !loadingAuth) {
       // Using setTimeout to ensure navigation happens after initial mounting
       navigationTimeout = setTimeout(() => {
         if (isMounted.current) {
@@ -105,7 +106,7 @@ export default function LandingPage() {
         clearTimeout(navigationTimeout);
       }
     };
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, loadingAuth]);
 
   const handleNavigate = () => {
     if (!isAuthenticated) {
