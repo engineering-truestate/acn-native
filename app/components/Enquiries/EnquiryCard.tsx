@@ -44,6 +44,7 @@ const EnquiryCard: React.FC<CardProps> = ({
         <PropertyDetailsScreen
           property={enquiry?.property!}
           onClose={() => setIsDetailsModalOpen(false)}
+          parent = "enq"
         />
       )}
       {isReviewModalOpen && (

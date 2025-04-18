@@ -25,6 +25,7 @@ interface AgentData {
 interface PropertyDetailsScreenProps {
   property: Property;
   onClose: () => void;
+  parent?: string;
 }
 
 interface IdGenerationResult {
@@ -55,7 +56,7 @@ const formatDate = (timestamp?: number) => {
 };
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetailsScreenProps) => {
+const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: PropertyDetailsScreenProps) => {
   const router = useRouter();
   const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
   const [localImages, setLocalImages] = useState<string[]>([]);
@@ -376,11 +377,12 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <Ionicons name="folder-outline" size={20} color="#153E3B" />
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNowBtn}>
-            <Ionicons name="call-outline" size={20} color="white" />
-            <Text style={styles.primaryButtonText}>Enquire Now</Text>
-          </TouchableOpacity>
+          {parent === "" &&
+            <TouchableOpacity style={styles.primaryButton} onPress={handleEnquireNowBtn}>
+              <Ionicons name="call-outline" size={20} color="white" />
+              <Text style={styles.primaryButtonText}>Enquire Now</Text>
+            </TouchableOpacity>
+          }
         </View>
 
         {/* Image Viewer Modal */}

@@ -136,6 +136,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
         <PropertyDetailsScreen
           property={property}
           onClose={() => setIsDetailsModalOpen(false)}
+          parent = "inv"
         />
       )}
 
@@ -505,7 +506,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     } else if (activeTab === 'requirements') {
       return (
         <>
-          {requirements?.length != 0 || bufferring ? (
+          {requirements?.length === 0 || bufferring ? (
             <EmptyTabContent
               text="You haven't added any requirements"
               sub_text="Upload details of property type you need"
@@ -534,7 +535,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     } else {
       return (
         <>
-          {enquiries.length != 0 || bufferring ? (
+          {enquiries.length === 0 || bufferring ? (
             <EmptyTabContent
               text="No enquiries made yet."
               sub_text="Browse and enquire about available properties."
