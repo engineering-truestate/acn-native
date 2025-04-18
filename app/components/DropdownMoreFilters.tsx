@@ -29,16 +29,17 @@ const DropdownMoreFilters = ({
   const [dropdownLayout, setDropdownLayout] = useState({ height: 0, width: 0 });
   const [maxItemWidth, setMaxItemWidth] = useState(0);
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
-  const buttonRef = useRef(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const buttonRef = useRef<View|null>(null);
   
   // Handle back button press on Android to close dropdown
   useEffect(() => {
     const backAction = () => {
       if (isOpen) {
-        setIsOpen(false);
-        return true; // Prevent default behavior
+        closeDropdown();
+        return true; 
       }
-      return false; // Let default behavior happen
+      return false; 
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -51,14 +52,24 @@ const DropdownMoreFilters = ({
 
   const handleToggle = useCallback(() => {
     if (!isOpen) {
-      // Measure position just before opening
-      if (buttonRef.current) {
-        buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
-          setButtonPosition({ x: pageX, y: pageY + height });
-        });
-      }
+      calculateButtonPosition();
+      setTimeout(()=>{
+        setModalVisible(true);
+        setIsOpen(true);
+      },0)
+        
+      // }
+    } else {
+      closeDropdown();
     }
-    setIsOpen(prev => !prev);
+  }, [isOpen]);
+
+  const closeDropdown = useCallback(() => {
+    setModalVisible(false);
+    // Add a small delay before setting isOpen to false to allow modal animation
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 100);
   }, []);
 
   const handleLayout = useCallback((event: LayoutChangeEvent) => {
@@ -66,20 +77,24 @@ const DropdownMoreFilters = ({
     setDropdownLayout({ height, width });
   }, []);
 
-  const handleClose = useCallback(() => {
-    setIsOpen(false);
-  }, []);
-
   const handleRefine = useCallback((value: string) => {
     refine(value);
   }, [refine]);
+ 
+  const calculateButtonPosition= () => {
+    if(buttonRef.current){
+      buttonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setButtonPosition({ x: pageX, y: pageY + height });
+      });
+    }
+  }
 
   // Calculate and track the width of the largest item
   const measureItemWidth = useCallback((item: RefinementItem) => {
-    // Approximate width calculation based on character length
+   
     const labelWidth = (item.label.length * 8) + 50; // Base width + padding
     const countWidth = (item.count.toString().length * 8) + 20; // Count width + padding
-    const totalWidth = labelWidth + countWidth + 50; // Extra space for checkbox, etc.
+    const totalWidth = labelWidth + countWidth + 50; 
     
     if (totalWidth > maxItemWidth) {
       setMaxItemWidth(totalWidth);
@@ -93,8 +108,8 @@ const DropdownMoreFilters = ({
 
   const dropdownWidth = useMemo(() => {
     const baseWidth = Math.max(dropdownLayout.width, maxItemWidth);
-    return isAssetType ? baseWidth * 0.7 : baseWidth * 0.6;
-  }, [dropdownLayout.width, maxItemWidth, title]);
+    return isAssetType ? baseWidth * 0.7 : baseWidth * 0.65;
+  }, [dropdownLayout.width, maxItemWidth, isAssetType,title]);
 
   const renderItems = useMemo(() => {
     return items.map((item, index) => {
@@ -115,16 +130,19 @@ const DropdownMoreFilters = ({
             <Text className="text-gray-800">{item.label}</Text>
           </View>
           <View className="ml-2">
-            <Text className="text-xs text-gray-600">{item.count}</Text>
+            <Text className="text-xs text-gray-600 bg-[#e5e7eb] rounded-[4px] px-2">{item.count}</Text>
           </View>
         </TouchableOpacity>
       );
     });
   }, [items, handleRefine]);
 
+  
+
   return (
     <View style={{ position: 'relative' }}>
       <TouchableOpacity
+      
         ref={buttonRef}
         className={`flex-row justify-between items-center px-3 py-2 ${isOpen ? 'bg-[#153E3B]' : 'bg-white border border-gray-300'} rounded-md`}
         onPress={handleToggle}
@@ -136,14 +154,14 @@ const DropdownMoreFilters = ({
         <Ionicons name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={isOpen ? "#FFFFFF" : "#666"} />
       </TouchableOpacity>
       
-      {isOpen && (
+      
         <Modal
           transparent={true}
-          visible={isOpen}
-          onRequestClose={handleClose}
+          visible={modalVisible}
+          onRequestClose={closeDropdown}
           animationType="none"
         >
-          <TouchableWithoutFeedback onPress={handleClose}>
+          <TouchableWithoutFeedback onPress={closeDropdown}>
             <View style={StyleSheet.absoluteFillObject} />
           </TouchableWithoutFeedback>
           
@@ -151,7 +169,7 @@ const DropdownMoreFilters = ({
             style={{
               position: 'absolute',
               top: buttonPosition.y,
-              left: buttonPosition.x-dropdownWidth*0.1,
+              left: buttonPosition.x-dropdownWidth*0.2,
               width: dropdownWidth,
               backgroundColor: 'white',
               borderRadius: 4,
@@ -174,7 +192,7 @@ const DropdownMoreFilters = ({
             </ScrollView>
           </View>
         </Modal>
-      )}
+     
     </View>
   );
 };

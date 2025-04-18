@@ -19,6 +19,7 @@ import { showErrorToast } from '@/utils/toastUtils';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
 import Toast from 'react-native-toast-message';
 
+
 // ✅ Props typing
 type ProfileModalProps = {
   visible: boolean;
@@ -70,6 +71,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
       <TouchableWithoutFeedback onPress={() => setVisible(false)}>
         <View style={styles.overlay}>
           <Toast />
+          
           <TouchableWithoutFeedback>
             <View style={styles.container}>
               {/* ❌ Close Button */}

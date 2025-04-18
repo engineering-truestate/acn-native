@@ -36,7 +36,7 @@ const CustomSelectDropdown: React.FC<CustomSelectDropdownProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0, top: 0, left: 0 });
-    const triggerRef = useRef(null);
+    const triggerRef = useRef<View>(null);
 
     const handleToggle = useCallback(() => {
         if (disabled) return;

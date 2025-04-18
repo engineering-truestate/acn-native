@@ -31,6 +31,7 @@ import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMon
 import { router } from 'expo-router';
 import EmptyTabContent from './EmptyTabContent';
 import { selectKamNumber } from '@/store/slices/kamSlice';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -436,7 +437,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         await updateDoc(docRef, { status: newStatus });
         propertyStatusUpdate(newStatus, id);
       }
+      showSuccessToast('Inventory status updated Succesfully!');
     } catch (error) {
+      showErrorToast('Error updating Inventory status!');
       console.error("Error updating status in Firestore:", error);
     }
   }, []);
@@ -461,8 +464,10 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
         await updateDoc(docRef, { status: newStatus });
         hanldeRequirementsStatusChange(newStatus, id);
       }
+      showSuccessToast('Requirement status updated Succesfully!');
     } catch (error) {
-      console.error("Error updating status in Firestore:", error);
+      showErrorToast('Error updating Requirement status!');
+      //console.error("Error updating status in Firestore:", error);
     }
   }, []);
 

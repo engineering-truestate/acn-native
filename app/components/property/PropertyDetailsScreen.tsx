@@ -130,7 +130,10 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
 
   // Dummy handler functions
   const handleOpenGoogleMap = () => {
-    if (!property.mapLocation) return;
+    if (!property.mapLocation){
+      showErrorToast("Map location not available.");
+      return;
+    }
     Linking.openURL(property.mapLocation)
   };
 
@@ -164,8 +167,9 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
     try {
       const enquiryDocRef = doc(db, "enquiries", nextEnqId);
       await setDoc(enquiryDocRef, enq);
-      showSuccessToast("Enquiry submitted successfully!");
+      showSuccessToast("Enquiry submitted successfully!", { isInModal: true });
     } catch (error) {
+      showErrorToast("Error submitting enquiry. Please try again.", { isInModal: true });
       console.error("Error in enquiry submission:", error);
     }
   };
@@ -212,7 +216,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
       }, 100);
 
     } catch (error) {
-      console.error("Error during enquiry process:", error);
+     
       // Alert.alert(
       //   "An error occurred while processing your enquiry. Please try again."
       // );
