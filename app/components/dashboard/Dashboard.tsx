@@ -137,7 +137,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
         <PropertyDetailsScreen
           property={property}
           onClose={() => setIsDetailsModalOpen(false)}
-          parent = "dashboardInventory"
+          parent="dashboardInventory"
           onStatusChange={onStatusChange}
         />
       )}
@@ -373,13 +373,10 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
-  propertyStatusUpdate: (value: string, propertyId: string) => void;
-  hanldeRequirementsStatusChange: (value: string, propertyId: string) => void;
-  handleGiveReview: (enqId: string, review: {}) => void;
   loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading, hanldeRequirementsStatusChange, handleGiveReview }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, loading }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -422,13 +419,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
-    setProperties((prevProperties) =>
-      prevProperties.map((property) =>
-        property.propertyId === id
-          ? { ...property, status: newStatus }
-          : property
-      )
-    );
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));
@@ -437,7 +427,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        propertyStatusUpdate(newStatus, id);
       }
       showSuccessToast('Inventory status updated Succesfully!');
     } catch (error) {
@@ -448,13 +437,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
 
   const handleRequirementStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
-    setRequirements((prevRequirements) =>
-      prevRequirements.map((requirement) =>
-        requirement.requirementId === id
-          ? { ...requirement, status: newStatus }
-          : requirement
-      )
-    );
 
     try {
       const requirementsRef = collection(db, "requirements");
@@ -464,7 +446,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        hanldeRequirementsStatusChange(newStatus, id);
       }
       showSuccessToast('Requirement status updated Succesfully!');
     } catch (error) {
@@ -560,7 +541,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     key={enquiry.id}
                     index={index}
                     enquiry={enquiry}
-                    handleGiveReview={handleGiveReview}
                   />
                 )
               })}

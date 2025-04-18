@@ -9,14 +9,12 @@ interface CardProps {
   // key:string,
   index: number;
   enquiry: EnquiryWithProperty;
-  handleGiveReview: (enquiryId: string, review: {}) => void;
 }
 
 const EnquiryCard: React.FC<CardProps> = ({
   // key,
   index,
   enquiry,
-  handleGiveReview,
 }) => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -44,7 +42,7 @@ const EnquiryCard: React.FC<CardProps> = ({
         <PropertyDetailsScreen
           property={enquiry?.property!}
           onClose={() => setIsDetailsModalOpen(false)}
-          parent = "dashboardEnquiry"
+          parent="dashboardEnquiry"
           enqId={enquiry['enquiryId']!}
         />
       )}
@@ -53,7 +51,6 @@ const EnquiryCard: React.FC<CardProps> = ({
           isOpen={isReviewModalOpen}
           onClose={() => setIsReviewModalOpen(false)}
           enqId={enquiry['enquiryId']!}
-          onReview={handleGiveReview}
         />
       )}
       {/* {isDetailsModalOpen && (

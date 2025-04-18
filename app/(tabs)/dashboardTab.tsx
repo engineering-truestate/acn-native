@@ -45,11 +45,11 @@ const useEnquiries = (): UseEnquiriesResult => {
     }
 
     setLoading(true);
-    
+
     try {
       // Create the query the same way as before
       const enquiriesQuery = query(collection(db, 'enquiries'), where("cpId", "==", cpId));
-      
+
       // Set up real-time listener for enquiries
       const unsubscribe = onSnapshot(enquiriesQuery, async (snapshot) => {
         const enquiriesData: Enquiry[] = snapshot.docs.map((docSnap) => ({
@@ -57,8 +57,6 @@ const useEnquiries = (): UseEnquiriesResult => {
           ...docSnap.data(),
         }));
 
-        console.log(enquiriesData);
-        
         // Now fetch property details for each of myEnquiries - keeping your original logic
         const propertyIds = [...new Set(enquiriesData.map(enquiry => enquiry.propertyId))];
         let propertyDocs: Map<string, DocumentData> = new Map();
@@ -86,7 +84,7 @@ const useEnquiries = (): UseEnquiriesResult => {
             property: null,
           };
         });
-        
+
         setMyEnquiries(enquiriesWithProperty);
         setLoading(false);
       }, (err) => {
@@ -94,10 +92,10 @@ const useEnquiries = (): UseEnquiriesResult => {
         console.error('Fetch error:', err);
         setLoading(false);
       });
-      
+
       // Clean up the listener when the component unmounts
       return () => unsubscribe();
-      
+
     } catch (err: any) {
       setError(err.message || 'Error fetching enquiries');
       console.error('Fetch error:', err);
@@ -132,18 +130,17 @@ const useProperties = (): UsePropertiesResult => {
     }
 
     setLoading(true);
-    
+
     try {
       // Create query the same way as before
       const q = query(collection(db, 'ACN123'), where('cpCode', '==', cpId));
-      
+
       // Set up real-time listener
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const propertiesData: Property[] = querySnapshot.docs.map((docSnap) => ({
           ...docSnap.data(),
         } as Property));
 
-        console.log(propertiesData);
         setProperties(propertiesData);
         setLoading(false);
       }, (err) => {
@@ -151,10 +148,10 @@ const useProperties = (): UsePropertiesResult => {
         console.error('Fetch error:', err);
         setLoading(false);
       });
-      
+
       // Clean up the listener when the component unmounts
       return () => unsubscribe();
-      
+
     } catch (err: any) {
       setError(err.message || 'Error fetching properties');
       console.error('Fetch error:', err);
@@ -195,20 +192,19 @@ const useRequirements = () => {
     }
 
     setLoading(true);
-    
+
     try {
       const q = query(
         collection(db, "requirements"),
         where("agentCpid", "==", cpId)
       );
-      
+
       // Set up real-time listener
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const requirementsData: Requirement[] = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
         } as Requirement));
 
-        console.log(requirementsData);
         setRequirements(requirementsData);
         setLoading(false);
       }, (err) => {
@@ -216,10 +212,10 @@ const useRequirements = () => {
         console.error('Fetch error:', err);
         setLoading(false);
       });
-      
+
       // Clean up the listener when the component unmounts
       return () => unsubscribe();
-      
+
     } catch (err: any) {
       setError(err.message || 'Error fetching requirements');
       console.error('Fetch error:', err);
@@ -257,9 +253,6 @@ export default function DashboardTab() {
         myEnquiries={myEnquiries}
         myProperties={properties}
         myRequirements={requirements}
-        propertyStatusUpdate={handlePropertyStatusChange}
-        handleGiveReview={handleGiveReview}
-        hanldeRequirementsStatusChange={hanldeRequirementsStatusChange}
         loading={{ enquiriesLoading: enquiriesLoading, propertiesLoading: propertiesLoading, requirementsLoading: requirementsLoading }}
       />
     </View>

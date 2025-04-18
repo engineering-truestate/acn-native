@@ -9,11 +9,10 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUt
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  enqId: string;
-  onReview: (enquireId: string, rating: {}) => void
+  enqId: string
 };
 
-const ReviewModal: React.FC<Props> = ({ isOpen, onClose, onReview, enqId }) => {
+const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [loader, setLoader] = useState(false);
@@ -65,7 +64,6 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, onReview, enqId }) => {
         reviews: arrayUnion(newReview),
       });
       showSuccessToast("Review added successfully!");
-      onReview(enqId, newReview);
 
     } catch (error) {
       console.error("Error adding review:", error);

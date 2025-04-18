@@ -135,7 +135,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
 
   // Dummy handler functions
   const handleOpenGoogleMap = () => {
-    if (!property.mapLocation){
+    if (!property.mapLocation) {
       showErrorToast("Map location not available.");
       return;
     }
@@ -221,7 +221,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
       }, 100);
 
     } catch (error) {
-     
+
       // Alert.alert(
       //   "An error occurred while processing your enquiry. Please try again."
       // );
@@ -264,7 +264,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               <Text style={styles.propertyName}>{getPropertyName()}</Text>
             </View>
             <TouchableOpacity onPress={onClose}>
-              <CloseIcon/>
+              <CloseIcon />
             </TouchableOpacity>
           </View>
 
@@ -278,7 +278,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               <Text style={styles.infoText}>{property.assetType || "Unknown Type"}</Text>
             </View>
             <View style={styles.infoItem}>
-              <HandOverIcon/>
+              <HandOverIcon />
               <Text style={styles.infoText}>{property.handoverDate || "Pending"}</Text>
             </View>
             <View style={styles.infoItem}>
@@ -439,22 +439,22 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
             </Pressable>
           }
           {parent === "dashboardInventory" &&
-          <View 
+            <View
             // style={styles.primaryButton}
-          >
-            <DashboardDropdown
-            value={property.status || "Available"}
-            setValue={(val) => onStatusChange!(property.propertyId, val)}
-            options={[
-              { label: "Available", value: "Available" },
-              { label: "Hold", value: "Hold" },
-              { label: "Sold", value: "Sold" }
-            ]}
-            type={"inventory"}
-            openDropdownUp={true}
-            parent="dashboardInventory"
-          />
-          </View>
+            >
+              <DashboardDropdown
+                value={property.status || "Available"}
+                setValue={(val) => onStatusChange!(property.propertyId, val)}
+                options={[
+                  { label: "Available", value: "Available" },
+                  { label: "Hold", value: "Hold" },
+                  { label: "Sold", value: "Sold" }
+                ]}
+                type={"inventory"}
+                openDropdownUp={true}
+                parent="dashboardInventory"
+              />
+            </View>
           }
         </View>
 
@@ -470,7 +470,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               style={styles.closeImageViewer}
               onPress={() => setIsImageViewerVisible(false)}
             >
-              <CloseIcon/>
+              <CloseIcon />
             </TouchableOpacity>
 
             {localImages.length > 0 && (
@@ -655,7 +655,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#FFFFFF",
-    gap: 16
+    gap: 16,
+    marginBottom: 20
   },
   infoSection: {
     backgroundColor: 'white',
