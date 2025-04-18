@@ -167,6 +167,7 @@ const MoreFilters = ({
     >
       <View className="flex-1 bg-white" style={{ zIndex: 1 }}>
         {/* Header */}
+        {forceRender && <View style={{ height: 0 }} />}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle} >
@@ -178,7 +179,7 @@ const MoreFilters = ({
           {/* Asset Type & Configuration - First Row */}
           <View className="flex-row flex-wrap justify-between mb-4">
             {/* Asset Type Dropdown - Now with higher z-index */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 30 }}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">
                 {outsideFilters[0].title}
               </Text>
@@ -191,7 +192,7 @@ const MoreFilters = ({
             </View>
 
             {/* Configuration Dropdown - Now with lower z-index than Asset Type */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 30 }}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">
                 {outsideFilters[1].title}
               </Text>

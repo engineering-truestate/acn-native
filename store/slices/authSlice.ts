@@ -28,6 +28,7 @@ export const listenToVersionChanges = () => (dispatch: AppDispatch, getState: ()
 
         if (currentVersion !== newVersion) {
           dispatch(setVersion(newVersion));
+          router.dismissAll();
           router.replace('/'); // Use navigation instead of reload
         }
       }

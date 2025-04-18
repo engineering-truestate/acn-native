@@ -9,6 +9,7 @@ import { Property } from "../types";
 import { useRouter } from "expo-router";
 import PropertyCard from "../components/property/PropertyCard";
 import MoreFilters from "../components/MoreFilters";
+import { useDoubleBackPressExit } from "@/hooks/useDoubleBackPressExit";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -117,6 +118,8 @@ export default function PropertiesScreen() {
 
   // Calculate the content height dynamically
   const windowHeight = Dimensions.get('window').height;
+
+  useDoubleBackPressExit();
 
   return (
     <View className="flex-1 bg-[#F5F6F7]">
