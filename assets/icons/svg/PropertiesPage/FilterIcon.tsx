@@ -9,9 +9,9 @@ interface SlidersIconProps {
   borderColor?: string;
 }
 
-const SlidersIcon: React.FC<SlidersIconProps> = ({
-  width = 36,
-  height = 36,
+const FilterIcon: React.FC<SlidersIconProps> = ({
+  width = 40,
+  height = 40,
   backgroundColor = 'white',
   strokeColor = '#2B2928',
   borderColor = '#B5B3B3'
@@ -62,7 +62,7 @@ const SlidersIcon: React.FC<SlidersIconProps> = ({
   );
 };
 
-export default SlidersIcon;
+export default FilterIcon;
 
 // Usage examples:
 // <SlidersIcon />

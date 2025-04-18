@@ -14,7 +14,7 @@ import Svg, {
 } from 'react-native-svg';
 import { ViewStyle } from 'react-native';
 
-interface CircularIconProps {
+interface ShareIconProps {
   width?: number;
   height?: number;
   backgroundColor?: string;
@@ -22,7 +22,7 @@ interface CircularIconProps {
   style?: ViewStyle;
 }
 
-const CircularIcon: React.FC<CircularIconProps> = ({ 
+const ShareIconInsidePropertyDetails: React.FC<ShareIconProps> = ({ 
   width = 52, 
   height = 52, 
   backgroundColor = '#153E3B',
@@ -91,4 +91,4 @@ const CircularIcon: React.FC<CircularIconProps> = ({
   );
 };
 
-export default CircularIcon;
+export default ShareIconInsidePropertyDetails;

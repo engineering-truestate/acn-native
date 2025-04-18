@@ -8,7 +8,8 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Linking,
-  ActivityIndicator
+  ActivityIndicator,
+  StyleSheet
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -31,6 +32,10 @@ import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMon
 import { router } from 'expo-router';
 import EmptyTabContent from './EmptyTabContent';
 import { selectKamNumber } from '@/store/slices/kamSlice';
+import ShareIconOutSide from '@/assets/icons/svg/PropertiesPage/ShareIcon';
+import MyRequirementIcon from '@/assets/icons/svg/Dashboard/MyRequirementsIcon';
+import MyInverntoriesIcon from '@/assets/icons/svg/Dashboard/MyInventoriesIcon';
+import MyEnquiriesIcon from '@/assets/icons/svg/Dashboard/MyEnquiryIcon';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 const StyledView = styled(View);
@@ -169,10 +174,10 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
 
               {/* Share icon */}
               <StyledTouchableOpacity
-                className="ml-2 p-1 bg-[#153E3B] rounded-full h-7 w-7 items-center justify-center"
+                style={styles.shareButton}
                 onPress={handleSharePress}
               >
-                <MaterialCommunityIcons name="share-variant" size={14} color="#FFFFFF" />
+                <ShareIconOutSide />
               </StyledTouchableOpacity>
             </StyledView>
           </StyledView>
@@ -392,6 +397,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
   const requirementMonthOptions = useRef(generateRequirementMonths(myRequirements));
   const enquiryMonthOptions = useRef(generateEnquiryMonths(myEnquiries));
   const initalLoad = useRef(true);
+  const [myInverntoriesIconColor, setMyInverntoriesIconColor] = useState("white");
+  const [myRequirementsIconColor, setMyRequirementsIconColor] = useState("#153E3B");
+  const [myEnquiresIconColor, setMyEnquiresIconColor] = useState("#153E3B");
 
   const renderMore = () => {
     if (isBatchSizePendingLock.current) return;
@@ -555,21 +563,21 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     {
       key: "inventories",
       label: "My Inventories",
-      icon: <MaterialCommunityIcons size={21.33} name={"home"} color={activeTab === "inventories" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyInverntoriesIcon iconColor={myInverntoriesIconColor} />,
       count: myProperties.length,
       loading: loading.propertiesLoading
     },
     {
       key: "requirements",
       label: "My Requirements",
-      icon: <MaterialCommunityIcons size={21.33} name={"layers"} color={activeTab === "requirements" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyRequirementIcon layerColor={myRequirementsIconColor} />,
       count: myRequirements.length,
       loading: loading.requirementsLoading
     },
     {
       key: "enquiries",
       label: "My Enquiries",
-      icon: <MaterialIcons name="checklist" size={21.33} color={activeTab === "enquiries" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyEnquiriesIcon iconColor={myEnquiresIconColor} />,
       count: myEnquiries.length,
       loading: loading.enquiriesLoading
     },
@@ -593,16 +601,25 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
         setProperties(myProperties);
         propertyMonthOptions.current = generatePropertyMonths(myProperties);
         setMonthFilterOptions(propertyMonthOptions.current);
+        setMyInverntoriesIconColor("white");
+        setMyRequirementsIconColor("#153E3B");
+        setMyEnquiresIconColor("#153E3B");
         break;
       case "requirements":
         setRequirements(myRequirements);
         requirementMonthOptions.current = generateRequirementMonths(myRequirements);
         setMonthFilterOptions(requirementMonthOptions.current);
+        setMyInverntoriesIconColor("#153E3B");
+        setMyRequirementsIconColor("white");
+        setMyEnquiresIconColor("#153E3B");
         break;
       case "enquiries":
         setEnquiries(myEnquiries);
         enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
         setMonthFilterOptions(enquiryMonthOptions.current);
+        setMyInverntoriesIconColor("#153E3B");
+        setMyRequirementsIconColor("#153E3B");
+        setMyEnquiresIconColor("white");
         break;
       default:
         break;
@@ -614,8 +631,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     if (myProperties) {
       setProperties(myProperties);
       propertyMonthOptions.current = generatePropertyMonths(myProperties);
-      if (activeTab === "inventories")
+      if (activeTab === "inventories") {
         setMonthFilterOptions(propertyMonthOptions.current);
+      }
     }
   }, [myProperties])
 
@@ -623,8 +641,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     if (myRequirements) {
       setRequirements(myRequirements);
       requirementMonthOptions.current = generateRequirementMonths(myRequirements);
-      if (activeTab === "requirements")
+      if (activeTab === "requirements") {
         setMonthFilterOptions(propertyMonthOptions.current);
+      }
     }
   }, [myRequirements])
 
@@ -632,8 +651,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     if (myEnquiries) {
       setEnquiries(myEnquiries);
       enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
-      if (activeTab === "enquiries")
+      if (activeTab === "enquiries") {
         setMonthFilterOptions(propertyMonthOptions.current);
+      }
     }
   }, [myEnquiries])
 
@@ -643,6 +663,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     switch (activeTab) {
       case "inventories":
         setProperties(filterPropertiesByMonth(myProperties, monthFilter));
+
         break;
       case "requirements":
         setRequirements(filterRequirementsByMonth(myRequirements, monthFilter));
@@ -687,4 +708,21 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     </StyledView >
 
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  shareButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 22,
+    backgroundColor: '#E3E3E3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 10,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+  },
+});

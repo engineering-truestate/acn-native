@@ -8,7 +8,7 @@ interface ShareIconProps {
   pathColor?: string;
 }
 
-const ShareIcon: React.FC<ShareIconProps> = ({
+const ShareIconOutSide: React.FC<ShareIconProps> = ({
   width = 26,
   height = 27,
   fillColor = "#E3E3E3",
@@ -25,4 +25,4 @@ const ShareIcon: React.FC<ShareIconProps> = ({
   );
 };
 
-export default ShareIcon;
+export default ShareIconOutSide;

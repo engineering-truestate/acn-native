@@ -10,7 +10,7 @@ interface EditIconProps {
   style?: ViewStyle;
 }
 
-const EditIcon: React.FC<EditIconProps> = ({ 
+const RequirementIcon: React.FC<EditIconProps> = ({ 
   width = 18, 
   height = 19, 
   color = '#252626',
@@ -36,4 +36,4 @@ const EditIcon: React.FC<EditIconProps> = ({
   );
 };
 
-export default EditIcon;
+export default RequirementIcon;

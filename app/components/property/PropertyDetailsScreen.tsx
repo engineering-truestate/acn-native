@@ -25,6 +25,9 @@ import { styled } from 'nativewind';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
+import ShareIcon from '@/assets/icons/svg/PropertiesPage/ShareIcon';
+import ShareIconInsidePropertyDetails from '@/assets/icons/svg/PropertiesPage/SHareIconPropertyDetailsModal';
+import DriveIcon from '@/assets/icons/svg/PropertiesPage/DriveIcon';
 
 interface AgentData {
   phonenumber: string;
@@ -384,7 +387,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               <InfoRow label="Land Khata" value={property.landKhata} />
               <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
               <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-              <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+              <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)}  />
+            <InfoRow label="Last Status Check" value={formatDate(property.dateOfStatusLastChecked)}/>
             </View>
           </View>
         </ScrollView>
@@ -412,13 +416,13 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
 
         {/* Fixed share button */}
         <TouchableOpacity style={styles.shareButton} onPress={handleShareButtonPress}>
-          <Ionicons name="share-social" size={24} color="white" />
+          <ShareIconInsidePropertyDetails />
         </TouchableOpacity>
 
         {/* Footer Actions */}
         <View style={styles.footer}>
           <TouchableOpacity style={styles.secondaryButton} onPress={handleOpenDriveDetails}>
-            <Ionicons name="folder-outline" size={20} color="#153E3B" />
+            <DriveIcon />
             <Text style={styles.secondaryButtonText}>Open Details</Text>
           </TouchableOpacity>
           {parent === "properties" &&

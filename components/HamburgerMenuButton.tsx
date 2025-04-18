@@ -26,7 +26,7 @@ export const HamburgerMenuButton = ({ onPress, isOpen, showACN = false }: Hambur
     <TouchableOpacity onPress={onPress}>
       <View style={styles.container}>
         <View style={styles.hamburgerContainer}>
-          <HamburgerMenuIcon/>
+          <HamburgerMenuIcon />
         </View>
         {showACN &&
           <Text style={styles.acnText}>
@@ -61,13 +61,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#153E3B',
   },
   acnText: {
+    left: 25,
     fontFamily: 'Montserrat_700Bold',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#000',
   },
   buttonLabel: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto', 
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 16,
     fontWeight: '500',
     color: '#252626',

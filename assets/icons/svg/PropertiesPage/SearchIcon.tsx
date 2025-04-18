@@ -11,8 +11,8 @@ interface SearchIconProps {
 }
 
 const SearchIcon: React.FC<SearchIconProps> = ({ 
-  width = 36, 
-  height = 36, 
+  width = 40, 
+  height = 40, 
   backgroundColor = '#153E3B',
   iconColor = 'white',
   style 

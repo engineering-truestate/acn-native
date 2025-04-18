@@ -14,7 +14,7 @@ interface HomeIconProps {
   style?: ViewStyle;
 }
 
-const HomeIcon: React.FC<HomeIconProps> = ({
+const PropertyIcon: React.FC<HomeIconProps> = ({
   width = 18,
 
   height = 19,
@@ -83,4 +83,4 @@ const HomeIcon: React.FC<HomeIconProps> = ({
   );
 };
 
-export default HomeIcon;
+export default PropertyIcon;

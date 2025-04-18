@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#726C6C',
     marginLeft: 8,
+    marginRight: 15,
   },
   logoutButton: {
     flexDirection: 'row',

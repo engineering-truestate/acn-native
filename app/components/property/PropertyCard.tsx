@@ -15,6 +15,8 @@ import deductMonthlyCredit from '@/app/helpers/deductCredit';
 import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import ShareIconOutSide from '@/assets/icons/svg/PropertiesPage/ShareIcon';
+import DriveIcon from '@/assets/icons/svg/PropertiesPage/DriveIcon';
 
 interface PropertyCardProps {
   property: {
@@ -227,7 +229,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             {/* Share button on the far right */}
             <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
               {/* <Ionicons name="share-social" size={18} color="#153E3B" /> */}
-              <Octicons name="share-android" size={16} color="#153E3B" />
+              <ShareIconOutSide />
             </TouchableOpacity>
           </View>
 
@@ -280,7 +282,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             className="flex-1 border border-[#153E3B] rounded-md py-2 flex-row justify-center items-center"
             onPress={handleOpenDriveDetails}
           >
-            <Ionicons name="folder-outline" size={16} color="#153E3B" />
+            <DriveIcon />
             <Text className="text-[#153E3B] font-medium text-xs ml-1">Details</Text>
           </TouchableOpacity>
 

@@ -4,6 +4,8 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchBox } from 'react-instantsearch';
 import CustomCurrentRefinements from '../CustomCurrentRefinements';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
+import SearchIcon from '@/assets/icons/svg/PropertiesPage/SearchIcon';
+import FilterIcon from '@/assets/icons/svg/PropertiesPage/FilterIcon';
 
 interface RequirementFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -90,9 +92,8 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
         <View style={styles.filters}>
           <TouchableOpacity
             onPress={handleSearchPress}
-            style={styles.searchButton}
           >
-            <Feather name="search" size={24} color="white" />
+            <SearchIcon/>
           </TouchableOpacity>
         </View>
 
@@ -103,16 +104,19 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
               onPress={handleClear}
               style={styles.clearButton}
             >
-              <CloseIcon/>
+              <CloseIcon
+                strokeColor='white'
+              />
             </TouchableOpacity>
           </View>
         }
         <View style={styles.filters}>
           <TouchableOpacity
             onPress={handleToggleMoreFilters}
-            style={styles.moreFiltersButton}
+            // style={styles.moreFiltersButton}
           >
-            <Feather name="filter" size={24} color="black" />
+            {/* <Feather name="filter" size={24} color="black" /> */}
+            <FilterIcon/>
           </TouchableOpacity>
         </View>
       </View>
@@ -177,14 +181,18 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     height: 40,
+    width: 40,
     flexDirection: 'column',
     alignItems: 'center',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#ff0000',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    backgroundColor: '#ff0000',
+    backgroundColor: '#EF4444',
   },
   moreFiltersButton: {
     height: 40,

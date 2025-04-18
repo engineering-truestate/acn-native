@@ -9,7 +9,7 @@ interface GeometricIconProps {
   style?: ViewStyle;
 }
 
-const GeometricIcon: React.FC<GeometricIconProps> = ({ 
+const DriveIcon: React.FC<GeometricIconProps> = ({ 
   width = 21, 
   height = 20, 
   color = '#153E3B',
@@ -43,4 +43,4 @@ const GeometricIcon: React.FC<GeometricIconProps> = ({
   );
 };
 
-export default GeometricIcon;
+export default DriveIcon;

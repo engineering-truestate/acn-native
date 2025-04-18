@@ -9,7 +9,7 @@ interface GridIconProps {
   style?: ViewStyle;
 }
 
-const GridIcon: React.FC<GridIconProps> = ({ 
+const DashboardIcon: React.FC<GridIconProps> = ({ 
   width = 18, 
   height = 19, 
   color = '#292D32',
@@ -55,4 +55,4 @@ const GridIcon: React.FC<GridIconProps> = ({
   );
 };
 
-export default GridIcon;
+export default DashboardIcon;
