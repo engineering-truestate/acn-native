@@ -1,41 +1,76 @@
 import React from 'react';
-import { Svg, Path } from 'react-native-svg';
+import Svg, { Rect, Path } from 'react-native-svg';
 
-interface FilterIconProps {
+interface SlidersIconProps {
   width?: number;
   height?: number;
+  backgroundColor?: string;
   strokeColor?: string;
-  strokeWidth?: number;
+  borderColor?: string;
 }
 
-const FilterIcon: React.FC<FilterIconProps> = ({
-  width = 20,
-  height = 21,
+const SlidersIcon: React.FC<SlidersIconProps> = ({
+  width = 36,
+  height = 36,
+  backgroundColor = 'white',
   strokeColor = '#2B2928',
-  strokeWidth = 1.58824
+  borderColor = '#B5B3B3'
 }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 20 21" fill="none">
+    <Svg 
+      width={width} 
+      height={height} 
+      viewBox="0 0 36 36" 
+      fill="none"
+    >
+      <Rect 
+        x="0.529412" 
+        y="0.529412" 
+        width="34.9412" 
+        height="34.9412" 
+        rx="5.82353" 
+        fill={backgroundColor}
+      />
+      <Rect 
+        x="0.529412" 
+        y="0.529412" 
+        width="34.9412" 
+        height="34.9412" 
+        rx="5.82353" 
+        stroke={borderColor} 
+        strokeWidth="1.05882"
+      />
       <Path 
-        d="M6.35547 10.5V4.14709M6.35547 16.853V13.6765M11.9143 6.52945V4.14709M11.9143 16.853V9.70592" 
+        d="M14.8242 17.9999V11.647M14.8242 24.3529V21.1764M20.383 14.0293V11.647M20.383 24.3529V17.2058" 
         stroke={strokeColor} 
-        strokeWidth={strokeWidth} 
+        strokeWidth="1.58824" 
         strokeLinecap="round"
       />
       <Path 
-        d="M6.35386 13.6765C7.23102 13.6765 7.9421 12.9654 7.9421 12.0882C7.9421 11.2111 7.23102 10.5 6.35386 10.5C5.4767 10.5 4.76562 11.2111 4.76562 12.0882C4.76562 12.9654 5.4767 13.6765 6.35386 13.6765Z" 
+        d="M14.8226 21.1765C15.6998 21.1765 16.4108 20.4654 16.4108 19.5882C16.4108 18.7111 15.6998 18 14.8226 18C13.9455 18 13.2344 18.7111 13.2344 19.5882C13.2344 20.4654 13.9455 21.1765 14.8226 21.1765Z" 
         stroke={strokeColor} 
-        strokeWidth={strokeWidth} 
+        strokeWidth="1.58824" 
         strokeLinecap="round"
       />
       <Path 
-        d="M11.9125 9.70589C12.7896 9.70589 13.5007 8.99481 13.5007 8.11765C13.5007 7.2405 12.7896 6.52942 11.9125 6.52942C11.0353 6.52942 10.3242 7.2405 10.3242 8.11765C10.3242 8.99481 11.0353 9.70589 11.9125 9.70589Z" 
+        d="M20.3812 17.2058C21.2584 17.2058 21.9694 16.4947 21.9694 15.6175C21.9694 14.7404 21.2584 14.0293 20.3812 14.0293C19.504 14.0293 18.793 14.7404 18.793 15.6175C18.793 16.4947 19.504 17.2058 20.3812 17.2058Z" 
         stroke={strokeColor} 
-        strokeWidth={strokeWidth} 
+        strokeWidth="1.58824" 
         strokeLinecap="round"
       />
     </Svg>
   );
 };
 
-export default FilterIcon;
+export default SlidersIcon;
+
+// Usage examples:
+// <SlidersIcon />
+// or with custom props
+// <SlidersIcon 
+//   width={48} 
+//   height={48} 
+//   backgroundColor="#F0F0F0" 
+//   strokeColor="#000000" 
+//   borderColor="#CCCCCC" 
+// />
