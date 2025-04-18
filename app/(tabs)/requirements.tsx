@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, ScrollView, Keyboard, ActivityIndicator, Text, RefreshControl } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
@@ -8,6 +8,7 @@ import { Configure, InstantSearch, useHits, useInstantSearch, useSearchBox } fro
 import algoliasearch from 'algoliasearch';
 import RequirementDetailsModal from '../components/requirement/RequirementDetailsModal';
 import { Requirement } from '../types';
+import Animated from 'react-native-reanimated';
 
 const searchClient = algoliasearch(
   "J150UQXDLH",
@@ -53,7 +54,7 @@ const MobileHits = () => {
   );
 }
 
-const RequirementsList = () => {
+const RequirementsList = forwardRef<Animated.ScrollView>((props, ref) => {
   // The generic type should be Requirement, not Requirement[]
 
   // const handleCardClick = (requirement: Requirement) => {
@@ -101,7 +102,9 @@ const RequirementsList = () => {
             titleColor="#153E3B"
           />
         }
-        style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} >
+        style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }}
+        ref={ref}
+      >
         <MobileHits />
       </ScrollView>
 
@@ -112,13 +115,14 @@ const RequirementsList = () => {
       /> */}
     </>
   );
-};
+});
 
 const RequirementsPage = () => {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
 
   const [filtersHeight, setFiltersHeight] = useState(0);
   const [paginationHeight, setPaginationHeight] = useState(0);
+  const scrollViewRef = useRef<Animated.ScrollView>(null)
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
 
@@ -160,7 +164,7 @@ const RequirementsPage = () => {
             <RequirementFilters handleToggleMoreFilters={handleToggleMoreFilters} />
           </View>
 
-          <RequirementsList />
+          <RequirementsList ref={scrollViewRef} />
 
           <View
             ref={paginationRef}
@@ -170,7 +174,7 @@ const RequirementsPage = () => {
               setPaginationHeight(height);
             }}
           >
-            <CustomPagination />
+            <CustomPagination scrollRef={scrollViewRef} />
           </View>
 
           <MoreFiltersRequirement
