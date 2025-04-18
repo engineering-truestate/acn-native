@@ -275,6 +275,7 @@ const RequirementCard = React.memo(({ requirement, onStatusChange, index, totalC
         activeOpacity={0.7}
         onPress={handleCardPress}
         style={{ zIndex: 99999 - index }}
+        key={requirement.requirementId}
       >
         {/* Top section with ID */}
         <StyledView className="p-4 pb-2">
@@ -372,12 +373,13 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
-  propertyStatusUpdate: Function;
-  hanldeRequirementsStatusChange: Function;
+  propertyStatusUpdate: (value: string, propertyId: string) => void;
+  hanldeRequirementsStatusChange: (value: string, propertyId: string) => void;
+  handleGiveReview: (enqId: string, review: {}) => void;
   loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading, hanldeRequirementsStatusChange }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading, hanldeRequirementsStatusChange, handleGiveReview }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -526,7 +528,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               {requirements.slice(0, batchSize).map((requirement, index) => {
                 return (
                   <RequirementCard
-                    key={requirement.id}
+                    key={requirement.requirementId}
                     requirement={requirement}
                     onStatusChange={handleRequirementStatusChange}
                     index={index}
@@ -558,6 +560,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     key={enquiry.id}
                     index={index}
                     enquiry={enquiry}
+                    handleGiveReview={handleGiveReview}
                   />
                 )
               })}

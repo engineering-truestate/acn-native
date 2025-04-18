@@ -10,13 +10,14 @@ interface UsePropertiesResult {
   properties: Property[];
   loading: boolean;
   error: string | null;
-  handlePropertyStatusChange: (value: string, propertyId: string) => Promise<void>;
+  handlePropertyStatusChange: (value: string, propertyId: string) => void;
 }
 
 interface UseEnquiriesResult {
   myEnquiries: EnquiryWithProperty[];
   loading: boolean;
   error: string | null;
+  handleGiveReview: (enqId: string, review: {}) => void;
 }
 
 const useCpId = (): string | undefined => {
@@ -104,7 +105,17 @@ const useEnquiries = (): UseEnquiriesResult => {
     }
   }, [cpId]);
 
-  return { myEnquiries, loading, error };
+  const handleGiveReview = (enqId: string, review: {}) => {
+    setMyEnquiries((prev) => (prev.map((enq) => {
+      return enq.enquiryId === enqId ?
+        enq?.reviews?.length ?
+          { ...enq, reviews: [...enq.reviews, review] } :
+          { ...enq, reviews: [review] } :
+        enq;
+    })))
+  }
+
+  return { myEnquiries, loading, error, handleGiveReview };
 };
 
 const useProperties = (): UsePropertiesResult => {
@@ -151,7 +162,7 @@ const useProperties = (): UsePropertiesResult => {
     }
   }, [cpId]);
 
-  const handlePropertyStatusChange = async (value: string, propertyId: string): Promise<void> => {
+  const handlePropertyStatusChange = (value: string, propertyId: string): void => {
     try {
       const newStatus = value;
 
@@ -216,7 +227,7 @@ const useRequirements = () => {
     }
   }, [cpId]);
 
-  const hanldeRequirementsStatusChange = async (value: string, requirementsId: string): Promise<void> => {
+  const hanldeRequirementsStatusChange = (value: string, requirementsId: string): void => {
     try {
       const newStatus = value;
 
@@ -236,7 +247,7 @@ const useRequirements = () => {
 };
 
 export default function DashboardTab() {
-  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError } = useEnquiries();
+  const { myEnquiries, loading: enquiriesLoading, error: enquiriesError, handleGiveReview: handleGiveReview } = useEnquiries();
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
   const { requirements, loading: requirementsLoading, error: requirementsError, hanldeRequirementsStatusChange: hanldeRequirementsStatusChange } = useRequirements();
 
@@ -247,6 +258,7 @@ export default function DashboardTab() {
         myProperties={properties}
         myRequirements={requirements}
         propertyStatusUpdate={handlePropertyStatusChange}
+        handleGiveReview={handleGiveReview}
         hanldeRequirementsStatusChange={hanldeRequirementsStatusChange}
         loading={{ enquiriesLoading: enquiriesLoading, propertiesLoading: propertiesLoading, requirementsLoading: requirementsLoading }}
       />
