@@ -1,3 +1,4 @@
+import { toastConfig } from '@/utils/toastUtils';
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -22,7 +23,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
-        <Toast/>
+        <Toast config={toastConfig} />
         <View style={styles.modalContainer}>
           {generatingEnquiry ? (
             <View style={styles.row}>
