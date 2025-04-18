@@ -268,9 +268,10 @@ const RequirementCard = React.memo(({ requirement, onStatusChange, index, totalC
   return (
     <>
       <StyledTouchableOpacity
-        className="mb-4 rounded-lg bg-white border border-gray-200"
+        className="mb-4 rounded-lg bg-white border border-gray-200 overflow-visible"
         activeOpacity={0.7}
         onPress={handleCardPress}
+        style={{ zIndex: 99999 - index }}
       >
         {/* Top section with ID */}
         <StyledView className="p-4 pb-2">
@@ -369,10 +370,11 @@ type DashboardProps = {
   myProperties: Property[];
   myRequirements: Requirement[];
   propertyStatusUpdate: Function;
+  hanldeRequirementsStatusChange: Function;
   loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading, hanldeRequirementsStatusChange }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -422,7 +424,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
           : property
       )
     );
-    propertyStatusUpdate(newStatus, id);
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));
@@ -431,6 +432,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
+        propertyStatusUpdate(newStatus, id);
       }
     } catch (error) {
       console.error("Error updating status in Firestore:", error);
@@ -455,6 +457,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
+        hanldeRequirementsStatusChange(newStatus, id);
       }
     } catch (error) {
       console.error("Error updating status in Firestore:", error);
@@ -491,7 +494,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     property={property}
                     onStatusChange={handlePropertyStatusChange}
                     index={index}
-                    totalCount={batchSize}
+                    totalCount={Math.min(batchSize, properties.length)}
                   />
                 );
               })}
@@ -520,7 +523,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     requirement={requirement}
                     onStatusChange={handleRequirementStatusChange}
                     index={index}
-                    totalCount={batchSize}
+                    totalCount={Math.min(batchSize, requirements.length)}
                   />
                 )
               })}
