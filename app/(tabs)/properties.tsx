@@ -58,7 +58,7 @@ function MobileHits() {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'} />
+        <ActivityIndicator size={'large'}  color={'#153E3B'} />
       </View>
     );
   }
