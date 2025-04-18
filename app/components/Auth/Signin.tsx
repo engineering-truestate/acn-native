@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, Platform, Linking, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { listenToAgentChanges, selectBlacklisted, selectVerified, setAgentDataState, setPhonenumber } from '@/store/slices/agentSlice';
+import { listenToAgentChanges, setAgentDataState, setPhonenumber } from '@/store/slices/agentSlice';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
-import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
 import auth from '@react-native-firebase/auth';
-import Spinner from '../SpinnerComponent';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
+import { useDoubleBackPressExit } from '@/hooks/useDoubleBackPressExit';
 
 const { width, height } = Dimensions.get('window');
 
@@ -163,6 +163,15 @@ export default function SignUp() {
     }
   };
 
+  const handleSubmitEditing = () => {
+    if (isPhoneValid && !loading && !addingNewAgent && !isSendingOTP) {
+      handleCheckUser();
+    }
+  };
+
+  useDoubleBackPressExit();
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Welcome to ACN</Text>
@@ -180,6 +189,8 @@ export default function SignUp() {
           style={styles.input}
           onChangeText={handlePhoneInputChange}
           value={phoneInput}
+          onSubmitEditing={handleSubmitEditing}
+          editable={!loading && !addingNewAgent && !isSendingOTP}
         />
       </View>
       <View style={{ marginBottom: height * 0.04, minHeight: 24 }}>

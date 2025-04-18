@@ -54,7 +54,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
     dispatch(logOut());
     router.dismissAll();
     router.replace('/');
-    // router.push('/');
   }
 
   return (

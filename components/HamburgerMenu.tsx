@@ -136,6 +136,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
       onClose();
       return;
     }
+    router.dismissAll();
     router.push(path as any);
     onClose();
   };
@@ -146,11 +147,13 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
   };
 
   const handleRequirementSubmit = () => {
+    router.dismissAll();
     router.push('/(tabs)/UserRequirementForm');
     onClose();
   };
 
   const handleHelpClick = () => {
+    router.dismissAll();
     router.push('/help' as any);
   };
 

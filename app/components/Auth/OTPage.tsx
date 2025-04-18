@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
   Dimensions,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { logOut, signIn } from '@/store/slices/authSlice';
@@ -16,7 +17,6 @@ import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
-import Spinner from '../SpinnerComponent';
 import { OtpInput } from "react-native-otp-entry";
 import { AntDesign } from '@expo/vector-icons';
 const { width, height } = Dimensions.get('window');
@@ -126,6 +126,7 @@ export default function OTPage() {
         <OtpInput
           numberOfDigits={6}
           autoFocus={true}
+          blurOnFilled={true}
           onTextChange={(text) => setOtp(text)}
           theme={{
             pinCodeContainerStyle: styles.pinCodeContainer,
