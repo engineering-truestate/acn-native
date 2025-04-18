@@ -40,7 +40,6 @@ const generateNextId = (data) => {
  */
 const handleIdGeneration = async (type, retries = 3) => {
     try {
-        console.log("Running transaction");
         const docRef = doc(db, "admin", type);
 
         return await runTransaction(db, async (transaction) => {

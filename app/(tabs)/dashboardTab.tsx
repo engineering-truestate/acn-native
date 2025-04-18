@@ -6,10 +6,6 @@ import { useSelector } from 'react-redux';
 import { Property, Requirement, Enquiry, EnquiryWithProperty } from '../types';
 import Dashboard from '../components/dashboard/Dashboard';
 import { RootState } from '@/store/store';
-
-console.log("dashboardTab",);
-
-
 interface UsePropertiesResult {
   properties: Property[];
   loading: boolean;
@@ -40,7 +36,6 @@ const useEnquiries = (): UseEnquiriesResult => {
   const [error, setError] = useState<string | null>(null);
 
   const cpId = useCpId();
-  console.log('cpId:', cpId);
 
   useEffect(() => {
     const fetchEnquiries = async () => {
@@ -70,9 +65,7 @@ const useEnquiries = (): UseEnquiriesResult => {
 
         for (let i = 0; i < propertyIds.length; i += 30) {
           const batch = propertyIds.slice(i, i + 30);
-          // console.log("batch",batch);
           const properties = await getDocs(query(collection(db, 'ACN123'), where(documentId(), "in", batch)));
-          // console.log("properties",properties.docs);
           properties.docs.map((item) => {
             propertyDocs.set(item.id, item.data());
           })
@@ -212,7 +205,7 @@ export default function DashboardTab() {
   const { requirements, loading: requirementsLoading, error: requirementsError } = useRequirements();
 
   return (
-    <View style={{flex:1}}>
+    <View style={{ flex: 1 }}>
       <Dashboard
         myEnquiries={myEnquiries}
         myProperties={properties}

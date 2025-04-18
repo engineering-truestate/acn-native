@@ -60,22 +60,11 @@ export default function OTPage() {
     }
 
     try {
-      console.log('🔑 Confirming OTP code');
-
-      console.log(verificationId, "hello")
       const credential = auth.PhoneAuthProvider.credential(verificationId as string, otp.toString());
-      console.log('✅ OTP confirmed successfully');
 
       const userCredential = await auth().signInWithCredential(credential);
 
-      console.log(userCredential, "userCredential")
-
       if (userCredential?.user?.phoneNumber) {
-        console.log('👤 User authenticated:', {
-          uid: userCredential.user.uid,
-          phonenumber: userCredential.user.phoneNumber
-        });
-
         dispatch(signIn());
         router.dismissAll();
         router.replace('/(tabs)/properties');
@@ -144,7 +133,7 @@ export default function OTPage() {
             focusedPinCodeContainerStyle: styles.activePinCodeContainer,
             pinCodeTextStyle: styles.otpText,
           }}
-          
+
         />
       </View>
       <View style={{ marginBottom: 40, minHeight: 24 }}>
@@ -181,7 +170,7 @@ export default function OTPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingHorizontal: width*0.05, backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: width * 0.05, backgroundColor: '#fff' },
   heading: { fontWeight: 'bold', marginBottom: 12, marginTop: 0, textAlign: 'left' },
   otpInfo: { color: '#888', marginBottom: 11, textAlign: 'left', marginTop: 8 },
   phone: { fontWeight: 'bold', color: '#153E3B', textDecorationLine: 'underline' },
@@ -249,7 +238,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   backText: {
-    
+
     color: '#153E3B',
     fontWeight: 'bold',
   },

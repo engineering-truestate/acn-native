@@ -45,7 +45,6 @@ const BusinessDetailsModal: React.FC<BusinessDetailsModalProps> = ({ isVisible, 
     setSaving(true);
 
     if (!cpId) {
-      console.log("cpId not found");
       showErrorToast("Unexpected Error Occured. Please try again later.")
       setSaving(false);
       return;
@@ -55,49 +54,47 @@ const BusinessDetailsModal: React.FC<BusinessDetailsModalProps> = ({ isVisible, 
     const trimmedGstNo = gstNo?.trim() || "";
 
     if (!trimmedBusinessName && !trimmedGstNo) {
-      console.log('No data entered');
       showErrorToast("No data entered.")
       setSaving(false);
       return;
     }
 
-    let updateDetails : UpdateDetails = {};
+    let updateDetails: UpdateDetails = {};
 
     if (trimmedBusinessName !== bName) {
       updateDetails.businessName = trimmedBusinessName;
-  }
+    }
 
-  if (trimmedGstNo !== gNum) {
+    if (trimmedGstNo !== gNum) {
       updateDetails.gstNo = trimmedGstNo;
-  }
+    }
 
-  if (Object.keys(updateDetails).length === 0) {
-    console.log("nothing to submit");
-    showErrorToast("No changes detected. Please fill or change the details to submit.");
-    setSaving(false);
-    return;
-}
+    if (Object.keys(updateDetails).length === 0) {
+      showErrorToast("No changes detected. Please fill or change the details to submit.");
+      setSaving(false);
+      return;
+    }
 
-try {
-  const docRef = doc(db, "agents", cpId);
-  await updateDoc(docRef, updateDetails);
+    try {
+      const docRef = doc(db, "agents", cpId);
+      await updateDoc(docRef, updateDetails);
 
-  dispatch(updateAgentDocData(updateDetails));
+      dispatch(updateAgentDocData(updateDetails));
 
-  showSuccessToast("Business details updated successfully");
-  setSaving(false);
+      showSuccessToast("Business details updated successfully");
+      setSaving(false);
 
-  setTimeout(() => {
-    onClose();
-  }, 1000);
+      setTimeout(() => {
+        onClose();
+      }, 1000);
 
-  return;
-} catch (error) {
-  console.log(error);
-  showErrorToast("Unexpected Error Occured. Please try again later.");
-  setSaving(false);
-  return;
-}
+      return;
+    } catch (error) {
+      console.error(error);
+      showErrorToast("Unexpected Error Occured. Please try again later.");
+      setSaving(false);
+      return;
+    }
   };
 
   return (

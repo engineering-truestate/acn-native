@@ -121,9 +121,8 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
   useEffect(() => {
     fetchMatchingEnquiryCount();
   }, [])
-
   return (
-    <StyledView className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
+    <StyledView key={property.propertyId} className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
       {/* Share Modal */}
       <ShareModal
         visible={isShareModalOpen}
@@ -185,7 +184,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
             {[property.assetType, property.unitType, property.facing]
               .filter(Boolean)
               .map((tag, index) => (
-                <StyledView className="bg-gray-100 rounded-full px-3 py-1">
+                <StyledView className="bg-gray-100 rounded-full px-3 py-1" key={index}>
                   <StyledText className="text-xs text-gray-700">
                     {tag}
                   </StyledText>
@@ -390,21 +389,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   const enquiryMonthOptions = useRef(generateEnquiryMonths(myEnquiries));
   const initalLoad = useRef(true);
 
-  useEffect(() => {
-    if (myProperties) {
-      setProperties(myProperties);
-      propertyMonthOptions.current = generatePropertyMonths(myProperties);
-    }
-    if (myRequirements) {
-      setRequirements(myRequirements);
-      requirementMonthOptions.current = generateRequirementMonths(myRequirements);
-    }
-    if (myEnquiries) {
-      setEnquiries(myEnquiries);
-      enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
-    }
-  }, [myProperties, myRequirements, myEnquiries])
-
   const renderMore = () => {
     if (isBatchSizePendingLock.current) return;
     let totalCount = 0;
@@ -428,37 +412,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     }
   }
 
-  useEffect(() => {
-    if (initalLoad.current)
-      return;
-    if (activeTab === 'inventories') {
-      if (monthFilter === "") {
-        setProperties(myProperties);
-      }
-      else {
-        const filteredProps = filterPropertiesByMonth(myProperties, monthFilter);
-        setProperties(filteredProps);
-      }
-    } else if (activeTab === 'requirements') {
-      if (monthFilter === "") {
-        setRequirements(myRequirements);
-      }
-      else {
-        const filteredReqs = filterRequirementsByMonth(myRequirements, monthFilter);
-        setRequirements(filteredReqs);
-      }
-    } else if (activeTab === 'enquiries') {
-      if (monthFilter === "") {
-        setEnquiries(myEnquiries);
-      }
-      else {
-        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, monthFilter);
-        setEnquiries(filteredEnqs);
-      }
-    }
-    setBuffering(false);
-  }, [monthFilter])
-
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
@@ -478,9 +431,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        console.log("Status updated successfully in Firestore");
-      } else {
-        console.log("No document found with propertyId:", id);
       }
     } catch (error) {
       console.error("Error updating status in Firestore:", error);
@@ -505,9 +455,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        console.log("Status updated successfully in Firestore");
-      } else {
-        console.log("No document found with requirementId:", id);
       }
     } catch (error) {
       console.error("Error updating status in Firestore:", error);
@@ -601,7 +548,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     key={enquiry.id}
                     index={index}
                     enquiry={enquiry}
-                  // handleGiveReview={()=>{console.log("Review")}}
                   />
                 )
               })}
@@ -611,8 +557,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       );
     }
   }, [activeTab, properties, requirements, enquiries, bufferring, loading, batchSize, handlePropertyStatusChange, handleRequirementStatusChange]);
-
-
 
   const tabData = [
     {
@@ -654,14 +598,17 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     switch (activeTab) {
       case "inventories":
         setProperties(myProperties);
+        propertyMonthOptions.current = generatePropertyMonths(myProperties);
         setMonthFilterOptions(propertyMonthOptions.current);
         break;
       case "requirements":
         setRequirements(myRequirements);
+        requirementMonthOptions.current = generateRequirementMonths(myRequirements);
         setMonthFilterOptions(requirementMonthOptions.current);
         break;
       case "enquiries":
         setEnquiries(myEnquiries);
+        enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
         setMonthFilterOptions(enquiryMonthOptions.current);
         break;
       default:
@@ -669,6 +616,52 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     }
     initalLoad.current = false;
   }, [activeTab]);
+
+  useEffect(() => {
+    if (myProperties) {
+      setProperties(myProperties);
+      propertyMonthOptions.current = generatePropertyMonths(myProperties);
+      if (activeTab === "inventories")
+        setMonthFilterOptions(propertyMonthOptions.current);
+    }
+  }, [myProperties])
+
+  useEffect(() => {
+    if (myRequirements) {
+      setRequirements(myRequirements);
+      requirementMonthOptions.current = generateRequirementMonths(myRequirements);
+      if (activeTab === "requirements")
+        setMonthFilterOptions(propertyMonthOptions.current);
+    }
+  }, [myRequirements])
+
+  useEffect(() => {
+    if (myEnquiries) {
+      setEnquiries(myEnquiries);
+      enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
+      if (activeTab === "enquiries")
+        setMonthFilterOptions(propertyMonthOptions.current);
+    }
+  }, [myEnquiries])
+
+  useEffect(() => {
+    if (initalLoad.current)
+      return;
+    switch (activeTab) {
+      case "inventories":
+        setProperties(filterPropertiesByMonth(myProperties, monthFilter));
+        break;
+      case "requirements":
+        setRequirements(filterRequirementsByMonth(myRequirements, monthFilter));
+        break;
+      case "enquiries":
+        setEnquiries(filterEnquiriesByMonth(myEnquiries, monthFilter));
+        break;
+      default:
+        break;
+    }
+    setBuffering(false);
+  }, [monthFilter])
 
   return (
     <StyledView className="flex bg-gray-50 h-full">

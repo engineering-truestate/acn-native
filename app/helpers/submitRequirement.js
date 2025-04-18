@@ -16,8 +16,6 @@ const generateNextReqId = async () => {
 };
 
 export default async function submitRequirement(userRequirement, cpId) {
-    console.log("userRequirement", userRequirement);
-
     try {
         const timestamp = getUnixDateTime();
         const nextReqId = await generateNextReqId();
@@ -46,7 +44,7 @@ export default async function submitRequirement(userRequirement, cpId) {
 
         const docRef = doc(db, "requirements", nextReqId);
         await setDoc(docRef, formData);
-        await updateDoc(doc(db, "agents", formData.agentCpid), {myRequirements: arrayUnion(nextReqId)});
+        await updateDoc(doc(db, "agents", formData.agentCpid), { myRequirements: arrayUnion(nextReqId) });
 
     } catch (error) {
         return error;

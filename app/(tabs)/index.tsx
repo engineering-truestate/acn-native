@@ -16,16 +16,14 @@ export default function TabOneScreen() {
   //     const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
   //     if (status === 'granted') {
   //       const token = await Notifications.getExpoPushTokenAsync();
-  //       console.log('Expo Push Token:', token);
   //       // Optionally send the token to your server to store for sending notifications
   //     } else {
-  //       console.log('Notification permissions not granted');
   //     }
   //   };
 
   //   getPushNotificationPermission();
   // }, []);
-  
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <LandingPage />

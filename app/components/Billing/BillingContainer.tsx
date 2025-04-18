@@ -77,7 +77,6 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
   }, []);
 
   const initiatePayment = async () => {
-    console.log("Initiating payment...");
     setProcessing(true);
 
     const functions = getFunctions();
@@ -97,8 +96,6 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
         mobileNumber,
         userId,
       });
-
-      console.log("response", response.data);
 
       if (response.data.success) {
         const paymentUrl: string = response.data.paymentUrl;

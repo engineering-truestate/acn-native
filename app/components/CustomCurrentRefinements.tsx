@@ -19,8 +19,6 @@ export default function CustomCurrentRefinements({
     return null;
   }
 
-  console.log("selectedLandmark", selectedLandmark);
-
   // Flatten refinements from all items into a single array for inline display
   const allRefinements = items.flatMap(item =>
     item.refinements.map(refinement => ({

@@ -40,7 +40,6 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
         if (docSnap.exists()) {
           const data = docSnap.data() as AgentData;
           setAgentData(data);
-          console.log("Agent Data:", data);
         } else {
           console.warn("No agent data found");
           setAgentData(null);
@@ -57,8 +56,6 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
     if (!agentData?.phonenumber) return;
 
     if (agentData != null) {
-      console.log("clicked whatsapp")
-      console.log(agentData.phonenumber)
       Linking.openURL(`whatsapp://send?phone=${agentData.phonenumber}`)
     }
   };
@@ -70,7 +67,6 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
       await Clipboard.setStringAsync(agentData.phonenumber);
       // Alert.alert('Success', 'Phone number copied!');
       showSuccessToast("Phone number copied to clipboard!");
-      //console.log("Agent's Phone Number", agentData.phonenumber);
     } catch (err) {
       showErrorToast("Failed to copy phone number.");
       //console.error("Failed to copy phone number:", err);
@@ -104,7 +100,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
           >
             <Ionicons name="close" size={24} color="#000" />
           </TouchableOpacity>
-          
+
           <View style={styles.contentContainer} >
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Enquire Now</Text>
@@ -133,7 +129,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
                   </View>
 
                   <TouchableOpacity
-                    onPress={handleCopy }
+                    onPress={handleCopy}
                     style={styles.copyButton}
                   >
                     <Ionicons name="copy-outline" size={24} color="#555" />

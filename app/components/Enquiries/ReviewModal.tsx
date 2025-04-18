@@ -35,10 +35,6 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
 
     if (hasError) return;
 
-    console.log("Enquiry Id:", enqId);
-    console.log('Rating:', rating);
-    console.log('Review:', review);
-
     try {
       const q = query(
         collection(db, "enquiries"),
