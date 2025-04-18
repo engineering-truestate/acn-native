@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions, Keyboard } from 'react-native';
 import { useSearchBox } from 'react-instantsearch';
 import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
 import { Property } from '../types';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface PropertyFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -31,11 +32,13 @@ export default function PropertyFilters({
     if(searchText.trim() != query) {
       refine(searchText);  // Trigger the refine action with the updated search text
     }
+    Keyboard.dismiss(); // Dismiss the keyboard when searching
   };
 
   const handleClear = () => {
     setSearchText("");
     refine("");
+    Keyboard.dismiss(); // Dismiss the keyboard when clearing the search
   }
 
   return (
@@ -52,6 +55,7 @@ export default function PropertyFilters({
             value={searchText}
             onChangeText={handleSearchChange}
             placeholderTextColor="#9CA3AF"
+            onSubmitEditing={handleSearchPress}
           />
         </View>
 
@@ -72,7 +76,7 @@ export default function PropertyFilters({
               onPress={handleClear}
               style={styles.clearButton}
             >
-              <MaterialCommunityIcons name="close" size={24} color="white" />
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
         }

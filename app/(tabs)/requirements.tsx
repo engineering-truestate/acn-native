@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Keyboard, ActivityIndicator, Text } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
 import CustomPagination from '../components/CustomPagination';
 import MoreFiltersRequirement from '../components/requirement/MoreFiltersRequirement';
-import { InstantSearch, useHits } from 'react-instantsearch';
+import { InstantSearch, useHits, useSearchBox } from 'react-instantsearch';
 import algoliasearch from 'algoliasearch';
 import RequirementDetailsModal from '../components/requirement/RequirementDetailsModal';
 import { Requirement } from '../types';
@@ -14,32 +14,76 @@ const searchClient = algoliasearch(
   "146a46f31a26226786751f663e88ae33"
 );
 
+const MobileHits = () => {
+  const { hits } = useHits<Requirement>();
+  const { query } = useSearchBox();
+  const [selectedProperty, setSelectedProperty] = useState<any>(null);
+
+  const handleCardClick = (property: any) => {
+    setSelectedProperty(property);
+  };
+
+  if (hits?.length === 0 && query?.length !== 0) {
+    return (
+      <View className="flex items-center justify-center h-64">
+        {/* <Text style={styles.text}>No results found for "{query}"</Text> */}
+      </View>
+    );
+  } else if (hits.length === 0) {
+    return (
+      <View className="flex items-center justify-center h-64">
+        <ActivityIndicator size={'large'} color={'#153E3B'}/>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView  contentContainerStyle={{ paddingBottom: 0 }}>
+      {hits.map((requirement) => {
+        const transformedRequirement = requirement as Requirement;
+        return (
+          <RequirementCard
+            key={requirement.objectID}
+            requirement={transformedRequirement}
+            onCardClick={handleCardClick}
+          />
+        );
+      })}
+    </ScrollView>
+  );
+}
+
 const RequirementsList = () => {
   // The generic type should be Requirement, not Requirement[]
-  const { hits } = useHits<Requirement>();
-  const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
 
-  const handleCardClick = (requirement: Requirement) => {
-    setSelectedRequirement(requirement);
-  };
+  // const handleCardClick = (requirement: Requirement) => {
+  //   setSelectedRequirement(requirement);
+  // };
+  // if (hits?.length === 0 && query?.length !== 0) {
+  //   return (
+  //     <View className="flex items-center justify-center h-64">
+  //       <Text style={styles.text}>No results found for "{query}"</Text>
+  //     </View>
+  //   );
+  // } else if (hits.length === 0) {
+  //   return (
+  //     <View className="flex items-center justify-center h-64">
+  //       <ActivityIndicator size={'large'} />
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
-      <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} className='bg-green-300'>
-        {hits.map((requirement: Requirement) => (
-          <RequirementCard
-            key={requirement.requirementId}
-            requirement={requirement}
-            onCardClick={handleCardClick}
-          />
-        ))}
+      <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} >
+        <MobileHits />
       </ScrollView>
 
-      <RequirementDetailsModal
+      {/* <RequirementDetailsModal
         isOpen={!!selectedRequirement}
         onClose={() => setSelectedRequirement(null)}
         requirement={selectedRequirement}
-      />
+      /> */}
     </>
   );
 };
@@ -70,6 +114,7 @@ const RequirementsPage = () => {
 
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen(prev => !prev);
+    Keyboard.dismiss();
   };
 
   return (
@@ -118,6 +163,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     gap: 4,
   },
+  // text: {
+  //   fontFamily: 'Montserrat_400Regular',
+  //   color: '#6B7280',
+  //   fontSize: 16,
+  // },
   filtersContainer: {
     position: 'absolute',
     top: 0,
@@ -130,7 +180,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 14,
     marginTop: 60,
-    backgroundColor: ''
   },
 });
 

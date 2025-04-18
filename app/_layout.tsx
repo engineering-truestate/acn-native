@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
-import { View, Dimensions, Platform, SafeAreaView, StyleSheet, Text } from "react-native";
+import { View, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, Keyboard } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -110,6 +110,11 @@ export default function RootLayout() {
     return null;
   }
 
+  const onMenuPress = () => {
+    setIsMenuOpen(true);
+    Keyboard.dismiss();
+  }
+
   return (
     <ReduxProvider>
       <SafeAreaProvider>
@@ -123,7 +128,7 @@ export default function RootLayout() {
                 headerBackVisible: false,
                 header: ({ route, options }) => {
                   const title = options.title || route.name;
-                  return <CustomHeader title={title} onMenuPress={() => setIsMenuOpen(true)} isMenuOpen={isMenuOpen} />;
+                  return <CustomHeader title={title} onMenuPress={() => onMenuPress()} isMenuOpen={isMenuOpen} />;
                 },
               }}
             >

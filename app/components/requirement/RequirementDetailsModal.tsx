@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface RequirementDetailsModalProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const RequirementDetailsModal: React.FC<RequirementDetailsModalProps> = ({
           <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
             <Text className="text-lg font-bold">Requirement Details</Text>
             <TouchableOpacity onPress={onClose} className="p-2">
-              <Ionicons name="close" size={24} color="#374151" />
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
 

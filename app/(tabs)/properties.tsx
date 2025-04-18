@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Keyboard } from "react-native";
 import algoliasearch from "algoliasearch";
 import { InstantSearch, Configure } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
@@ -59,7 +59,8 @@ function MobileHits() {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator />
+        <ActivityIndicator size={'large'}  color={'#153E3B'} />
+        {/* <Text style={styles.text}>The app is loading soooooonnnnnnn</Text> */}
       </View>
     );
   }
@@ -113,6 +114,7 @@ export default function PropertiesScreen() {
 
   const handleToggleMoreFilters = () => {
     setIsMoreFiltersModalOpen((prev) => !prev);
+    Keyboard.dismiss(); // Dismiss the keyboard when toggling filters
   };
 
   // Calculate the content height dynamically

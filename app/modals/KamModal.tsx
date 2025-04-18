@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { RootState } from "@/store/store";
 import { toCapitalizedWords } from "../helpers/common";
+import CloseIcon from "@/assets/icons/svg/CloseIcon";
 
 type KamManagerProps = {
   visible: boolean;
@@ -103,7 +104,7 @@ const KamManager: React.FC<KamManagerProps> = ({ visible, setVisible }) => {
               </View>
 
               <TouchableOpacity style={styles.closeButton} onPress={() => setVisible(false)}>
-                <Ionicons name="close" size={24} color="black" />
+                <CloseIcon/>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

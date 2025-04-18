@@ -18,6 +18,8 @@ import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import ReviewModal from '../Enquiries/ReviewModal';
 import DashboardDropdown from '../dashboard/DashboardDropdown';
+import HandOverIcon from '@/assets/icons/svg/HandoverIcon';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface AgentData {
   phonenumber: string;
@@ -219,8 +221,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
   };
 
   // InfoRow component for property details
-  const InfoRow = ({ label, value }: { label: string, value: any }) => (
-    <View style={styles.infoRow}>
+  const InfoRow = ({ label, value, bottomPadding }: { label: string, value: any, bottomPadding?: number }) => (
+    <View style={[styles.infoRow, bottomPadding ? { marginBottom: bottomPadding } : null]}>
       <Text style={styles.infoLabel}>{label}:</Text>
       <View style={styles.infoSeparator} />
       <Text style={styles.infoValue}>{value || "-"}</Text>
@@ -252,8 +254,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               </View>
               <Text style={styles.propertyName}>{getPropertyName()}</Text>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Ionicons name="close" size={24} color="#374151" />
+            <TouchableOpacity onPress={onClose}>
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
 
@@ -263,7 +265,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               <Text style={styles.infoText}>{property.micromarket || "N/A"}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="calendar-outline" size={16} color="#374151" />
+              {/* <Ionicons name="calendar-outline" size={16} color="#374151" /> */}
+              <HandOverIcon/>
               <Text style={styles.infoText}>{property.handoverDate || "Pending"}</Text>
             </View>
             <View style={styles.infoItem}>
@@ -352,7 +355,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
             <InfoRow label="Land Khata" value={property.landKhata} />
             <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
             <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} bottomPadding={20} />
           </View>
 
         </ScrollView>
@@ -438,7 +441,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               style={styles.closeImageViewer}
               onPress={() => setIsImageViewerVisible(false)}
             >
-              <Ionicons name="close" size={28} color="white" />
+              <CloseIcon/>
             </TouchableOpacity>
 
             {localImages.length > 0 && (

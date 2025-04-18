@@ -16,6 +16,8 @@ import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { toCapitalizedWords } from '../helpers/common';
 import { showErrorToast } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
+import Toast from 'react-native-toast-message';
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -43,10 +45,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
 
   const name: string | null = useSelector((state: RootState) => state?.agent?.docData?.name) || "";
   const phonenumber : string | null = useSelector((state: RootState) => state?.agent?.docData?.phonenumber) || "";
-
-  // const {name, phonenumber} = useSelector((state: RootState) => state.agent.docData)
-  // const name = 'John Doe';
-  // const phoneNumber = '+919876543210';
   const initials = getInitials(name);
   const avatarColor = getRandomColor();
 
@@ -61,7 +59,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
       }, 300)
     } catch (error) {
       console.error('Error during logout:', error);
-      showErrorToast("Some error occured. Please try again.")
+      // showErrorToast("Some error occured. Please try again.", {isModal: true});
     } finally {
       setVisible(false);
     }
@@ -71,6 +69,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
     <Modal visible={visible} transparent animationType="fade">
       <TouchableWithoutFeedback onPress={() => setVisible(false)}>
         <View style={styles.overlay}>
+          <Toast />
           <TouchableWithoutFeedback>
             <View style={styles.container}>
               {/* ❌ Close Button */}
@@ -78,7 +77,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                 style={styles.closeIcon}
                 onPress={() => setVisible(false)}
               >
-                <Ionicons name="close" size={24} color="#000" />
+                <CloseIcon/>
               </TouchableOpacity>
 
               {/* ✅ Header */}

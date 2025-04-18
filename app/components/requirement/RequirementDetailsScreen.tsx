@@ -23,6 +23,7 @@ import { Requirement } from '@/app/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { showErrorToast } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 // Define required types
 interface RequirementDetailsScreenProps {
@@ -170,7 +171,7 @@ const RequirementDetailsScreen = React.memo(({
             onPress={onClose}
             accessibilityLabel="Close Modal"
           >
-            <Ionicons name="close" size={24} color="#4B5563" />
+            <CloseIcon/>
           </TouchableOpacity>
         </View>
 

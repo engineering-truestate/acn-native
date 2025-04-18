@@ -6,6 +6,7 @@ import { db } from "../config/firebase";
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 // Define the AgentData interface separately
 interface AgentData {
@@ -98,7 +99,7 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
             style={styles.closeButton}
             onPress={() => setIsEnquiryCPModalOpen(false)}
           >
-            <Ionicons name="close" size={24} color="#000" />
+            <CloseIcon/>
           </TouchableOpacity>
 
           <View style={styles.contentContainer} >
