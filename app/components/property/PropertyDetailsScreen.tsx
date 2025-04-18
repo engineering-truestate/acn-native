@@ -206,8 +206,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
   };
 
   // InfoRow component for property details
-  const InfoRow = ({ label, value }: { label: string, value: any }) => (
-    <View style={styles.infoRow}>
+  const InfoRow = ({ label, value, bottomPadding }: { label: string, value: any, bottomPadding?: number }) => (
+    <View style={[styles.infoRow, bottomPadding ? { marginBottom: bottomPadding } : null]}>
       <Text style={styles.infoLabel}>{label}:</Text>
       <View style={styles.infoSeparator} />
       <Text style={styles.infoValue}>{value || "-"}</Text>
@@ -339,7 +339,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
             <InfoRow label="Land Khata" value={property.landKhata} />
             <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
             <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} bottomPadding={20} />
           </View>
 
         </ScrollView>
