@@ -20,13 +20,14 @@ import ReduxProvider from '@/providers/ReduxProvider';
 import Toast from 'react-native-toast-message';
 import { KamModalButton } from "@/components/KamModalButton";
 import ProfileModal from '@/app/modals/ProfileModal';
+import { toastConfig } from "@/utils/toastUtils";
 
 SplashScreen.preventAutoHideAsync();
 
 // Custom header component to apply the desired styling
 const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMenuPress: () => void; isMenuOpen: boolean }) => {
   const insets = useSafeAreaInsets();
-  
+
   return (
     <View style={[
       styles.headerContainer,
@@ -38,8 +39,8 @@ const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMen
         </View>
         <View style={styles.headerTitleContainer}>
           {!isMenuOpen &&
-          <Text style={styles.headerTitle}>{title}</Text>
-}
+            <Text style={styles.headerTitle}>{title}</Text>
+          }
         </View>
         <View style={styles.headerRight}>
           <KamModalButton />
@@ -147,7 +148,7 @@ export default function RootLayout() {
               <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }} />
               <Stack.Screen name="not-found" options={{ headerShown: false }} />
             </Stack>
-            <HamburgerMenu 
+            <HamburgerMenu
               visible={isMenuOpen}
               onClose={() => setIsMenuOpen(false)}
               onOpenProfile={() => setProfileModalVisible(true)}
@@ -156,7 +157,9 @@ export default function RootLayout() {
               visible={profileModalVisible}
               setVisible={setProfileModalVisible}
             />
-            <Toast />
+            <Toast
+              config={toastConfig}
+            />
             <StatusBar style="auto" />
           </View>
         </SafeAreaView>

@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
-import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { showErrorToast, showSuccessToast, toastConfig } from '@/utils/toastUtils';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
 import Toast from 'react-native-toast-message';
 
@@ -95,14 +95,14 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.modalOverlay}>
-        <Toast/>
+        <Toast config={toastConfig} />
         <View style={styles.modalContent}>
-        
+
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsEnquiryCPModalOpen(false)}
           >
-            <CloseIcon/>
+            <CloseIcon />
           </TouchableOpacity>
 
           <View style={styles.contentContainer} >
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F6F7',
     padding: 12,
     borderRadius: '100%',
-    
+
   },
   buttonContainer: {
     flexDirection: 'row',
