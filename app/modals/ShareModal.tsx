@@ -11,14 +11,14 @@ import {
   Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { logEvent } from 'firebase/analytics';
+
 
 import { shareProperty, createPropertyMessage } from '../helpers/shareModal';
 
-import whatsappIcon from '../../assets/icons/whatsAppgreen.svg 14-54-26-826.svg';
-import copyIcon from '../../assets/icons/copyenq.svg';
-import closeIcon from '../../assets/icons/close.svg';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import Toast from 'react-native-toast-message';
+
 
 
 interface ShareModalProps {
@@ -37,8 +37,10 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
     try {
       let details = await createPropertyMessage(property, agentData?.phonenumber);
       details = decodeURIComponent(details);
+      showSuccessToast('Inventory details copied Successfully!', { isInModal: true });
       Clipboard.setString(details);
     } catch (err) {
+      showErrorToast('Failed to copy details!' , { isInModal: true });
       console.error('Failed to copy:', err);
     }
   };
@@ -53,17 +55,20 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
+      
       <TouchableWithoutFeedback onPress={handleClose}>
+        
         <View style={styles.overlay}>
+          <Toast/>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
+              
               <View style={styles.header}>
                 <Text style={styles.title}>Share</Text>
                 <Text style={styles.description}>
                   Copy or share details on WhatsApp with your contact information included.
                 </Text>
               </View>
-
               <View style={styles.buttonGroup}>
                 <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
                   <View style={styles.iconWrapper}>

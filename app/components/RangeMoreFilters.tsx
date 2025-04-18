@@ -39,6 +39,7 @@ const RangeMoreFilters: React.FC<RangeMoreFiltersProps> = ({
       ? start[1].toString()
       : ""
   );
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
@@ -48,11 +49,55 @@ const RangeMoreFilters: React.FC<RangeMoreFiltersProps> = ({
     return () => subscription.remove();
   }, []);
 
+  const validateRange = (): boolean => {
+    // Clear previous error
+    setErrorMessage("");
+    
+    const minNum = minValue ? Number(minValue) : undefined;
+    const maxNum = maxValue ? Number(maxValue) : undefined;
+    
+    // Check if min is less than range.min
+    if (minNum !== undefined && range.min !== undefined && minNum < range.min) {
+      setErrorMessage(`Minimum value cannot be less than ${formatValue(range.min)}`);
+      return false;
+    }
+    
+    // Check if max is greater than range.max
+    if (maxNum !== undefined && range.max !== undefined && maxNum > range.max) {
+      setErrorMessage(`Maximum value cannot be greater than ${formatValue(range.max)}`);
+      return false;
+    }
+    
+    // Check if min is greater than max
+    if (minNum !== undefined && maxNum !== undefined && minNum > maxNum) {
+      setErrorMessage("Minimum value cannot be greater than maximum value");
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleApply = (): void => {
+    if (!validateRange()) {
+      return;
+    }
+    
     const min: number = minValue ? Number(minValue) : (range.min ?? 0);
     const max: number = maxValue ? Number(maxValue) : (range.max ?? 0);
     
     refine([min, max]);
+  };
+
+  const handleMinChange = (value: string) => {
+    setMinValue(value);
+    // Clear error when user starts typing again
+    if (errorMessage) setErrorMessage("");
+  };
+
+  const handleMaxChange = (value: string) => {
+    setMaxValue(value);
+    // Clear error when user starts typing again
+    if (errorMessage) setErrorMessage("");
   };
 
   return (
@@ -61,18 +106,18 @@ const RangeMoreFilters: React.FC<RangeMoreFiltersProps> = ({
       <View className="flex-row items-center">
         <View className="flex-row items-center flex-1 justify-between">
           <TextInput
-            className="h-12 w-[45%] border border-gray-300 rounded-md px-3 text-gray-700"
+            className={`h-12 w-[45%] border ${errorMessage ? 'border-red-500' : 'border-gray-300'} rounded-md px-3 text-gray-700`}
             placeholder={formatValue(range.min) || 'Min'}
             value={minValue}
-            onChangeText={setMinValue}
+            onChangeText={handleMinChange}
             keyboardType="numeric"
           />
           <Text className="text-gray-500">to</Text>
           <TextInput
-            className="h-12 w-[45%] border border-gray-300 rounded-md px-3 text-gray-700"
+            className={`h-12 w-[45%] border ${errorMessage ? 'border-red-500' : 'border-gray-300'} rounded-md px-3 text-gray-700`}
             placeholder={formatValue(range.max) || 'Max'}
             value={maxValue}
-            onChangeText={setMaxValue}
+            onChangeText={handleMaxChange}
             keyboardType="numeric"
           />
         </View>
@@ -83,6 +128,9 @@ const RangeMoreFilters: React.FC<RangeMoreFiltersProps> = ({
           <Text className="text-white font-medium">Apply</Text>
         </TouchableOpacity>
       </View>
+      {errorMessage ? (
+        <Text className="text-red-500 mt-2 text-sm">{errorMessage}</Text>
+      ) : null}
     </View>
   );
 };

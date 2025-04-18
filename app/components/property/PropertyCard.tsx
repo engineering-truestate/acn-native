@@ -77,11 +77,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
         showErrorToast("Failed to generate Enquiry ID. Please try again later.");
         return null;
       }
-      showSuccessToast("Enquiry ID generated successfully!");
+      showSuccessToast("Enquiry ID generated successfully!", { isInModal: true });
       return result.nextId;
     } catch (error) {
 
-      showErrorToast("Error generating Enquiry ID. Please try again later.");
+      showErrorToast("Error generating Enquiry ID. Please try again later.", { isInModal: true });
       console.error("Error generating IDs:", error);
       return null;
     }
@@ -108,11 +108,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Handle enquire button click
   const handleEnquireNowBtn = (e: any) => {
     setSelectedCPID(property.cpCode || "")
-    if (monthlyCredits > 0) {
-      setIsConfirmModelOpen(true);
-      return;
-    }
-    Alert.alert("Do not have credits");
+    // if (monthlyCredits > 0) {
+    //   setIsConfirmModelOpen(true);
+    //   return;
+    // }
+    //Alert.alert("Do not have credits");
+    showErrorToast("You don't have enough credits Please contact your account manager.");
   };
 
   const handleCancel = () => {
@@ -125,9 +126,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     try {
       const enquiryDocRef = doc(db, "enquiries", nextEnqId);
       await setDoc(enquiryDocRef, enq);
-      showSuccessToast("Enquiry submitted successfully!");
+      showSuccessToast("Enquiry submitted successfully!", { isInModal: true });
     } catch (error) {
-      showErrorToast("Failed to submit enquiry. Please try again.");
+      showErrorToast("Failed to submit enquiry. Please try again.", { isInModal: true });
       console.error("Error in enquiry submission:", error);
     }
   };
@@ -150,9 +151,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     try {
       const nextEnqId = await generateNextEnqId()
       if (!nextEnqId) {
-        Alert.alert(
-          "Failed to generate the next Enquiry ID. Please try again later."
-        );
+        // Alert.alert(
+        //   "Failed to generate the next Enquiry ID. Please try again later."
+        // );
         setIsConfirmModelOpen(false);
         return;
       }

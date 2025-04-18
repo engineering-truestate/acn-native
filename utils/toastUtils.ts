@@ -6,13 +6,16 @@ interface ToastOptions {
   position?: 'top' | 'bottom';
   visibilityTime?: number;
   autoHide?: boolean;
+  isInModal?: boolean; // New option to indicate if toast is shown in a modal
 }
 
 const defaultOptions: ToastOptions = {
   position: 'top',
   visibilityTime: 3000,
   autoHide: true,
+  isInModal: false, // Default is not in modal
 };
+
 
 export const showToast = (
   type: ToastType,
@@ -20,6 +23,8 @@ export const showToast = (
   options: ToastOptions = {}
 ) => {
   const finalOptions = { ...defaultOptions, ...options };
+  const topOffset = finalOptions.isInModal ? 20 : 60;
+  
 
   Toast.show({
     type,
@@ -27,7 +32,7 @@ export const showToast = (
     position: finalOptions.position,
     visibilityTime: finalOptions.visibilityTime,
     autoHide: finalOptions.autoHide,
-    topOffset: 60, // This accounts for the safe area at the bottom
+    topOffset:  topOffset, 
   });
 };
 

@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { toCapitalizedWords } from '../helpers/common';
 
+
 // ✅ Props typing
 type ProfileModalProps = {
   visible: boolean;
@@ -61,6 +62,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
     <Modal visible={visible} transparent animationType="fade">
       <TouchableWithoutFeedback onPress={() => setVisible(false)}>
         <View style={styles.overlay}>
+          
           <TouchableWithoutFeedback>
             <View style={styles.container}>
               {/* ❌ Close Button */}

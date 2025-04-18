@@ -187,6 +187,7 @@ const MoreFiltersRequirement = ({
                 title="Please Select"
                 items={assetTypeItems}
                 refine={refineAssetType}
+                isAssetType={true}
               />
             </View>
             <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>

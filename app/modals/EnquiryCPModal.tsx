@@ -6,6 +6,7 @@ import { db } from "../config/firebase";
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import Toast from 'react-native-toast-message';
 
 // Define the AgentData interface separately
 interface AgentData {
@@ -66,9 +67,9 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
     try {
       await Clipboard.setStringAsync(agentData.phonenumber);
       // Alert.alert('Success', 'Phone number copied!');
-      showSuccessToast("Phone number copied to clipboard!");
+      showSuccessToast("Phone number copied to clipboard!", { isInModal: true });
     } catch (err) {
-      showErrorToast("Failed to copy phone number.");
+      showErrorToast("Failed to copy phone number.", { isInModal: true });
       //console.error("Failed to copy phone number:", err);
     }
   };
@@ -93,7 +94,9 @@ const EnquiryCPModal: React.FC<EnquiryCPModalProps> = ({
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.modalOverlay}>
+        <Toast/>
         <View style={styles.modalContent}>
+        
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsEnquiryCPModalOpen(false)}
@@ -225,10 +228,12 @@ const styles = StyleSheet.create({
     borderColor: '#E3E3E3',
     borderRadius: 20,
     backgroundColor: 'white',
+    overflow: 'hidden',
   },
   phoneNumberContainer: {
     padding: 12,
     width: 136,
+
   },
   phoneNumber: {
     fontSize: 14,
@@ -239,6 +244,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F6F7',
     padding: 12,
     borderRadius: '100%',
+    
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: '#E3E3E3',
-    borderRadius: '100%',
+    borderRadius: 20,
     padding: 12,
     backgroundColor: 'white',
   },
