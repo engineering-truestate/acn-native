@@ -30,7 +30,7 @@ export interface Landmark {
 // SearchRefresher component that accesses the refresh method
 function SearchRefresher({ onRefreshAvailable }: { onRefreshAvailable: (refresh: Function) => void }) {
   const { refresh } = useInstantSearch();
-  
+
   useEffect(() => {
     if (refresh && onRefreshAvailable) {
       onRefreshAvailable(refresh);
@@ -62,6 +62,7 @@ function MobileHits() {
     return (
       <View className="flex items-center justify-center h-64">
         <ActivityIndicator size={'large'} color={'#153E3B'} />
+        <Text style={styles.text}>“The best investment on Earth is earth.” – Louis Glickman, Real Estate Investor</Text>
       </View>
     );
   }
@@ -121,7 +122,7 @@ export default function PropertiesScreen() {
   const windowHeight = Dimensions.get('window').height;
 
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Handle when refresh function becomes available
   const handleRefreshAvailable = useCallback((refresh: Function) => {
     setRefreshFunction(() => refresh);
@@ -148,7 +149,7 @@ export default function PropertiesScreen() {
       <InstantSearch searchClient={searchClient} indexName={indexName}>
         {/* This component gets the refresh function and passes it up */}
         <SearchRefresher onRefreshAvailable={handleRefreshAvailable} />
-        
+
         <Configure
           analytics={true}
           hitsPerPage={20}
