@@ -1,4 +1,5 @@
 import { db } from '@/app/config/firebase';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 import { updateAgentDocData } from '@/store/slices/agentSlice';
 import { RootState } from '@/store/store';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
@@ -138,7 +139,7 @@ const BusinessDetailsModal: React.FC<BusinessDetailsModalProps> = ({ isVisible, 
               </TouchableOpacity>
 
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>X</Text>
+                <CloseIcon/>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

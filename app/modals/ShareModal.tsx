@@ -19,6 +19,7 @@ import whatsappIcon from '../../assets/icons/whatsAppgreen.svg 14-54-26-826.svg'
 import copyIcon from '../../assets/icons/copyenq.svg';
 import closeIcon from '../../assets/icons/close.svg';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 
 interface ShareModalProps {
@@ -81,7 +82,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
               </View>
 
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons name="close" size={24} color="#666" />
+                <CloseIcon/>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

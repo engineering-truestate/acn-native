@@ -5,6 +5,7 @@ import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
 import { Property } from '../types';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface PropertyFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -75,7 +76,7 @@ export default function PropertyFilters({
               onPress={handleClear}
               style={styles.clearButton}
             >
-              <MaterialCommunityIcons name="close" size={24} color="white" />
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
         }

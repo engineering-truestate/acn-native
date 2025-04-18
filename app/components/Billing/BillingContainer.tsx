@@ -24,6 +24,7 @@ import { Coupon } from '@/app/types.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -305,7 +306,7 @@ const BillingContainer: React.FC<BillingContainerProps> = ({ onOpenBusinessModal
                   <Text style={styles.couponCodeText}>{matchedCoupon.code}</Text>
                 </View>
                 <TouchableOpacity style={styles.removeBtn} onPress={removeCoupon}>
-                  <FAIcon name="close" size={20} style={styles.icon} color={"white"} />
+                <CloseIcon/>
                   <Text style={styles.removeText}>Remove</Text>
                 </TouchableOpacity>
               </View>

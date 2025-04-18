@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Keyboard } from 'r
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchBox } from 'react-instantsearch';
 import CustomCurrentRefinements from '../CustomCurrentRefinements';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface RequirementFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -39,7 +40,7 @@ interface RequirementFiltersProps {
 //                   onPress={handleClear}
 //                   style={styles.clearButton}
 //                 >
-//                   <MaterialCommunityIcons name="close" size={24} color="white" />
+//                   <CloseIcon/>
 //                 </TouchableOpacity>
 //               </View>
 //             }
@@ -102,7 +103,7 @@ const RequirementFilters = ({ handleToggleMoreFilters }: RequirementFiltersProps
               onPress={handleClear}
               style={styles.clearButton}
             >
-              <MaterialCommunityIcons name="close" size={24} color="white" />
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
         }

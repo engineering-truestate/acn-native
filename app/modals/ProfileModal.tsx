@@ -15,6 +15,7 @@ import { logOut } from '@/store/slices/authSlice';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { toCapitalizedWords } from '../helpers/common';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -67,7 +68,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                 style={styles.closeIcon}
                 onPress={() => setVisible(false)}
               >
-                <Ionicons name="close" size={24} color="#000" />
+                <CloseIcon/>
               </TouchableOpacity>
 
               {/* ✅ Header */}

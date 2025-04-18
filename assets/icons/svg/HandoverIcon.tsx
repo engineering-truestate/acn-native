@@ -2,7 +2,7 @@ import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 import { ViewStyle } from 'react-native';
 
-interface ClockIconProps {
+interface HandOverIconProps {
   width?: number;
   height?: number;
   color?: string;
@@ -10,7 +10,7 @@ interface ClockIconProps {
   style?: ViewStyle;
 }
 
-const ClockIcon: React.FC<ClockIconProps> = ({ 
+const HandOverIcon: React.FC<HandOverIconProps> = ({ 
   width = 18, 
   height = 18, 
   color = '#433F3E',
@@ -51,4 +51,4 @@ const ClockIcon: React.FC<ClockIconProps> = ({
   );
 };
 
-export default ClockIcon;
+export default HandOverIcon;

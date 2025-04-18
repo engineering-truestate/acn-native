@@ -7,6 +7,7 @@ import BudgetRangeSlider from './property/BudgetRangeSlider';
 import { Landmark } from '../(tabs)/properties';
 import RangeMoreFilters from './RangeMoreFilters';
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 export interface RangeState {
   start: (number | undefined)[];
@@ -171,7 +172,7 @@ const MoreFilters = ({
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle} >
-            <Ionicons name="close" size={24} color="#374151" />
+            <CloseIcon/>
           </TouchableOpacity>
         </View>
 

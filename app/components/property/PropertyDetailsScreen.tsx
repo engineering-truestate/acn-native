@@ -16,6 +16,8 @@ import ShareModal from '@/app/modals/ShareModal';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import HandOverIcon from '@/assets/icons/svg/HandoverIcon';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface AgentData {
   phonenumber: string;
@@ -240,8 +242,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
               </View>
               <Text style={styles.propertyName}>{getPropertyName()}</Text>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Ionicons name="close" size={24} color="#374151" />
+            <TouchableOpacity onPress={onClose}>
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
 
@@ -251,7 +253,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
               <Text style={styles.infoText}>{property.micromarket || "N/A"}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="calendar-outline" size={16} color="#374151" />
+              {/* <Ionicons name="calendar-outline" size={16} color="#374151" /> */}
+              <HandOverIcon/>
               <Text style={styles.infoText}>{property.handoverDate || "Pending"}</Text>
             </View>
             <View style={styles.infoItem}>
@@ -397,7 +400,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent = "" }: Pr
               style={styles.closeImageViewer}
               onPress={() => setIsImageViewerVisible(false)}
             >
-              <Ionicons name="close" size={28} color="white" />
+              <CloseIcon/>
             </TouchableOpacity>
 
             {localImages.length > 0 && (

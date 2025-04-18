@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Button } from 'react-native-elements';
 import KamManager from '@/app/modals/KamModal';
+import KamModalIcon from '@/assets/icons/svg/KamModal';
 
 export const KamModalButton = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -32,10 +33,7 @@ export const KamModalButton = () => {
                 paddingHorizontal: 12,
               }}
               icon={
-                <Image
-                  source={require('../assets/icons/KamModal.webp')}
-                  style={{ width: 24, height: 24 }} // You can adjust the size
-                />
+                <KamModalIcon/>
               }
             />
 
