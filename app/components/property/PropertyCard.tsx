@@ -108,10 +108,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Handle enquire button click
   const handleEnquireNowBtn = (e: any) => {
     setSelectedCPID(property.cpCode || "")
-    // if (monthlyCredits > 0) {
-    //   setIsConfirmModelOpen(true);
-    //   return;
-    // }
+    if (monthlyCredits > 0) {
+      setIsConfirmModelOpen(true);
+      return;
+    }
     //Alert.alert("Do not have credits");
     showErrorToast("You don't have enough credits Please contact your account manager.");
   };

@@ -60,7 +60,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
       }, 300)
     } catch (error) {
       console.error('Error during logout:', error);
-      // showErrorToast("Some error occured. Please try again.", {isModal: true});
+      showErrorToast("Some error occured. Please try again.", {isInModal: true});
     } finally {
       setVisible(false);
     }
