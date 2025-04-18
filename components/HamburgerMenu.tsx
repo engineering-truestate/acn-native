@@ -7,12 +7,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { logOut } from '@/store/slices/authSlice';
 import { MaterialIcons, FontAwesome5, Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import Tooltip from 'react-native-elements/dist/tooltip/Tooltip';
 import { selectAdmin, selectName } from '@/store/slices/agentSlice';
 import { toCapitalizedWords } from '@/app/helpers/common';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HamburgerMenuButton } from './HamburgerMenuButton';
-
+import AnimatedTooltip from './AnimatedTooltip';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -161,22 +160,6 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
     return pathname === path;
   };
 
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    if (showTooltip) {
-      timeoutId = setTimeout(() => {
-        setShowTooltip(false);
-      }, 1500);
-    }
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [showTooltip]);
-
   if (!visible) return null;
 
   return (
@@ -266,7 +249,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                 </View>
               ))}
 
-              {/* Credits Display */}
+              {/* Credits Display with Improved Tooltip */}
               <View style={styles.creditsContainer}>
                 <View style={styles.creditsInfoContainer}>
                   <MaterialIcons name="monetization-on" size={20} color="#FFD700" />
@@ -274,16 +257,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                     {monthlyCredits} Credits
                   </Text>
                 </View>
-                <View style={styles.tooltipContainer}>
-                  <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)}>
-                    <MaterialIcons name="info-outline" size={22} color="#5A5555" />
-                  </TouchableOpacity>
-                  {showTooltip && (
-                    <View style={styles.tooltip}>
-                      <Text style={styles.tooltipText}>1 Credit is used per enquiry.</Text>
-                    </View>
-                  )}
-                </View>
+                <AnimatedTooltip message="1 Credit is used per enquiry." />
               </View>
 
               <TouchableOpacity
@@ -439,28 +413,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     color: '#5A5555',
-  },
-  tooltipContainer: {
-    position: 'relative',
-  },
-  tooltip: {
-    position: 'absolute',
-    top: -40,
-    right: 0,
-    backgroundColor: '#2B2928',
-    padding: 8,
-    borderRadius: 8,
-    zIndex: 50,
-    minWidth: 180,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  tooltipText: {
-    fontSize: 12,
-    color: '#FFFFFF',
   },
   profileButton: {
     flexDirection: 'row',
