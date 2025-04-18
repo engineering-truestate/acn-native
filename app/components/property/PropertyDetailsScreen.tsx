@@ -16,6 +16,11 @@ import ShareModal from '@/app/modals/ShareModal';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { LinearGradient } from 'react-native-linear-gradient';
+import { styled } from 'nativewind';
+
+const StyledView = styled(View);
+const StyledText = styled(Text);
 
 interface AgentData {
   phonenumber: string;
@@ -250,12 +255,12 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
               <Text style={styles.infoText}>{property.micromarket || "N/A"}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="calendar-outline" size={16} color="#374151" />
-              <Text style={styles.infoText}>{property.handoverDate || "Pending"}</Text>
-            </View>
-            <View style={styles.infoItem}>
               <Ionicons name="home-outline" size={16} color="#374151" />
               <Text style={styles.infoText}>{property.assetType || "Unknown Type"}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <Ionicons name="calendar-outline" size={16} color="#374151" />
+              <Text style={styles.infoText}>{property.handoverDate || "Pending"}</Text>
             </View>
             <View style={styles.infoItem}>
               <Ionicons name="bed-outline" size={16} color="#374151" />
@@ -273,75 +278,96 @@ const PropertyDetailsScreen = React.memo(({ property, onClose }: PropertyDetails
           ]}
 
         >
-          {/* Image carousel */}
-          {localImages.length > 0 &&
-            <ImageCarousel
-              images={localImages}
-              onImagePress={() => {
-                setCurrentImageIndex(0);
-                setIsImageViewerVisible(true);
-              }}
-            />
-          }
-
-
 
           {/* Basic Property Information */}
-          <View style={styles.infoSection}>
-            <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
-            <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
-            <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
-            <InfoRow label="Facing" value={property.facing} />
-            <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
-            <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
-            <InfoRow label="Floor" value={property.floorNo} />
-          </View>
-
-          {/* Location Details Section */}
-          <View style={styles.locationSection}>
-            <View style={styles.locationDetails}>
-              <View style={styles.locationItem}>
-                <Text style={styles.locationLabel}>Micromarket</Text>
-                <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
+          <View style={styles.infoSectionContainer}>
+            {localImages.length <= 0 ? (
+              <LinearGradient
+                colors={["#E0F7F4", "#FFFFFF"]}
+                locations={[0.0891, 0.7814]}
+                className="w-full"
+                style={{ borderBottomWidth: 1, borderColor: "#CCCBCB" }}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 200
+                  }}>
+                  <Image
+                    source={require('../../../assets/icons/no-image-icon.webp')}
+                    style={{ width: 96, height: 96 }} // You can adjust the size
+                  />
+                  <StyledView className="flex flex-col items-center justify-center">
+                    <StyledText className='text-sm font-bold'>No Images Found</StyledText>
+                    <StyledText className="text-sm font-medium text-[#757575]">The listing doesn't have any images yet.</StyledText>
+                  </StyledView>
+                </View>
+              </LinearGradient>
+            ) : (
+              <ImageCarousel
+                images={localImages}
+                onImagePress={() => {
+                  setCurrentImageIndex(0);
+                  setIsImageViewerVisible(true);
+                }}
+              />
+            )}
+            <View style={styles.infoSection}>
+              <InfoRow label="Plot Size" value={property.plotSize ? `${property.plotSize} sqft` : null} />
+              <InfoRow label="Carpet Area" value={property.carpet ? `${property.carpet} sqft` : null} />
+              <InfoRow label="SBUA" value={property.sbua ? `${property.sbua} sqft` : null} />
+              <InfoRow label="Facing" value={property.facing} />
+              <InfoRow label="Total Ask Price" value={property.totalAskPrice ? formatCost(property.totalAskPrice) : null} />
+              <InfoRow label="Ask Price/Sqft" value={property.askPricePerSqft ? `₹${property.askPricePerSqft}` : null} />
+              <InfoRow label="Floor" value={property.floorNo} />
+            </View>
+            {/* Location Details Section */}
+            <View style={styles.locationSection}>
+              <View style={styles.locationDetails}>
+                <View style={styles.locationItem}>
+                  <Text style={styles.locationLabel}>Micromarket</Text>
+                  <Text style={styles.locationValue}>{property.micromarket || "-"}</Text>
+                </View>
+                <View style={styles.locationItem}>
+                  <Text style={styles.locationLabel}>Area</Text>
+                  <Text style={styles.locationValue}>{property.area || "-"}</Text>
+                </View>
               </View>
-              <View style={styles.locationItem}>
-                <Text style={styles.locationLabel}>Area</Text>
-                <Text style={styles.locationValue}>{property.area || "-"}</Text>
+
+              <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
+                <Text style={styles.mapButtonText}>Open in Google Maps</Text>
+                <Ionicons name="arrow-forward" size={16} color="#10302D" />
+              </TouchableOpacity>
+            </View>
+            {/* Extra Details Section */}
+            <View style={styles.extraDetailsSection}>
+              <Text style={styles.extraDetailsTitle}>Extra Details</Text>
+              <View style={styles.extraDetailsContent}>
+                {property?.extraDetails ? (
+                  property?.extraDetails?.split("\n")?.map((detail, index) => (
+                    <View key={index} style={styles.detailItem}>
+                      <Text style={styles.bulletPoint}>•</Text>
+                      <Text style={styles.detailText}>{detail}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noDetailsText}>No extra details available.</Text>
+                )}
               </View>
             </View>
-
-            <TouchableOpacity style={styles.mapButton} onPress={handleOpenGoogleMap}>
-              <Text style={styles.mapButtonText}>Open in Google Maps</Text>
-              <Ionicons name="arrow-forward" size={16} color="#10302D" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Extra Details Section */}
-          <View style={styles.extraDetailsSection}>
-            <Text style={styles.extraDetailsTitle}>Extra Details</Text>
-            <View style={styles.extraDetailsContent}>
-              {property?.extraDetails ? (
-                property?.extraDetails?.split("\n")?.map((detail, index) => (
-                  <View key={index} style={styles.detailItem}>
-                    <Text style={styles.bulletPoint}>•</Text>
-                    <Text style={styles.detailText}>{detail}</Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.noDetailsText}>No extra details available.</Text>
-              )}
+            {/* Additional Property Information */}
+            <View style={styles.additionalInfo}>
+              <InfoRow label="Building Khata" value={property.buildingKhata} />
+              <InfoRow label="Land Khata" value={property.landKhata} />
+              <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
+              <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
+              <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
             </View>
           </View>
-
-          {/* Additional Property Information */}
-          <View style={styles.additionalInfo}>
-            <InfoRow label="Building Khata" value={property.buildingKhata} />
-            <InfoRow label="Land Khata" value={property.landKhata} />
-            <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
-            <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-            <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
-          </View>
-
         </ScrollView>
 
         <ShareModal
@@ -510,7 +536,7 @@ const styles = StyleSheet.create({
   locationInfo: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    justifyContent: 'space-between',
   },
   infoItem: {
     flexDirection: 'row',
@@ -518,6 +544,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     gap: 6,
+    width: '48%'
   },
   infoText: {
     fontSize: 12,
@@ -566,13 +593,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: '#9CA3AF',
   },
-  infoSection: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 16,
-    gap: 12,
+  infoSectionContainer: {
     borderWidth: 1,
     borderColor: '#CCCBCB',
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#FFFFFF",
+    gap: 16
+  },
+  infoSection: {
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
+    gap: 12,
   },
   infoRow: {
     flexDirection: 'row',
@@ -602,6 +634,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1,
     borderColor: '#E1E1E1',
+    marginHorizontal: 16,
   },
   locationDetails: {
     gap: 8,
@@ -640,6 +673,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     gap: 12,
+    marginHorizontal: 16,
     borderWidth: 1,
     borderColor: '#ECECEC',
   },
@@ -678,8 +712,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     gap: 12,
-    borderWidth: 1,
-    borderColor: '#CCCBCB',
+    marginHorizontal: 16
   },
   shareButton: {
     position: 'absolute',

@@ -63,6 +63,8 @@
     "react-native-flash-message": "^0.4.2",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-image-viewing": "^0.2.2",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-markdown-display": "^7.0.2",
     "react-native-otp-entry": "^1.8.4",
     "react-native-reanimated": "~3.16.1",
