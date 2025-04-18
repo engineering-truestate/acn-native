@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import PropertyCard from "../components/property/PropertyCard";
 import MoreFilters from "../components/MoreFilters";
 import { useDoubleBackPressExit } from "@/hooks/useDoubleBackPressExit";
+import Animated from "react-native-reanimated";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -93,6 +94,7 @@ export default function PropertiesScreen() {
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
   const [refreshFunction, setRefreshFunction] = useState<Function | null>(null);
+  const scrollViewRef = useRef<Animated.ScrollView>(null);
 
   useEffect(() => {
     // Measure the height of the filters component
@@ -175,7 +177,7 @@ export default function PropertiesScreen() {
           </View>
 
           {/* Main content area with dynamic height */}
-          <ScrollView
+          <ScrollView ref={scrollViewRef}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -199,7 +201,7 @@ export default function PropertiesScreen() {
               setPaginationHeight(height);
             }}
           >
-            <CustomPagination />
+            <CustomPagination scrollRef={scrollViewRef} />
           </View>
         </View>
         <MoreFilters

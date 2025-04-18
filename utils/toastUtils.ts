@@ -1,4 +1,10 @@
-import Toast from 'react-native-toast-message';
+import Toast, {
+  BaseToastProps,
+  ErrorToast,
+  InfoToast,
+  SuccessToast,
+  ToastConfig,
+} from 'react-native-toast-message';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -24,7 +30,6 @@ export const showToast = (
 ) => {
   const finalOptions = { ...defaultOptions, ...options };
   const topOffset = finalOptions.isInModal ? 20 : 60;
-  
 
   Toast.show({
     type,
@@ -32,8 +37,48 @@ export const showToast = (
     position: finalOptions.position,
     visibilityTime: finalOptions.visibilityTime,
     autoHide: finalOptions.autoHide,
-    topOffset:  topOffset, 
+    topOffset: topOffset
   });
+};
+
+const toastProps: BaseToastProps = {
+  text1NumberOfLines: 10,
+  style: {
+    height: "auto",
+    paddingVertical: 20,
+    paddingHorizontal: 0,
+  },
+};
+
+
+export const toastConfig: ToastConfig = {
+  success: (props) => SuccessToast({
+    ...props, ...toastProps, style:
+      [
+        toastProps.style,
+        {
+          borderLeftColor: "#69C779",
+        },
+      ]
+  }),
+  error: (props) => ErrorToast({
+    ...props, ...toastProps, style:
+      [
+        toastProps.style,
+        {
+          borderLeftColor: "#FE6301",
+        },
+      ]
+  }),
+  info: (props) => InfoToast({
+    ...props, ...toastProps, style:
+      [
+        toastProps.style,
+        {
+          borderLeftColor: "#87CEFA",
+        },
+      ]
+  }),
 };
 
 // Convenience methods

@@ -142,10 +142,13 @@ const DropdownMoreFilters = ({
   return (
     <View style={{ position: 'relative' }}>
       <TouchableOpacity
-      
         ref={buttonRef}
-        className={`flex-row justify-between items-center px-3 py-2 ${isOpen ? 'bg-[#153E3B]' : 'bg-white border border-gray-300'} rounded-md`}
-        onPress={handleToggle}
+        style={[
+          styles.button,
+          items?.length > 0 ? styles.defaultButton : styles.emptyButton,
+          isOpen && styles.selectedButton,
+        ]}
+        onPress={items?.length > 0 ? handleToggle : () => {}}
         onLayout={handleLayout}
       >
         <Text className={isOpen ? "text-white" : "text-gray-700"}>
@@ -196,5 +199,41 @@ const DropdownMoreFilters = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#666',
+  },
+  selectedButton: {
+    backgroundColor: '#153E3B',
+  },
+  defaultButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#e2e8f0', // Gray border
+  },
+  emptyButton: {
+    backgroundColor: '#e5e7eb', // Gray
+    borderColor: 'e5e7eb',
+    borderWidth: 1,
+    color: '#f87171', // Red color for text
+  },
+  itemCount: {
+    backgroundColor: '#e5e7eb',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 12,
+    color: '#666',
+  },
+});
 
 export default React.memo(DropdownMoreFilters);

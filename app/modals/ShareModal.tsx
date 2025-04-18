@@ -17,7 +17,7 @@ import { shareProperty, createPropertyMessage } from '../helpers/shareModal';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
-import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { showErrorToast, showSuccessToast, toastConfig } from '@/utils/toastUtils';
 import Toast from 'react-native-toast-message';
 
 
@@ -41,7 +41,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
       showSuccessToast('Inventory details copied Successfully!', { isInModal: true });
       Clipboard.setString(details);
     } catch (err) {
-      showErrorToast('Failed to copy details!' , { isInModal: true });
+      showErrorToast('Failed to copy details!', { isInModal: true });
       console.error('Failed to copy:', err);
     }
   };
@@ -56,14 +56,14 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
-      
+
       <TouchableWithoutFeedback onPress={handleClose}>
-        
+
         <View style={styles.overlay}>
-          <Toast/>
+          <Toast config={toastConfig} />
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
-              
+
               <View style={styles.header}>
                 <Text style={styles.title}>Share</Text>
                 <Text style={styles.description}>
@@ -87,7 +87,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
               </View>
 
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <CloseIcon/>
+                <CloseIcon />
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
