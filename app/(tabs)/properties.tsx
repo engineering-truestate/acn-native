@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Keyboard } from "react-native";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Keyboard, RefreshControl } from "react-native";
 import algoliasearch from "algoliasearch";
-import { InstantSearch, Configure } from "react-instantsearch";
+import { InstantSearch, Configure, useInstantSearch } from "react-instantsearch";
 import { useHits, useSearchBox } from "react-instantsearch";
 import PropertyFilters from "../components/PropertyFilters";
 import CustomPagination from "../components/CustomPagination";
@@ -17,12 +17,6 @@ const searchClient = algoliasearch(
   "72106b08028d186542a82eafa570fc88"
 );
 
-// Define the AgentData interface separately
-export interface AgentData {
-  phonenumber: string;
-  [key: string]: any;
-}
-
 const indexName = "propertyId";
 
 export interface Landmark {
@@ -32,14 +26,21 @@ export interface Landmark {
   radius: number;
 }
 
-// PropertyDetailsModal component
-interface PropertyDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  property: any;
+// SearchRefresher component that accesses the refresh method
+function SearchRefresher({ onRefreshAvailable }: { onRefreshAvailable: (refresh: Function) => void }) {
+  const { refresh } = useInstantSearch();
+  
+  useEffect(() => {
+    if (refresh && onRefreshAvailable) {
+      onRefreshAvailable(refresh);
+    }
+  }, [refresh, onRefreshAvailable]);
+
+  // This component doesn't render anything visible
+  return null;
 }
 
-// Mobile Hits Component
+// MobileHits Component
 function MobileHits() {
   const { hits } = useHits<Property>();
   const { query } = useSearchBox();
@@ -59,8 +60,7 @@ function MobileHits() {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'}  color={'#153E3B'} />
-        {/* <Text style={styles.text}>The app is loading soooooonnnnnnn</Text> */}
+        <ActivityIndicator size={'large'} color={'#153E3B'} />
       </View>
     );
   }
@@ -85,9 +85,6 @@ function MobileHits() {
   );
 }
 
-
-
-
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
@@ -95,6 +92,7 @@ export default function PropertiesScreen() {
   const [paginationHeight, setPaginationHeight] = useState(0);
   const filtersRef = useRef<View>(null);
   const paginationRef = useRef<View>(null);
+  const [refreshFunction, setRefreshFunction] = useState<Function | null>(null);
 
   useEffect(() => {
     // Measure the height of the filters component
@@ -120,11 +118,35 @@ export default function PropertiesScreen() {
   // Calculate the content height dynamically
   const windowHeight = Dimensions.get('window').height;
 
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // Handle when refresh function becomes available
+  const handleRefreshAvailable = useCallback((refresh: Function) => {
+    setRefreshFunction(() => refresh);
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    // Call the Algolia refresh method if available
+    if (refreshFunction) {
+      refreshFunction();
+    }
+
+    // Set a timeout to stop the refreshing indicator after some time
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, [refreshFunction]);
+
   useDoubleBackPressExit();
 
   return (
     <View className="flex-1 bg-[#F5F6F7]">
       <InstantSearch searchClient={searchClient} indexName={indexName}>
+        {/* This component gets the refresh function and passes it up */}
+        <SearchRefresher onRefreshAvailable={handleRefreshAvailable} />
+        
         <Configure
           analytics={true}
           hitsPerPage={20}
@@ -153,7 +175,18 @@ export default function PropertiesScreen() {
           </View>
 
           {/* Main content area with dynamic height */}
-          <ScrollView>
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={["#153E3B"]}
+                tintColor="#153E3B"
+                title="Refreshing..."
+                titleColor="#153E3B"
+              />
+            }
+          >
             <MobileHits />
           </ScrollView>
 
@@ -169,20 +202,18 @@ export default function PropertiesScreen() {
             <CustomPagination />
           </View>
         </View>
-        <MoreFilters 
-          isOpen={isMoreFiltersModalOpen} 
-          setIsOpen={setIsMoreFiltersModalOpen} 
-          handleToggle={handleToggleMoreFilters} 
-          isMobile={true} 
-          selectedLandmark={selectedLandmark} 
-          setSelectedLandmark={setSelectedLandmark} 
+        <MoreFilters
+          isOpen={isMoreFiltersModalOpen}
+          setIsOpen={setIsMoreFiltersModalOpen}
+          handleToggle={handleToggleMoreFilters}
+          isMobile={true}
+          selectedLandmark={selectedLandmark}
+          setSelectedLandmark={setSelectedLandmark}
         />
       </InstantSearch>
     </View>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   text: {

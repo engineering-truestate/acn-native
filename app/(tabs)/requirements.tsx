@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, ScrollView, Keyboard, ActivityIndicator, Text } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, ScrollView, Keyboard, ActivityIndicator, Text, RefreshControl } from 'react-native';
 import RequirementFilters from '../components/requirement/RequirementFilters';
 import RequirementCard from '../components/requirement/RequirementCard';
 import CustomPagination from '../components/CustomPagination';
 import MoreFiltersRequirement from '../components/requirement/MoreFiltersRequirement';
-import { InstantSearch, useHits, useSearchBox } from 'react-instantsearch';
+import { Configure, InstantSearch, useHits, useInstantSearch, useSearchBox } from 'react-instantsearch';
 import algoliasearch from 'algoliasearch';
 import RequirementDetailsModal from '../components/requirement/RequirementDetailsModal';
 import { Requirement } from '../types';
@@ -32,13 +32,13 @@ const MobileHits = () => {
   } else if (hits.length === 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'} color={'#153E3B'}/>
+        <ActivityIndicator size={'large'} color={'#153E3B'} />
       </View>
     );
   }
 
   return (
-    <ScrollView  contentContainerStyle={{ paddingBottom: 0 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 0 }}>
       {hits.map((requirement) => {
         const transformedRequirement = requirement as Requirement;
         return (
@@ -73,9 +73,35 @@ const RequirementsList = () => {
   //   );
   // }
 
+  const { refresh } = useInstantSearch();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    // Call the Algolia refresh method if available
+    refresh();
+
+    // Set a timeout to stop the refreshing indicator after some time
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   return (
     <>
-      <ScrollView style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} >
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#153E3B"]}
+            tintColor="#153E3B"
+            title="Refreshing..."
+            titleColor="#153E3B"
+          />
+        }
+        style={[styles.mobileContent]} contentContainerStyle={{ paddingBottom: 0, }} >
         <MobileHits />
       </ScrollView>
 
@@ -123,6 +149,11 @@ const RequirementsPage = () => {
         searchClient={searchClient}
         indexName="acn-agent-requirement"
       >
+        <Configure
+          analytics={true}
+          hitsPerPage={20}
+          filters="NOT status:'Closed'"
+        />
         <View style={styles.content}>
           {/* Filters */}
           <View style={styles.filtersContainer}>
