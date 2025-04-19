@@ -18,6 +18,9 @@ import RupeeIcon from '@/assets/icons/svg/Sidebar/BillingIcon';
 import AnimatedTooltip from './AnimatedTooltip';
 
 
+
+
+
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
@@ -95,6 +98,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
   const agentName = useSelector(selectName);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
   const isAuthenticated = useSelector((state: RootState) => state?.auth?.isAuthenticated);
+    
 
   useEffect(() => {
     if (visible) {
@@ -140,9 +144,11 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
       onClose();
       return;
     }
-    router.dismissAll();
-    router.push(path as any);
     onClose();
+    // router.dismissAll();
+    router.replace('/(tabs)/properties');
+    router.push(path as any);
+    // onClose();
   };
 
   const handleOpenProfile = () => {
@@ -187,7 +193,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
         <View style={{ flexDirection: 'row' }}>
           <View
             style={[
-              { marginTop: insets.top + 12, marginLeft: 16 },
+              { marginTop:  12, marginLeft: 16 },
             ]}
           >
             <HamburgerMenuButton onPress={onClose} isOpen={false} showACN={true} />
@@ -321,12 +327,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     zIndex: 4,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
     elevation: 5,
   },
   menuContent: {
@@ -355,6 +355,7 @@ const styles = StyleSheet.create({
   menuItemContainer: {
     width: '100%',
     marginBottom: 12,
+    
   },
   standardButton: {
     height: 50,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonLabel: {
-    fontFamily: 'System',
+    fontFamily: 'Lato',
     fontSize: 16,
     fontWeight: '500',
     color: '#252626',
@@ -395,11 +396,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+    
   },
   communityButtonText: {
     color: '#153E3B',
     fontSize: 14,
     fontWeight: '600',
+    
   },
   creditsContainer: {
     flexDirection: 'row',
@@ -420,7 +423,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   creditsText: {
-    fontFamily: 'System',
+    fontFamily: 'Lato',
     fontWeight: '500',
     fontSize: 14,
     color: '#5A5555',

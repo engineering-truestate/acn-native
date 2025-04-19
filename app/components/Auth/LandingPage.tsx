@@ -1,11 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { useDispatch } from 'react-redux';
-import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import Svg, { Circle, G, Path, Polyline } from 'react-native-svg';
+import Svg, { G, Path, Polyline } from 'react-native-svg';
 import { useDoubleBackPressExit } from '@/hooks/useDoubleBackPressExit';
 
 const { width, height } = Dimensions.get('window');
@@ -74,39 +72,7 @@ const BidirectionalArrowIcon = () => (
 
 export default function LandingPage() {
   const router = useRouter();
-  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const loadingAuth = useSelector((state: RootState) => state.auth.loading);
-  const isMounted = useRef(false);
-
-  // Handle redirects safely with isMounted check
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  // Safe navigation effect
-  useEffect(() => {
-    // Only navigate if authenticated and component is still mounted
-    let navigationTimeout: NodeJS.Timeout;
-    
-    if (isAuthenticated && isMounted.current && !loadingAuth) {
-      // Using setTimeout to ensure navigation happens after initial mounting
-      navigationTimeout = setTimeout(() => {
-        if (isMounted.current) {
-          router.replace('/(tabs)/properties');
-        }
-      }, 0);
-    }
-    
-    return () => {
-      if (navigationTimeout) {
-        clearTimeout(navigationTimeout);
-      }
-    };
-  }, [isAuthenticated, router, loadingAuth]);
 
   const handleNavigate = () => {
     if (!isAuthenticated) {
