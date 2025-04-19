@@ -4,6 +4,10 @@ import { FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import PropertyDetailsScreen from "../property/PropertyDetailsScreen";
 import ReviewModal from "./ReviewModal";
 import { EnquiryWithProperty } from "@/app/types";
+import { setPropertyDataThunk } from '@/store/slices/propertySlice';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { RootState } from '@/store/store';
 
 interface CardProps {
   // key:string,
@@ -16,6 +20,8 @@ const EnquiryCard: React.FC<CardProps> = ({
   index,
   enquiry,
 }) => {
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
+
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   // const [loading,setLoading] = useState(true);
@@ -40,7 +46,6 @@ const EnquiryCard: React.FC<CardProps> = ({
     <>
       {isDetailsModalOpen && (
         <PropertyDetailsScreen
-          property={enquiry?.property!}
           onClose={() => setIsDetailsModalOpen(false)}
           parent="dashboardEnquiry"
           enqId={enquiry['enquiryId']!}
@@ -53,12 +58,6 @@ const EnquiryCard: React.FC<CardProps> = ({
           enqId={enquiry['enquiryId']!}
         />
       )}
-      {/* {isDetailsModalOpen && (
-        <PropertyDetailsScreen
-          property={enquiry?.property!}
-          onClose={() => setIsDetailsModalOpen(false)}
-        />
-      )} */}
       {isReviewModalOpen && (
         <ReviewModal
           isOpen={isReviewModalOpen}
@@ -70,7 +69,12 @@ const EnquiryCard: React.FC<CardProps> = ({
       <Pressable
         className="border border-gray-300 rounded-lg p-4 bg-white w-full flex flex-col mb-4 "
         style={{ gap: 16 }}
-        onPress={() => enquiry?.property && setIsDetailsModalOpen(true)}
+        onPress={() => {
+          if (enquiry?.property) {
+            setIsDetailsModalOpen(true);
+            dispatch(setPropertyDataThunk(enquiry.property));
+          }
+        }}
       >
         {/* Header Section */}
         <View className='flex flex-col' style={{ gap: 10 }}>

@@ -147,6 +147,8 @@ export default function RootLayout() {
               <Stack.Screen name="components/Auth/VerificationPage" options={{ headerShown: false }} />
               <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }} />
               <Stack.Screen name="not-found" options={{ headerShown: false }} />
+
+              {/* <Stack.Screen name="components/property/PropertyDetailsScreen" options={{ headerShown: false }} /> */}
             </Stack>
             <HamburgerMenu
               visible={isMenuOpen}

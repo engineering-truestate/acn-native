@@ -6,21 +6,21 @@ import { PersistPartial } from 'redux-persist/es/persistReducer';
 
 import authReducer from './slices/authSlice';
 import agentReducer from './slices/agentSlice';
-// import requirementFormReducer from './slices/requirementSlice';
 import kamReducer from './slices/kamSlice';
 import listenerReducer from './slices/listenerSlice';
+import propertyReducer from './slices/propertySlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   agent: agentReducer,
-//   requirementForm: requirementFormReducer,
   kam: kamReducer,
   listeners: listenerReducer,
+  property: propertyReducer,
 });
 
 const persistConfig = {
   key: 'root',
-  storage: AsyncStorage, // 👈 RN-compatible storage
+  storage: AsyncStorage,
   whitelist: ["auth", "agent"],
 };
 

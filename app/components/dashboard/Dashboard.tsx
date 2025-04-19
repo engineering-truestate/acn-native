@@ -37,6 +37,9 @@ import MyRequirementIcon from '@/assets/icons/svg/Dashboard/MyRequirementsIcon';
 import MyInverntoriesIcon from '@/assets/icons/svg/Dashboard/MyInventoriesIcon';
 import MyEnquiriesIcon from '@/assets/icons/svg/Dashboard/MyEnquiryIcon';
 import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
+import { setPropertyDataThunk } from '@/store/slices/propertySlice';
+import { useDispatch } from 'react-redux';
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -55,6 +58,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
   // State for property details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [matchingEnquiriesCount, setMatchingEnquiriesCount] = useState("-");
+  const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
 
 
   // Function to get property status color
@@ -140,7 +144,6 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
       {/* Property Details Modal */}
       {isDetailsModalOpen && (
         <PropertyDetailsScreen
-          property={property}
           onClose={() => setIsDetailsModalOpen(false)}
           parent="dashboardInventory"
           onStatusChange={onStatusChange}
@@ -150,7 +153,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
       {/* Clickable Card */}
       <StyledTouchableOpacity
         activeOpacity={0.7}
-        onPress={() => setIsDetailsModalOpen(true)}
+        onPress={() => { setIsDetailsModalOpen(true); dispatch(setPropertyDataThunk(property)); }}
       >
         {/* Top Content Section */}
         <StyledView className="p-4">
@@ -427,6 +430,8 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
+    console.log("id", id);
+    console.log("status", status);
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));

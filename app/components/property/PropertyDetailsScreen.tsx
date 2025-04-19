@@ -28,6 +28,8 @@ const StyledText = styled(Text);
 import ShareIcon from '@/assets/icons/svg/PropertiesPage/ShareIcon';
 import ShareIconInsidePropertyDetails from '@/assets/icons/svg/PropertiesPage/SHareIconPropertyDetailsModal';
 import DriveIcon from '@/assets/icons/svg/PropertiesPage/DriveIcon';
+import { selectPropertyStateData } from '@/store/slices/propertySlice';
+import Toast from 'react-native-toast-message';
 
 interface AgentData {
   phonenumber: string;
@@ -35,7 +37,7 @@ interface AgentData {
 }
 
 interface PropertyDetailsScreenProps {
-  property: Property;
+  // property: Property;
   onClose: () => void;
   parent?: string;
   enqId?: string;
@@ -70,8 +72,9 @@ const formatDate = (timestamp?: number) => {
 };
 
 // Use React.memo to fix the static flag issue
-const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, onStatusChange }: PropertyDetailsScreenProps) => {
+const PropertyDetailsScreen = React.memo(({ onClose, parent, enqId, onStatusChange }: PropertyDetailsScreenProps) => {
   const router = useRouter();
+  const property = useSelector(selectPropertyStateData);
   const agentData = useSelector((state: RootState) => state?.agent?.docData) as AgentData;
   const [localImages, setLocalImages] = useState<string[]>([]);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
@@ -82,6 +85,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
+  console.log("property", property);
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
@@ -387,8 +391,8 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
               <InfoRow label="Land Khata" value={property.landKhata} />
               <InfoRow label="Building Age" value={property.buildingAge ? `${property.buildingAge}` : null} />
               <InfoRow label="Tenanted" value={property.tenanted ? "Yes" : "No"} />
-              <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)}  />
-            <InfoRow label="Last Status Check" value={formatDate(property.dateOfStatusLastChecked)}/>
+              <InfoRow label="Inventory Added On" value={formatDate(property.dateOfInventoryAdded)} />
+              <InfoRow label="Last Status Check" value={formatDate(property.dateOfStatusLastChecked)} />
             </View>
           </View>
         </ScrollView>
@@ -448,7 +452,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
             >
               <DashboardDropdown
                 value={property.status || "Available"}
-                setValue={(val) => onStatusChange!(property.propertyId, val)}
+                setValue={(val) => onStatusChange!(property?.propertyId, val)}
                 options={[
                   { label: "Available", value: "Available" },
                   { label: "Hold", value: "Hold" },
@@ -457,6 +461,7 @@ const PropertyDetailsScreen = React.memo(({ property, onClose, parent, enqId, on
                 type={"inventory"}
                 openDropdownUp={true}
                 parent="dashboardInventory"
+                updatePropertySlice={true}
               />
             </View>
           }

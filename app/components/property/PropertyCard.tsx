@@ -17,6 +17,8 @@ import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import ShareIconOutSide from '@/assets/icons/svg/PropertiesPage/ShareIcon';
 import DriveIcon from '@/assets/icons/svg/PropertiesPage/DriveIcon';
+import { router } from 'expo-router';
+import { setPropertyDataThunk } from '@/store/slices/propertySlice';
 
 interface PropertyCardProps {
   property: {
@@ -190,6 +192,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   // Function to open property details screen
   const openPropertyDetails = () => {
     setShowDetails(true);
+    dispatch(setPropertyDataThunk(property));
     //onCardClick(property);
   };
 
@@ -197,7 +200,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     <>
       {showDetails && (
         <PropertyDetailsScreen
-          property={property}
+          // property={property}
           onClose={() => setShowDetails(false)}
           parent="properties"
         />
@@ -212,7 +215,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             {/* Property ID on the left - using width fit-content approach */}
             <View className="flex-1" style={{ flexShrink: 1 }}>
               <View style={{ alignSelf: 'flex-start' }}>
-                <Text style = {{fontSize : 14}} className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
+                <Text style={{ fontSize: 14 }} className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
                   {property.propertyId}
                 </Text>
               </View>
@@ -261,7 +264,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
           {/* Total Ask Price */}
           <View className="flex-col items-start">
             <Text className="text-gray-600 text-xs font-semibold">Total Ask Price:</Text>
-            <Text style={{fontSize:14}} className="text-sm font-semibold text-gray-900">
+            <Text style={{ fontSize: 14 }} className="text-sm font-semibold text-gray-900">
               {formatPrice()}
             </Text>
           </View>
@@ -269,7 +272,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
           {/* SBUA */}
           <View className="flex-col items-start">
             <Text className="text-gray-600 text-xs font-semibold">SBUA:</Text>
-            <Text style={{fontSize:14}} className="text-sm font-semibold text-gray-900">
+            <Text style={{ fontSize: 14 }} className="text-sm font-semibold text-gray-900">
               {property.sbua ? `${property.sbua} Sq Ft` : "-"}
             </Text>
           </View>
@@ -283,7 +286,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             onPress={handleOpenDriveDetails}
           >
             <DriveIcon />
-            <Text style={{fontSize:14}} className="text-[#153E3B] font-medium text-xs ml-1">Details</Text>
+            <Text style={{ fontSize: 14 }} className="text-[#153E3B] font-medium text-xs ml-1">Details</Text>
           </TouchableOpacity>
 
           {/* Enquire Now Button */}
@@ -292,7 +295,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             onPress={handleEnquireNowBtn}
           >
             <Ionicons name="call-outline" size={16} color="white" />
-            <Text style={{fontSize:14}} className="text-white font-medium text-xs ml-1">Enquire Now</Text>
+            <Text style={{ fontSize: 14 }} className="text-white font-medium text-xs ml-1">Enquire Now</Text>
           </TouchableOpacity>
         </View>
         <EnquiryCPModal
