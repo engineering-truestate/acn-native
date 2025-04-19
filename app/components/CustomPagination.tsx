@@ -1,14 +1,15 @@
 import React, { RefObject, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Keyboard, FlatList } from 'react-native';
 import { useInstantSearch, usePagination } from 'react-instantsearch';
 import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
 
 interface CustomPaginationProps {
   isSticky?: boolean;
   scrollRef?: RefObject<ScrollView> | null;
+  flatListRef?: RefObject<FlatList> | null;
 }
 
-export default function CustomPagination({ isSticky = false, scrollRef = null }: CustomPaginationProps) {
+export default function CustomPagination({ isSticky = false, scrollRef = null, flatListRef = null }: CustomPaginationProps) {
 
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +23,12 @@ export default function CustomPagination({ isSticky = false, scrollRef = null }:
   const { status } = useInstantSearch();
 
   useEffect(() => {
-    if (status === 'loading' && loading === true && scrollRef?.current)
-      scrollRef.current.scrollTo({ y: 0, animated: true })
+    if (status === 'loading' && loading === true) {
+      if (scrollRef?.current)
+        scrollRef.current.scrollTo({ y: 0, animated: true })
+      if (flatListRef?.current)
+        flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
+    }
     setLoading(status === 'loading');
   }, [status]);
 
