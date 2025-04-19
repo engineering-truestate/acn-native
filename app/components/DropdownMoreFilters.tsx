@@ -132,7 +132,7 @@ const DropdownMoreFilters = ({
             </View>
             <Text className="text-gray-800 mr-6">{item.label.split('-')[0]}{" "}{item.label.split('-')[1]}</Text>
           </View>
-          <View className="ml-2">
+          <View className="mx-2">
             <Text className="text-xs text-gray-600 bg-[#e5e7eb] rounded-[4px] px-2">{item.count}</Text>
           </View>
         </TouchableOpacity>
