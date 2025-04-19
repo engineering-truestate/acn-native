@@ -45,48 +45,74 @@ function SearchRefresher({ onRefreshAvailable }: { onRefreshAvailable: (refresh:
 function MobileHits() {
   const { hits } = useHits<Property>();
   const { query } = useSearchBox();
+  const { status, error } = useInstantSearch();
   const router = useRouter();
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
+
+  const [isStalled, setIsStalled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isIdle, setIsIdle] = useState(false);
+
+  console.log('Status:', status, 'Error:', error);
+  useEffect(() => {
+    setIsIdle(status === 'idle');
+    setIsLoading(status === 'loading');
+    setIsStalled(status === 'stalled');
+  }, [status, setIsIdle, setIsLoading, setIsStalled]);
 
   const handleCardClick = (property: any) => {
     setSelectedProperty(property);
   };
 
-  if (hits?.length === 0 && query?.length !== 0) {
-    return (
-      <View className="flex items-center justify-center h-64">
-        <Text style={styles.text}>No results found for "{query}"</Text>
-      </View>
-    );
-  } else if (hits.length === 0) {
-    return (
-      <View className="flex items-center justify-center h-64">
-        <ActivityIndicator size={'large'} color={'#153E3B'} />
-        <Text style={styles.text}>“The best investment on Earth is earth.” – Louis Glickman, Real Estate Investor</Text>
-      </View>
-    );
+  // Display loading states when there are no hits
+  if (hits.length === 0) {
+    if (isIdle || isLoading || isStalled) {
+      return (
+        <View className="flex items-center justify-center h-64">
+          <ActivityIndicator size={'large'} color={'#153E3B'} />
+        </View>
+      );
+    } else if (error) {
+      return (
+        <View className="flex items-center justify-center h-64">
+          <ActivityIndicator size={'large'} color={'#153E3B'} />
+          <Text style={styles.text}>NETWORK ERROR</Text>
+        </View>
+      );
+    } else if (query && query.length > 0) {
+      return (
+        <View className="flex items-center justify-center h-64">
+          <Text style={styles.text}>No results found for "{query}"</Text>
+        </View>
+      );
+    } else {
+      return (
+        <View className="flex items-center justify-center h-64">
+          <ActivityIndicator size={'large'} color={'#153E3B'} />
+          <Text style={styles.text}>"The best investment on Earth is earth." – Louis Glickman, Real Estate Investor</Text>
+        </View>
+      );
+    }
   }
 
+  // When we have hits, render the property cards
   return (
-    <>
-      <View className="w-full px-4">
-        {hits.map((property) => {
-          // Transform property data
-          const transformedProperty: Property = property;
+    <View className="w-full px-4">
+      {hits.map((property) => {
+        // Transform property data
+        const transformedProperty: Property = property;
 
-          return (
-            <PropertyCard
-              key={property.objectID}
-              property={transformedProperty}
-              onCardClick={handleCardClick}
-            />
-          );
-        })}
-      </View>
-    </>
+        return (
+          <PropertyCard
+            key={property.objectID}
+            property={transformedProperty}
+            onCardClick={handleCardClick}
+          />
+        );
+      })}
+    </View>
   );
 }
-
 export default function PropertiesScreen() {
   const [isMoreFiltersModalOpen, setIsMoreFiltersModalOpen] = useState(false);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
