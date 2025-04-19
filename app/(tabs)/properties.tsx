@@ -48,6 +48,11 @@ function MobileHits() {
   const router = useRouter();
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
 
+  const [isStalled, setIsStalled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isIdle, setIsIdle] = useState(false);
+
+
   const handleCardClick = (property: any) => {
     setSelectedProperty(property);
   };
@@ -67,6 +72,7 @@ function MobileHits() {
     );
   }
 
+  // When we have hits, render the property cards
   return (
     <>
       <View className="w-full px-4">
@@ -84,7 +90,7 @@ function MobileHits() {
         })}
       </View>
     </>
-  );
+  )
 }
 
 export default function PropertiesScreen() {
