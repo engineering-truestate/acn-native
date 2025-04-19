@@ -130,7 +130,7 @@ const DropdownMoreFilters = ({
                 <Ionicons name="checkmark" size={12} color="#FFFFFF" />
               )}
             </View>
-            <Text className="text-gray-800">{item.label}</Text>
+            <Text className="text-gray-800 mr-6">{item.label.split('-')[0]}{" "}{item.label.split('-')[1]}</Text>
           </View>
           <View className="ml-2">
             <Text className="text-xs text-gray-600 bg-[#e5e7eb] rounded-[4px] px-2">{item.count}</Text>
@@ -186,7 +186,7 @@ const DropdownMoreFilters = ({
                 shadowOpacity: 0.1,
                 shadowRadius: 4,
                 elevation: 3,
-                zIndex: 1000
+                zIndex: 1000,
               },
               ...(isRight ? { right: 35} : { left: buttonPosition.x })
             }}
