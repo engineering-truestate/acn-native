@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   idText: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_700Bold',
     fontSize: 16,
     fontWeight: '700',
     color: '#111827',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   titleText: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily:Platform.OS === 'ios' ? 'System' : 'Montserrat_700Bold',
     fontSize: 16,
     fontWeight: '700',
     color: '#111827',
@@ -299,13 +299,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E3E3E3',
   },
   infoLabel: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_600SemiBold',
     fontSize: 14,
     fontWeight: '600',
     color: '#6B7280',
   },
   infoValue: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_600SemiBold',
+    
     fontSize: 14,
     fontWeight: '600',
     color: '#111827',
@@ -320,12 +321,13 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   detailsTitle: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_600SemiBold',
     fontSize: 14,
     fontWeight: '600',
     color: '#6B7280',
   },
   detailsContent: {
+    
     backgroundColor: 'white',
     padding: 12,
     borderRadius: 8,
@@ -333,7 +335,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   detailsText: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_600SemiBold',
     fontSize: 14,
     fontWeight: '500',
     color: '#111827',
@@ -348,6 +350,7 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: '#153E3B', // Primary theme color
     borderRadius: 8,
+    fontSize:14,
     paddingVertical: 12,
   },
 });

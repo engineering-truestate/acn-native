@@ -548,7 +548,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     {
       key: "inventories",
       label: "My Inventories",
-      icon: <MyInverntoriesIcon iconColor={myInverntoriesIconColor} />,
+      icon: <MyInverntoriesIcon  height={36} width={36} iconColor={myInverntoriesIconColor} />,
       count: myProperties.length,
       loading: loading.propertiesLoading
     },
@@ -562,7 +562,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     {
       key: "enquiries",
       label: "My Enquiries",
-      icon: <MyEnquiriesIcon iconColor={myEnquiresIconColor} />,
+      icon: <MyEnquiriesIcon size={36} iconColor={myEnquiresIconColor} />,
       count: myEnquiries.length,
       loading: loading.enquiriesLoading
     },

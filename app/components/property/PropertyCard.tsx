@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, useFonts } from '@expo-google-fonts/montserrat';
+import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet, FlatList } from 'react-native';
+import { Ionicons, Octicons } from '@expo/vector-icons';
+import PropertyDetailsScreen from './PropertyDetailsScreen';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
@@ -200,7 +202,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             {/* Property ID on the left - using width fit-content approach */}
             <View className="flex-1" style={{ flexShrink: 1 }}>
               <View style={{ alignSelf: 'flex-start' }}>
-                <Text style={{ fontSize: 14 }} className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
+                <Text className="text-gray-600 text-[14px]  border-b border-[#E3E3E3]" style={{ fontFamily: 'Montserrat_700Bold' }}>
                   {property.propertyId}
                 </Text>
               </View>
@@ -220,8 +222,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             </TouchableOpacity>
           </View>
 
+
           {/* Property Name */}
-          <Text className="text-black font-bold text-base mt-2">
+          <Text className="text-black text-base mt-2 font-bold" style={{ fontFamily: 'Montserrat_700Bold' }}>
             {getPropertyName()}
           </Text>
         </View>
@@ -235,8 +238,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
           ]
             .filter(Boolean) // Filter out any falsy values
             .map((tag, index) => (
-              <View key={index} className="border border-[#E3E3E3] bg-white px-3 py-1 rounded-full">
-                <Text className="text-neutral-600 text-xs">
+              <View key={index} className="border border-[#E3E3E3] bg-white px-3 py-1 rounded-full bg-[#FAFAFA]">
+                <Text className="text-neutral-600 text-xs text-[#525252]">
                   {tag}
                 </Text>
               </View>
@@ -247,16 +250,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
         <View className="flex-row justify-between items-start border-t border-[#E3E3E3] pt-2 mb-3">
           {/* Total Ask Price */}
           <View className="flex-col items-start">
-            <Text className="text-gray-600 text-xs font-semibold">Total Ask Price:</Text>
-            <Text style={{ fontSize: 14 }} className="text-sm font-semibold text-gray-900">
+            <Text className="text-gray-600 text-xs" style={{ fontFamily: 'Montserrat_600SemiBold' }}>Total Ask Price:</Text>
+            <Text className="text-sm font-semibold text-gray-900">
               {formatPrice()}
             </Text>
           </View>
 
           {/* SBUA */}
           <View className="flex-col items-start">
-            <Text className="text-gray-600 text-xs font-semibold">SBUA:</Text>
-            <Text style={{ fontSize: 14 }} className="text-sm font-semibold text-gray-900">
+            <Text className="text-gray-600 text-xs" style={{ fontFamily: 'Montserrat_600SemiBold' }}>SBUA:</Text>
+            <Text className="text-sm font-semibold text-gray-900">
               {property.sbua ? `${property.sbua} Sq Ft` : "-"}
             </Text>
           </View>
