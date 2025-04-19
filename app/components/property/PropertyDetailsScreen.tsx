@@ -31,6 +31,7 @@ import ShareIconInsidePropertyDetails from '@/assets/icons/svg/PropertiesPage/SH
 import DriveIcon from '@/assets/icons/svg/PropertiesPage/DriveIcon';
 import { selectPropertyStateData } from '@/store/slices/propertySlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Offline from '../Offline';
 
 interface AgentData {
   phonenumber: string;
@@ -77,6 +78,8 @@ export default function PropertyDetailsScreen() {
   const params = useLocalSearchParams();
   const parent = params.parent as string || 'properties';
   const enqId = params.enqId as string;
+
+  const isConnectedToInternet = useSelector((state: RootState) => state.app.isConnectedToInternet);
 
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
@@ -251,6 +254,9 @@ export default function PropertyDetailsScreen() {
     setIsShareModalOpen(true);
   };
 
+  if (!isConnectedToInternet)
+    return <Offline />;
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
@@ -364,7 +370,7 @@ export default function PropertyDetailsScreen() {
             <Text style={styles.extraDetailsTitle}>Extra Details</Text>
             <View style={styles.extraDetailsContent}>
               {property?.extraDetails ? (
-                property?.extraDetails?.split("\n")?.map((detail, index) => (
+                property?.extraDetails?.split("\n")?.map((detail: any, index: number) => (
                   <View key={index} style={styles.detailItem}>
                     <Text style={styles.bulletPoint}>•</Text>
                     <Text style={styles.detailText}>{detail}</Text>
@@ -548,13 +554,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#FAFBFC',
-    fontFamily:'Lato',
+    fontFamily: 'Lato',
   },
   propertyName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2B2928',
-    fontFamily:'montserrat-700bold',
+    fontFamily: 'montserrat-700bold',
   },
   locationInfo: {
     flexDirection: 'row',
@@ -567,12 +573,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     gap: 6,
-    width: '48%', 
+    width: '48%',
   },
   infoText: {
     fontSize: 12,
     color: '#2B2928',
-    fontFamily:'Lato'
+    fontFamily: 'Lato'
   },
   content: {
     flex: 1,
@@ -594,7 +600,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingHorizontal: 16,
     gap: 12,
-    
+
   },
   infoRow: {
     flexDirection: 'row',
@@ -707,7 +713,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     paddingHorizontal: 16,
-    
+
   },
   additionalInfolable: {
     fontSize: 12,

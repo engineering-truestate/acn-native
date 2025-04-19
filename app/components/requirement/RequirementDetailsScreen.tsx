@@ -21,6 +21,7 @@ import { showErrorToast } from '@/utils/toastUtils';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
 import { selectRequirementStateData } from '@/store/slices/requirementSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Offline from '../Offline';
 
 // Helper function to capitalize words
 const toCapitalizedWords = (str: string): string => {
@@ -37,6 +38,8 @@ export default function RequirementDetailsScreen() {
 
   // Get the requirement data from Redux store
   const requirement = useSelector(selectRequirementStateData);
+
+  const isConnectedToInternet = useSelector((state: RootState) => state.app.isConnectedToInternet);
 
   // If no requirement is provided, don't render anything
   if (!requirement) return null;
@@ -119,6 +122,9 @@ export default function RequirementDetailsScreen() {
       <Text style={styles.infoValue}>{value || "-"}</Text>
     </View>
   );
+
+  if (!isConnectedToInternet)
+    return <Offline />;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -256,7 +262,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   titleText: {
-    fontFamily:Platform.OS === 'ios' ? 'System' : 'Montserrat_700Bold',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_700Bold',
     fontSize: 16,
     fontWeight: '700',
     color: '#111827',
@@ -306,7 +312,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Montserrat_600SemiBold',
-    
+
     fontSize: 14,
     fontWeight: '600',
     color: '#111827',
@@ -327,7 +333,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   detailsContent: {
-    
+
     backgroundColor: 'white',
     padding: 12,
     borderRadius: 8,
@@ -350,7 +356,7 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: '#153E3B', // Primary theme color
     borderRadius: 8,
-    fontSize:14,
+    fontSize: 14,
     paddingVertical: 12,
   },
 });
