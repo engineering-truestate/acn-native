@@ -140,9 +140,11 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
       onClose();
       return;
     }
-    router.dismissAll();
-    router.push(path as any);
     onClose();
+    // router.dismissAll();
+    router.replace('/(tabs)/properties');
+    router.push(path as any);
+    // onClose();
   };
 
   const handleOpenProfile = () => {
