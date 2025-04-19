@@ -542,6 +542,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
+    fontFamily:'Montserrat_700Bold',
   },
   required: {
     color: 'red',
@@ -628,6 +629,7 @@ const styles = StyleSheet.create({
   checkmark: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 12,
   },
   checkboxLabel: {
     fontSize: 14,

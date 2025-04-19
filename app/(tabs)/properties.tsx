@@ -65,10 +65,12 @@ function MobileHits() {
     return (
       <View className="flex items-center justify-center h-64">
         <ActivityIndicator size={'large'} color={'#153E3B'} />
+        <Text style={styles.text}>“The best investment on Earth is earth.” - Louis Glickman, Real Estate Investor</Text>
       </View>
     );
   }
 
+  // When we have hits, render the property cards
   return (
     <>
       <View className="w-full px-4">
@@ -86,7 +88,7 @@ function MobileHits() {
         })}
       </View>
     </>
-  );
+  )
 }
 
 export default function PropertiesScreen() {
