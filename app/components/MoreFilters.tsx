@@ -258,6 +258,7 @@ const MoreFilters = ({
                 title="Please Select"
                 items={unitTypeItems}
                 refine={refineUnitType}
+                isRight={true}
               />
             </View>
           </View>
@@ -397,6 +398,7 @@ const MoreFilters = ({
                 title="Please Select"
                 items={floorItems}
                 refine={refineFloor}
+                isRight={true}
               />
             </View>
           </View>

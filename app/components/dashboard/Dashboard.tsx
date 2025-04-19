@@ -562,7 +562,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, l
     {
       key: "enquiries",
       label: "My Enquiries",
-      icon: <MyEnquiriesIcon size={36} iconColor={myEnquiresIconColor} />,
+      icon: <MyEnquiriesIcon size={30} iconColor={myEnquiresIconColor} />,
       count: myEnquiries.length,
       loading: loading.enquiriesLoading
     },
