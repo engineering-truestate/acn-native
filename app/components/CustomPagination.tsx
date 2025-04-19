@@ -3,10 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, Keyboard, Dimensions } from '
 import { useInstantSearch, usePagination } from 'react-instantsearch';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons'; // Assuming you're using Expo or have this library installed
+import Animated from 'react-native-reanimated';
 
 interface CustomPaginationProps {
   isSticky?: boolean;
-  scrollRef?: RefObject<ScrollView> | null;
+  scrollRef?: RefObject<ScrollView | Animated.ScrollView> | null;
   analyticsEvent?: string;
 }
 
