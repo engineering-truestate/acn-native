@@ -199,7 +199,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
         <PropertyDetailsScreen
           property={property}
           onClose={() => setShowDetails(false)}
-          parent = "properties"
+          parent="properties"
         />
       )}
       <TouchableOpacity
@@ -323,7 +323,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
   );
 };
 
-export default PropertyCard;
+export default React.memo(PropertyCard);
 
 const styles = StyleSheet.create({
   shareButton: {
