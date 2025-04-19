@@ -8,29 +8,19 @@ import {
   Linking,
   Dimensions,
   Platform,
-  SafeAreaView,
   StatusBar,
-  Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// Comment out these imports until they are properly set up
-// import { useSelector } from 'react-redux';
-// import { logEvent } from 'firebase/analytics';
+import { router, useLocalSearchParams } from 'expo-router';
 
 // Import components and utilities
 import PrimaryButton from '../../../components/ui/PrimaryButton';
-import { Requirement } from '@/app/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { showErrorToast } from '@/utils/toastUtils';
 import CloseIcon from '@/assets/icons/svg/CloseIcon';
-
-// Define required types
-interface RequirementDetailsScreenProps {
-  requirement: Requirement;
-  onClose: () => void;
-  visible: boolean;
-}
+import { selectRequirementStateData } from '@/store/slices/requirementSlice';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Helper function to capitalize words
 const toCapitalizedWords = (str: string): string => {
@@ -41,14 +31,12 @@ const toCapitalizedWords = (str: string): string => {
     .trim();
 };
 
-const { width } = Dimensions.get('window');
-
-const RequirementDetailsScreen = React.memo(({
-  requirement,
-  onClose,
-  visible
-}: RequirementDetailsScreenProps) => {
+export default function RequirementDetailsScreen() {
+  const params = useLocalSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get the requirement data from Redux store
+  const requirement = useSelector(selectRequirementStateData);
 
   // If no requirement is provided, don't render anything
   if (!requirement) return null;
@@ -79,11 +67,14 @@ const RequirementDetailsScreen = React.memo(({
     return "-";
   };
 
+  // Handle back button
+  const handleGoBack = () => {
+    router.back();
+  };
+
   // Handle WhatsApp button press
   const openWhatsapp = () => {
-    // In the real implementation, uncomment this:
     const phonenumber = kam_phonenumber;
-    // const phonenumber = "919999999999"; 
     const reqId = requirement.requirementId;
 
     if (phonenumber === "" || !reqId) {
@@ -102,17 +93,11 @@ const RequirementDetailsScreen = React.memo(({
   };
 
   const handleSubmitMatchingInventory = async () => {
-    // In the real implementation, uncomment this:
-    // logEvent(analytics, "click_submit_matching_inventory", {...});
-
     try {
       setIsSubmitting(true); // Indicate that the process has started
 
       // Call WhatsApp functionality
       openWhatsapp();
-
-      // In the real implementation, uncomment this:
-      // logEvent(analytics, "open_whatsapp", {...});
     } catch (error) {
       console.error("Error submitting matching inventory:", error);
     } finally {
@@ -135,115 +120,101 @@ const RequirementDetailsScreen = React.memo(({
     </View>
   );
 
-  const [forceRender, setForceRender] = useState(false);
-
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      onShow={() => setForceRender(prev => !prev)}
-      onRequestClose={onClose}
-      presentationStyle="fullScreen"
-    >
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
-
-        {/* Header Section */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            {/* Requirement ID */}
-            <View style={styles.idContainer}>
-              <Text style={styles.idText}>
-                {requirement.requirementId || ""}
-              </Text>
-              <View style={styles.divider} />
-            </View>
-
-            {/* Project Name */}
-            <Text style={styles.titleText}>
-              {toCapitalizedWords(requirement.propertyName || '') || "No Project Name"}
+    <SafeAreaView style={styles.container}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          {/* Requirement ID */}
+          <View style={styles.idContainer}>
+            <Text style={styles.idText}>
+              {requirement.requirementId || ""}
             </Text>
+            <View style={styles.divider} />
           </View>
 
-          {/* Close Button */}
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-            accessibilityLabel="Close Modal"
-          >
-            <CloseIcon/>
-          </TouchableOpacity>
+          {/* Project Name */}
+          <Text style={styles.titleText}>
+            {toCapitalizedWords(requirement.propertyName || '') || "No Project Name"}
+          </Text>
         </View>
 
-        {/* Main content */}
-        <View style={styles.mainContentContainer}>
-          <ScrollView style={styles.scrollContent}>
-            <View style={styles.infoWrapper}>
-              {/* Key Information */}
-              <View style={styles.infoSection}>
-                <InfoRow
-                  label="Asset Type"
-                  value={toCapitalizedWords(requirement.assetType || '')}
-                />
-                <InfoRow
-                  label="Configuration"
-                  value={requirement.configuration || '-'}
-                />
-                <InfoRow
-                  label="Area (Sqft)"
-                  value={requirement.area ? `${requirement.area} sqft` : "-"}
-                />
-                <InfoRow
-                  label="Budget"
-                  value={formatBudget()}
-                />
-                <InfoRow
-                  label="Date of Requirement Added"
-                  value={requirement.added
-                    ? new Date(requirement.added * 1000).toLocaleDateString(
-                      "en-IN",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )
-                    : "-"
-                  }
-                />
-              </View>
+        {/* Close Button */}
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={handleGoBack}
+          accessibilityLabel="Close Modal"
+        >
+          <CloseIcon />
+        </TouchableOpacity>
+      </View>
 
-              {/* Requirement Details Section */}
-              <View style={styles.detailsSection}>
-                <Text style={styles.detailsTitle}>Requirement Details</Text>
-                <View style={styles.detailsContent}>
-                  <Text style={styles.detailsText}>
-                    {requirement.requirementDetails || "No additional details provided."}
-                  </Text>
-                </View>
+      {/* Main content */}
+      <View style={styles.mainContentContainer}>
+        <ScrollView style={styles.scrollContent}>
+          <View style={styles.infoWrapper}>
+            {/* Key Information */}
+            <View style={styles.infoSection}>
+              <InfoRow
+                label="Asset Type"
+                value={toCapitalizedWords(requirement.assetType || '')}
+              />
+              <InfoRow
+                label="Configuration"
+                value={requirement.configuration || '-'}
+              />
+              <InfoRow
+                label="Area (Sqft)"
+                value={requirement.area ? `${requirement.area} sqft` : "-"}
+              />
+              <InfoRow
+                label="Budget"
+                value={formatBudget()}
+              />
+              <InfoRow
+                label="Date of Requirement Added"
+                value={requirement.added
+                  ? new Date(requirement.added * 1000).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )
+                  : "-"
+                }
+              />
+            </View>
+
+            {/* Requirement Details Section */}
+            <View style={styles.detailsSection}>
+              <Text style={styles.detailsTitle}>Requirement Details</Text>
+              <View style={styles.detailsContent}>
+                <Text style={styles.detailsText}>
+                  {requirement.requirementDetails || "No additional details provided."}
+                </Text>
               </View>
             </View>
-          </ScrollView>
-        </View>
+          </View>
+        </ScrollView>
+      </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <PrimaryButton
-            onPress={handleSubmitMatchingInventory}
-            style={styles.submitButton}
-            icon="logo-whatsapp"
-            isLoading={isSubmitting}
-            disable={isSubmitting}
-          >
-            {isSubmitting ? "Please Wait..." : "Submit Matching Inventory"}
-          </PrimaryButton>
-        </View>
-      </SafeAreaView>
-    </Modal>
+      {/* Footer */}
+      <View style={styles.footer}>
+        <PrimaryButton
+          onPress={handleSubmitMatchingInventory}
+          style={styles.submitButton}
+          icon="logo-whatsapp"
+          isLoading={isSubmitting}
+          disable={isSubmitting}
+        >
+          {isSubmitting ? "Please Wait..." : "Submit Matching Inventory"}
+        </PrimaryButton>
+      </View>
+    </SafeAreaView>
   );
-});
-
-RequirementDetailsScreen.displayName = 'RequirementDetailsScreen';
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -254,8 +225,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    padding: 16,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
@@ -381,5 +351,3 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
 });
-
-export default RequirementDetailsScreen; 

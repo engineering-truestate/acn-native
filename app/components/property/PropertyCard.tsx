@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Linking, Alert, StyleSheet, FlatList } from 'react-native';
-import { Ionicons, Octicons } from '@expo/vector-icons';
-import PropertyDetailsScreen from './PropertyDetailsScreen';
+import { View, Text, TouchableOpacity, Image, Linking, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import EnquiryCPModal from '@/app/modals/EnquiryCPModal';
 import ConfirmModal from '@/app/modals/ConfirmModal';
 import ShareModal from '@/app/modals/ShareModal';
@@ -12,7 +11,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { handleIdGeneration } from '@/app/helpers/nextId';
 import deductMonthlyCredit from '@/app/helpers/deductCredit';
-import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import ShareIconOutSide from '@/assets/icons/svg/PropertiesPage/ShareIcon';
@@ -35,13 +34,7 @@ interface PropertyCardProps {
     cpId?: string;
     cpCode?: string;
   };
-  onCardClick: (property: any) => void;
-}
-
-// Define the AgentData interface separately
-interface AgentData {
-  phonenumber: string;
-  [key: string]: any;
+  onCardClick?: (property: any) => void;
 }
 
 interface IdGenerationResult {
@@ -50,14 +43,12 @@ interface IdGenerationResult {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) => {
-  // Add state for details modal visibility
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
 
   const [selectedCPID, setSelectedCPID] = useState("");
   const [isConfirmModelOpen, setIsConfirmModelOpen] = useState(false);
   const [isEnquiryModelOpen, setIsEnquiryCPModelOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const agentData = useSelector((state: RootState) => state.agent.docData);
   const phoneNumber = useSelector((state: RootState) => state?.agent?.docData?.phonenumber);
   const monthlyCredits = useSelector((state: RootState) => state?.agent?.docData?.monthlyCredits);
@@ -75,7 +66,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
   const generateNextEnqId = async (): Promise<string | null> => {
     try {
-      const type = "lastEnqId"; // Replace with "lastCpId" or others as needed
+      const type = "lastEnqId";
       const result = await handleIdGeneration(type) as IdGenerationResult;
       if (!result || !result.nextId) {
         showErrorToast("Failed to generate Enquiry ID. Please try again later.");
@@ -84,7 +75,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       showSuccessToast("Enquiry ID generated successfully!", { isInModal: true });
       return result.nextId;
     } catch (error) {
-
       showErrorToast("Error generating Enquiry ID. Please try again later.", { isInModal: true });
       console.error("Error generating IDs:", error);
       return null;
@@ -111,12 +101,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
   // Handle enquire button click
   const handleEnquireNowBtn = (e: any) => {
+    e.stopPropagation(); // Prevent card click
     setSelectedCPID(property.cpCode || "")
     if (monthlyCredits > 0) {
       setIsConfirmModelOpen(true);
       return;
     }
-    //Alert.alert("Do not have credits");
     showErrorToast("You don't have enough credits Please contact your account manager.");
   };
 
@@ -139,14 +129,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
   const onConfirmEnquiry = async () => {
     if (!selectedCPID) {
-      // Alert.alert("Error: Seller CPID is missing. Please try again.");
       showErrorToast("Error: Seller CPID is missing. Please try again.");
       setIsConfirmModelOpen(false);
       return;
     }
 
     if (!(monthlyCredits > 0)) {
-      // Alert.alert("You don't have enough credits. Please contact your account manager.");
       showErrorToast("You don't have enough credits. Please contact your account manager.");
       setIsConfirmModelOpen(false);
       return;
@@ -155,9 +143,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
     try {
       const nextEnqId = await generateNextEnqId()
       if (!nextEnqId) {
-        // Alert.alert(
-        //   "Failed to generate the next Enquiry ID. Please try again later."
-        // );
         setIsConfirmModelOpen(false);
         return;
       }
@@ -178,33 +163,33 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
       }, 100);
     } catch (error) {
       console.error("Error during enquiry process:", error);
-      // Alert.alert(
-      //   "An error occurred while processing your enquiry. Please try again."
-      // );
       showErrorToast("An error occurred while processing your enquiry. Please try again.");
     }
   };
 
-  const handleShareButton = () => {
-    setIsShareModalOpen(true)
+  const handleShareButton = (e: any) => {
+    e.stopPropagation(); // Prevent card click
+    setIsShareModalOpen(true);
   };
 
-  // Function to open property details screen
+  // Function to open property details screen with routing
   const openPropertyDetails = () => {
-    setShowDetails(true);
-    dispatch(setPropertyDataThunk(property));
-    //onCardClick(property);
+    // First dispatch the property data to the Redux store
+    if (property) {
+      dispatch(setPropertyDataThunk(property));
+
+      // Then navigate to the property details screen
+      router.push({
+        pathname: "/components/property/PropertyDetailsScreen",
+        params: {
+          parent: "properties"
+        }
+      });
+    }
   };
 
   return (
     <>
-      {showDetails && (
-        <PropertyDetailsScreen
-          // property={property}
-          onClose={() => setShowDetails(false)}
-          parent="properties"
-        />
-      )}
       <TouchableOpacity
         className="border border-[#CCCBCB] rounded-lg p-4 bg-white mb-4 flex-col"
         onPress={openPropertyDetails}
@@ -231,7 +216,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
 
             {/* Share button on the far right */}
             <TouchableOpacity style={styles.shareButton} onPress={handleShareButton}>
-              {/* <Ionicons name="share-social" size={18} color="#153E3B" /> */}
               <ShareIconOutSide />
             </TouchableOpacity>
           </View>
@@ -298,30 +282,29 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onCardClick }) =>
             <Text style={{ fontSize: 14 }} className="text-white font-medium text-xs ml-1">Enquire Now</Text>
           </TouchableOpacity>
         </View>
-        <EnquiryCPModal
-          setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
-          generatingEnquiry={false}
-          visible={isEnquiryModelOpen}
-          selectedCPID={selectedCPID}
-        />
-        <ConfirmModal
-          title="Confirm Enquiry"
-          message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
-          onConfirm={onConfirmEnquiry}
-          onCancel={handleCancel}
-          generatingEnquiry={false}
-          visible={isConfirmModelOpen}
-        />
-        <ShareModal
-          property={property}
-          agentData={agentData}
-          setProfileModalOpen={setIsShareModalOpen}
-          visible={isShareModalOpen}
-        />
       </TouchableOpacity>
 
-      {/* Property Details Screen */}
-
+      {/* Modals */}
+      <EnquiryCPModal
+        setIsEnquiryCPModalOpen={setIsEnquiryCPModelOpen}
+        generatingEnquiry={false}
+        visible={isEnquiryModelOpen}
+        selectedCPID={selectedCPID}
+      />
+      <ConfirmModal
+        title="Confirm Enquiry"
+        message={`Are you sure you want to enquire? You have ${monthlyCredits} credits remaining for this month.`}
+        onConfirm={onConfirmEnquiry}
+        onCancel={handleCancel}
+        generatingEnquiry={false}
+        visible={isConfirmModelOpen}
+      />
+      <ShareModal
+        property={property}
+        agentData={agentData}
+        setProfileModalOpen={setIsShareModalOpen}
+        visible={isShareModalOpen}
+      />
     </>
   );
 };
@@ -336,10 +319,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3E3E3',
     justifyContent: 'center',
     alignItems: 'center',
-    // elevation: 1,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
   },
 });

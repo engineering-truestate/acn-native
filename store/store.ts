@@ -9,6 +9,7 @@ import agentReducer from './slices/agentSlice';
 import kamReducer from './slices/kamSlice';
 import listenerReducer from './slices/listenerSlice';
 import propertyReducer from './slices/propertySlice';
+import requirementReducer from './slices/requirementSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   kam: kamReducer,
   listeners: listenerReducer,
   property: propertyReducer,
+  requirement: requirementReducer,
 });
 
 const persistConfig = {
