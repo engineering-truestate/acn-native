@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { View, Image, FlatList, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Image, FlatList, Dimensions, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ImageViewing from 'react-native-image-viewing';
 
 interface ImageCarouselProps {
   images: string[];
@@ -11,7 +12,18 @@ const { width } = Dimensions.get('window');
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, onImagePress }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isImageViewVisible, setIsImageViewVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+
+  // Format images for the image viewer
+  const imageViewerImages = images.map(uri => ({ uri }));
+
+  // Ensure we re-render when images change
+  useEffect(() => {
+    if (activeIndex >= images.length) {
+      setActiveIndex(0);
+    }
+  }, [images, activeIndex]);
 
   if (!images || images.length === 0) {
     return (
@@ -21,29 +33,64 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, onImagePress }) =
     );
   }
 
+  const handleImagePress = () => {
+    // If there's an external onImagePress handler, call it
+    // if (onImagePress) {
+    //   onImagePress();
+    // }
+
+    // Open the image viewer with the current active index
+    setIsImageViewVisible(true);
+  };
+
   const renderItem = ({ item }: { item: string }) => {
     return (
-      <TouchableOpacity 
-        style={styles.imageItem} 
-        activeOpacity={0.9}
-        onPress={onImagePress}
-      >
-        <Image 
-          source={{ uri: item }} 
-          style={styles.image}
-          resizeMode="cover"
-          
-        />
-      </TouchableOpacity>
+      <View style={styles.imageItem}>
+        <TouchableOpacity
+          style={styles.imageTouchable}
+          activeOpacity={0.9}
+          onPress={handleImagePress}
+        >
+          <Image
+            source={{ uri: item }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+      </View>
     );
   };
 
   const handlePageChange = (index: number) => {
-    setActiveIndex(index);
-    flatListRef.current?.scrollToIndex({
-      index,
-      animated: true,
-    });
+    if (index >= 0 && index < images.length) {
+      setActiveIndex(index);
+      flatListRef.current?.scrollToIndex({
+        index,
+        animated: true,
+        viewPosition: 0,
+      });
+    }
+  };
+
+  // Enhanced scroll event handling
+  const handleScroll = (event: any) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const currentIndex = Math.floor(contentOffsetX / width + 0.5); // Improved rounding
+
+    if (currentIndex >= 0 && currentIndex < images.length && currentIndex !== activeIndex) {
+      setActiveIndex(currentIndex);
+    }
+  };
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    const newIndex = Math.max(0, activeIndex - 1);
+    handlePageChange(newIndex);
+  };
+
+  const handleNext = () => {
+    const newIndex = Math.min(images.length - 1, activeIndex + 1);
+    handlePageChange(newIndex);
   };
 
   return (
@@ -56,56 +103,87 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, onImagePress }) =
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(event) => {
-          const newIndex = Math.floor(
-            event.nativeEvent.contentOffset.x / width
-          );
-          setActiveIndex(newIndex);
-        }}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        decelerationRate={Platform.OS === 'ios' ? 'normal' : 0.9}
+        snapToInterval={width}
+        snapToAlignment="center"
+        disableIntervalMomentum={true}
+        bounces={false}
+        contentContainerStyle={styles.flatListContent}
+        scrollEnabled={true}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
+        windowSize={3}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
       />
-      
-      {/* Navigation arrows */}
-      {images.length > 1 && (
-        <>
-          <TouchableOpacity 
-            style={[styles.navButton, styles.leftButton]}
-            disabled={activeIndex === 0}
-            onPress={() => handlePageChange(activeIndex - 1)}
-          >
-            <Ionicons 
-              name="chevron-back" 
-              size={24} 
-              color={activeIndex === 0 ? "#CCCCCC" : "#153E3B"} 
-            />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.navButton, styles.rightButton]}
-            disabled={activeIndex === images.length - 1}
-            onPress={() => handlePageChange(activeIndex + 1)}
-          >
-            <Ionicons 
-              name="chevron-forward" 
-              size={24} 
-              color={activeIndex === images.length - 1 ? "#CCCCCC" : "#153E3B"} 
-            />
-          </TouchableOpacity>
-        </>
-      )}
-      
-      {/* Page indicator */}
+
+      {/* Center pagination dots */}
       <View style={styles.pagination}>
         {images.map((_, index) => (
-          <View 
+          <TouchableOpacity
             key={index.toString()}
-            style={[
-              styles.paginationDot, 
-              index === activeIndex && styles.activeDot
-            ]} 
-
-          />
+            onPress={() => handlePageChange(index)}
+            style={styles.paginationDotContainer}
+          >
+            <View
+              style={[
+                styles.paginationDot,
+                index === activeIndex && styles.activeDot
+              ]}
+            />
+          </TouchableOpacity>
         ))}
       </View>
+
+      {/* Bottom navigation buttons */}
+      {images.length > 1 && (
+        <View style={styles.bottomNavContainer}>
+          <TouchableOpacity
+            style={[
+              styles.bottomNavButton,
+              activeIndex === 0 && styles.bottomNavButtonDisabled
+            ]}
+            disabled={activeIndex === 0}
+            onPress={handlePrevious}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={activeIndex === 0 ? "rgba(255,255,255,0.3)" : "#FFFFFF"}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.bottomNavButton,
+              activeIndex === images.length - 1 && styles.bottomNavButtonDisabled
+            ]}
+            disabled={activeIndex === images.length - 1}
+            onPress={handleNext}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={activeIndex === images.length - 1 ? "rgba(255,255,255,0.3)" : "#FFFFFF"}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Full-screen image viewer */}
+      <ImageViewing
+        images={imageViewerImages}
+        imageIndex={activeIndex}
+        visible={isImageViewVisible}
+        onRequestClose={() => setIsImageViewVisible(false)}
+        swipeToCloseEnabled={true}
+        doubleTapToZoomEnabled={true}
+      />
     </View>
   );
 };
@@ -115,10 +193,19 @@ const styles = StyleSheet.create({
     height: 240,
     width: '100%',
     position: 'relative',
+    overflow: 'hidden',
+  },
+  flatListContent: {
+    // Ensure proper content layout
   },
   imageItem: {
     width,
     height: 240,
+    overflow: 'hidden',
+  },
+  imageTouchable: {
+    width: '100%',
+    height: '100%',
   },
   image: {
     width: '100%',
@@ -138,35 +225,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
   },
+  paginationDotContainer: {
+    padding: 2,
+  },
   paginationDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: '#B9C5C4',
   },
   activeDot: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#153E3B',
     width: 10,
     height: 10,
     borderRadius: 5,
   },
-  navButton: {
+  // Bottom navigation buttons
+  bottomNavContainer: {
     position: 'absolute',
     top: '50%',
     marginTop: -20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    zIndex: 10,
+  },
+  bottomNavButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#153E3B',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  leftButton: {
-    left: 10,
-  },
-  rightButton: {
-    right: 10,
+  bottomNavButtonDisabled: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
 });
 
-export default ImageCarousel; 
+export default ImageCarousel;

@@ -160,11 +160,12 @@ const MoreFiltersRequirement = ({
   const { items, refine } = useRefinementList({ attribute: 'agentCpid' });
   const { items: marketValueItem, refine: refineMarketValue } = useRefinementList({ attribute: 'marketValue' });
 
-
+  const [forceRender, setForceRender] = useState(false);
   return (
     <Modal
       visible={showFilters}
       animationType="slide"
+      onShow={() => setForceRender(prev => !prev)}
       transparent={true}
       onRequestClose={() => {
         toggleFiltersVisibility()
@@ -190,6 +191,7 @@ const MoreFiltersRequirement = ({
                 title="Please Select"
                 items={assetTypeItems}
                 refine={refineAssetType}
+                isAssetType={true}
               />
             </View>
             <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>

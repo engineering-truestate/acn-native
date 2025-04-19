@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
-import { View, Dimensions, Platform, SafeAreaView, StyleSheet, Text } from "react-native";
+import { View, Dimensions, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, Keyboard } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -20,13 +20,14 @@ import ReduxProvider from '@/providers/ReduxProvider';
 import Toast from 'react-native-toast-message';
 import { KamModalButton } from "@/components/KamModalButton";
 import ProfileModal from '@/app/modals/ProfileModal';
+import { toastConfig } from "@/utils/toastUtils";
 
 SplashScreen.preventAutoHideAsync();
 
 // Custom header component to apply the desired styling
 const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMenuPress: () => void; isMenuOpen: boolean }) => {
   const insets = useSafeAreaInsets();
-  
+
   return (
     <View style={[
       styles.headerContainer,
@@ -38,8 +39,8 @@ const CustomHeader = ({ title, onMenuPress, isMenuOpen }: { title: string; onMen
         </View>
         <View style={styles.headerTitleContainer}>
           {!isMenuOpen &&
-          <Text style={styles.headerTitle}>{title}</Text>
-}
+            <Text style={styles.headerTitle}>{title}</Text>
+          }
         </View>
         <View style={styles.headerRight}>
           <KamModalButton />
@@ -110,6 +111,11 @@ export default function RootLayout() {
     return null;
   }
 
+  const onMenuPress = () => {
+    setIsMenuOpen(true);
+    Keyboard.dismiss();
+  }
+
   return (
     <ReduxProvider>
       <SafeAreaProvider>
@@ -123,7 +129,7 @@ export default function RootLayout() {
                 headerBackVisible: false,
                 header: ({ route, options }) => {
                   const title = options.title || route.name;
-                  return <CustomHeader title={title} onMenuPress={() => setIsMenuOpen(true)} isMenuOpen={isMenuOpen} />;
+                  return <CustomHeader title={title} onMenuPress={() => onMenuPress()} isMenuOpen={isMenuOpen} />;
                 },
               }}
             >
@@ -142,7 +148,7 @@ export default function RootLayout() {
               <Stack.Screen name="components/Auth/BlacklistedPage" options={{ headerShown: false }} />
               <Stack.Screen name="not-found" options={{ headerShown: false }} />
             </Stack>
-            <HamburgerMenu 
+            <HamburgerMenu
               visible={isMenuOpen}
               onClose={() => setIsMenuOpen(false)}
               onOpenProfile={() => setProfileModalVisible(true)}
@@ -151,7 +157,9 @@ export default function RootLayout() {
               visible={profileModalVisible}
               setVisible={setProfileModalVisible}
             />
-            <Toast />
+            <Toast
+              config={toastConfig}
+            />
             <StatusBar style="auto" />
           </View>
         </SafeAreaView>

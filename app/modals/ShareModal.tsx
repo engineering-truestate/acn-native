@@ -11,14 +11,15 @@ import {
   Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { logEvent } from 'firebase/analytics';
+
 
 import { shareProperty, createPropertyMessage } from '../helpers/shareModal';
 
-import whatsappIcon from '../../assets/icons/whatsAppgreen.svg 14-54-26-826.svg';
-import copyIcon from '../../assets/icons/copyenq.svg';
-import closeIcon from '../../assets/icons/close.svg';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
+import { showErrorToast, showSuccessToast, toastConfig } from '@/utils/toastUtils';
+import Toast from 'react-native-toast-message';
+
 
 
 interface ShareModalProps {
@@ -35,13 +36,12 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 
   const handleCopy = async () => {
     try {
-      console.log("Property: ", property)
       let details = await createPropertyMessage(property, agentData?.phonenumber);
-      console.log("Details Fetched: ", details)
-      console.log("Agent's Phone Number: ", agentData);
       details = decodeURIComponent(details);
+      showSuccessToast('Inventory details copied Successfully!', { isInModal: true });
       Clipboard.setString(details);
     } catch (err) {
+      showErrorToast('Failed to copy details!', { isInModal: true });
       console.error('Failed to copy:', err);
     }
   };
@@ -56,17 +56,20 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
+
       <TouchableWithoutFeedback onPress={handleClose}>
+
         <View style={styles.overlay}>
+          <Toast config={toastConfig} />
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
+
               <View style={styles.header}>
                 <Text style={styles.title}>Share</Text>
                 <Text style={styles.description}>
                   Copy or share details on WhatsApp with your contact information included.
                 </Text>
               </View>
-
               <View style={styles.buttonGroup}>
                 <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
                   <View style={styles.iconWrapper}>
@@ -74,7 +77,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
                   </View>
                   <Text style={styles.buttonText}>WhatsApp</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.actionButton} onPress={handleCopy}>
                   <View style={styles.iconWrapper}>
                     <Ionicons name="copy-outline" size={24} color="#555" />
@@ -84,7 +87,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
               </View>
 
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons name="close" size={24} color="#666" />
+                <CloseIcon />
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -95,7 +98,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ visible, property, agentData, s
 };
 
 
-export default ShareModal; 
+export default ShareModal;
 
 const styles = StyleSheet.create({
   overlay: {

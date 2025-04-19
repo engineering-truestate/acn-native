@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Pressable, TextInput, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, Pressable, TextInput, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { arrayUnion, collection, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
@@ -15,9 +15,12 @@ type Props = {
 const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [loader, setLoader] = useState(false);
   const [errors, setErrors] = useState({ rating: false, review: false });
 
   const handleSubmit = async () => {
+    if (loader)
+      return;
     let hasError = false;
     const newErrors = { rating: false, review: false };
 
@@ -35,11 +38,8 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
 
     if (hasError) return;
 
-    console.log("Enquiry Id:", enqId);
-    console.log('Rating:', rating);
-    console.log('Review:', review);
-
     try {
+      setLoader(true);
       const q = query(
         collection(db, "enquiries"),
         where("enquiryId", "==", enqId)
@@ -48,6 +48,7 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
         console.error("No enquiry found with the specified ID.");
+        setLoader(false);
         return;
       }
 
@@ -68,6 +69,7 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
       console.error("Error adding review:", error);
       showErrorToast("Failed to add review. Please try again.");
     } finally {
+      setLoader(false);
       onClose();
       setRating(0);
       setReview('');
@@ -121,7 +123,9 @@ const ReviewModal: React.FC<Props> = ({ isOpen, onClose, enqId }) => {
             className="bg-[#153E3B] px-4 py-3 rounded-lg w-full"
             onPress={handleSubmit}
           >
-            <Text className="text-white text-center font-medium text-xl">Submit Review</Text>
+            {loader ? (<ActivityIndicator />) : (
+              <Text className="text-white text-center font-medium text-xl">Submit Review</Text>
+            )}
           </TouchableOpacity>
 
         </Pressable>

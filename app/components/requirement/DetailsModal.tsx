@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface DetailsModalProps {
   onClose: () => void;
@@ -10,9 +11,12 @@ interface DetailsModalProps {
 const DetailsModal = ({ onClose, requirement }: DetailsModalProps) => {
   if (!requirement) return null;
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={true}
+      onShow={() => setForceRender(prev => !prev)}
       animationType="slide"
       transparent={true}
       onRequestClose={onClose}
@@ -22,7 +26,7 @@ const DetailsModal = ({ onClose, requirement }: DetailsModalProps) => {
           <View style={styles.header}>
             <Text style={styles.title}>Requirement Details</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="#374151" />
+              <CloseIcon/>
             </TouchableOpacity>
           </View>
 

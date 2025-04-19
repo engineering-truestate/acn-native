@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
   Linking,
   Dimensions,
   Platform,
@@ -23,6 +23,7 @@ import { Requirement } from '@/app/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { showErrorToast } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 // Define required types
 interface RequirementDetailsScreenProps {
@@ -42,57 +43,50 @@ const toCapitalizedWords = (str: string): string => {
 
 const { width } = Dimensions.get('window');
 
-const RequirementDetailsScreen = React.memo(({ 
-  requirement, 
+const RequirementDetailsScreen = React.memo(({
+  requirement,
   onClose,
   visible
 }: RequirementDetailsScreenProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // If no requirement is provided, don't render anything
   if (!requirement) return null;
 
   const kam_phonenumber = useSelector((state: RootState) => state?.kam?.kamDocData?.phonenumber) || "";
-
-  // Log opening of the modal
-  useEffect(() => {
-    if (visible) {
-      console.log("Requirement details modal opened:", requirement.requirementId);
-    }
-  }, [visible, requirement]);
 
   // Helper function to format budget display
   const formatBudget = () => {
     if (requirement.marketValue) {
       return "Market Price";
     }
-    
+
     if (typeof requirement.budget === 'number') {
       return `₹${requirement.budget} Cr`;
     }
-    
+
     if (requirement.budget && typeof requirement.budget === 'object') {
       const from = requirement.budget.from || 0;
       const to = requirement.budget.to || 0;
-      
+
       if (from === 0) {
         return `₹${to} Cr`;
       }
-      
+
       return `₹${from} Cr - ₹${to} Cr`;
     }
-    
+
     return "-";
   };
 
   // Handle WhatsApp button press
   const openWhatsapp = () => {
     // In the real implementation, uncomment this:
-    const phonenumber = kam_phonenumber; 
+    const phonenumber = kam_phonenumber;
     // const phonenumber = "919999999999"; 
     const reqId = requirement.requirementId;
 
-    if(phonenumber === "" || !reqId) {
+    if (phonenumber === "" || !reqId) {
       showErrorToast("Some error occured! Please contact your kam.");
       return;
     }
@@ -102,7 +96,7 @@ const RequirementDetailsScreen = React.memo(({
     );
 
     const whatsappUrl = `https://wa.me/${phonenumber}?text=${message}`;
-    Linking.openURL(whatsappUrl).catch(err => 
+    Linking.openURL(whatsappUrl).catch(err =>
       console.error("Error opening WhatsApp:", err)
     );
   };
@@ -110,7 +104,7 @@ const RequirementDetailsScreen = React.memo(({
   const handleSubmitMatchingInventory = async () => {
     // In the real implementation, uncomment this:
     // logEvent(analytics, "click_submit_matching_inventory", {...});
-    
+
     try {
       setIsSubmitting(true); // Indicate that the process has started
 
@@ -128,11 +122,11 @@ const RequirementDetailsScreen = React.memo(({
   };
 
   // Render each info row
-  const InfoRow = ({ 
-    label, 
-    value 
-  }: { 
-    label: string; 
+  const InfoRow = ({
+    label,
+    value
+  }: {
+    label: string;
     value: string;
   }) => (
     <View style={styles.infoRow}>
@@ -141,16 +135,19 @@ const RequirementDetailsScreen = React.memo(({
     </View>
   );
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={visible}
       animationType="slide"
+      onShow={() => setForceRender(prev => !prev)}
       onRequestClose={onClose}
       presentationStyle="fullScreen"
     >
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
-        
+
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
@@ -161,23 +158,23 @@ const RequirementDetailsScreen = React.memo(({
               </Text>
               <View style={styles.divider} />
             </View>
-            
+
             {/* Project Name */}
             <Text style={styles.titleText}>
               {toCapitalizedWords(requirement.propertyName || '') || "No Project Name"}
             </Text>
           </View>
-          
+
           {/* Close Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.closeButton}
             onPress={onClose}
             accessibilityLabel="Close Modal"
           >
-            <Ionicons name="close" size={24} color="#4B5563" />
+            <CloseIcon/>
           </TouchableOpacity>
         </View>
-        
+
         {/* Main content */}
         <View style={styles.mainContentContainer}>
           <ScrollView style={styles.scrollContent}>
@@ -188,9 +185,9 @@ const RequirementDetailsScreen = React.memo(({
                   label="Asset Type"
                   value={toCapitalizedWords(requirement.assetType || '')}
                 />
-                <InfoRow 
-                  label="Configuration" 
-                  value={requirement.configuration || '-'} 
+                <InfoRow
+                  label="Configuration"
+                  value={requirement.configuration || '-'}
                 />
                 <InfoRow
                   label="Area (Sqft)"
@@ -202,20 +199,20 @@ const RequirementDetailsScreen = React.memo(({
                 />
                 <InfoRow
                   label="Date of Requirement Added"
-                  value={requirement.added 
+                  value={requirement.added
                     ? new Date(requirement.added * 1000).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        }
-                      )
+                      "en-IN",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )
                     : "-"
                   }
                 />
               </View>
-              
+
               {/* Requirement Details Section */}
               <View style={styles.detailsSection}>
                 <Text style={styles.detailsTitle}>Requirement Details</Text>
@@ -228,7 +225,7 @@ const RequirementDetailsScreen = React.memo(({
             </View>
           </ScrollView>
         </View>
-        
+
         {/* Footer */}
         <View style={styles.footer}>
           <PrimaryButton

@@ -29,6 +29,7 @@ export interface Property {
   description?: string;
   status?: string;
   objectID?: string;
+  dateOfStatusLastChecked?: number;
 }
 
 export interface Budget{

@@ -8,7 +8,8 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Linking,
-  ActivityIndicator
+  ActivityIndicator,
+  StyleSheet
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -31,6 +32,11 @@ import { generatePropertyMonths, filterPropertiesByMonth, generateRequirementMon
 import { router } from 'expo-router';
 import EmptyTabContent from './EmptyTabContent';
 import { selectKamNumber } from '@/store/slices/kamSlice';
+import ShareIconOutSide from '@/assets/icons/svg/PropertiesPage/ShareIcon';
+import MyRequirementIcon from '@/assets/icons/svg/Dashboard/MyRequirementsIcon';
+import MyInverntoriesIcon from '@/assets/icons/svg/Dashboard/MyInventoriesIcon';
+import MyEnquiriesIcon from '@/assets/icons/svg/Dashboard/MyEnquiryIcon';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -121,9 +127,8 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
   useEffect(() => {
     fetchMatchingEnquiryCount();
   }, [])
-
   return (
-    <StyledView className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
+    <StyledView key={property.propertyId} className={`mb-4 rounded-lg bg-white border border-gray-200 overflow-visible`} style={{ zIndex: 99999 - index }}>
       {/* Share Modal */}
       <ShareModal
         visible={isShareModalOpen}
@@ -137,6 +142,8 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
         <PropertyDetailsScreen
           property={property}
           onClose={() => setIsDetailsModalOpen(false)}
+          parent="dashboardInventory"
+          onStatusChange={onStatusChange}
         />
       )}
 
@@ -167,10 +174,10 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
 
               {/* Share icon */}
               <StyledTouchableOpacity
-                className="ml-2 p-1 bg-[#153E3B] rounded-full h-7 w-7 items-center justify-center"
+                style={styles.shareButton}
                 onPress={handleSharePress}
               >
-                <MaterialCommunityIcons name="share-variant" size={14} color="#FFFFFF" />
+                <ShareIconOutSide />
               </StyledTouchableOpacity>
             </StyledView>
           </StyledView>
@@ -185,7 +192,7 @@ const PropertyCard = React.memo(({ property, onStatusChange, index, totalCount }
             {[property.assetType, property.unitType, property.facing]
               .filter(Boolean)
               .map((tag, index) => (
-                <StyledView className="bg-gray-100 rounded-full px-3 py-1">
+                <StyledView className="bg-gray-100 rounded-full px-3 py-1" key={index}>
                   <StyledText className="text-xs text-gray-700">
                     {tag}
                   </StyledText>
@@ -269,9 +276,11 @@ const RequirementCard = React.memo(({ requirement, onStatusChange, index, totalC
   return (
     <>
       <StyledTouchableOpacity
-        className="mb-4 rounded-lg bg-white border border-gray-200"
+        className="mb-4 rounded-lg bg-white border border-gray-200 overflow-visible"
         activeOpacity={0.7}
         onPress={handleCardPress}
+        style={{ zIndex: 99999 - index }}
+        key={requirement.requirementId}
       >
         {/* Top section with ID */}
         <StyledView className="p-4 pb-2">
@@ -369,11 +378,10 @@ type DashboardProps = {
   myEnquiries: EnquiryWithProperty[];
   myProperties: Property[];
   myRequirements: Requirement[];
-  propertyStatusUpdate: Function;
   loading: { enquiriesLoading: boolean, propertiesLoading: boolean, requirementsLoading: boolean }
 };
 
-export default function Dashboard({ myEnquiries, myProperties, myRequirements, propertyStatusUpdate, loading }: DashboardProps) {
+export default function Dashboard({ myEnquiries, myProperties, myRequirements, loading }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('inventories');
   const [properties, setProperties] = useState<Property[] | []>([]);
   const [requirements, setRequirements] = useState<Requirement[] | []>([]);
@@ -406,6 +414,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
     }
   }, [myProperties, myRequirements, myEnquiries])
+  const [myInverntoriesIconColor, setMyInverntoriesIconColor] = useState("white");
+  const [myRequirementsIconColor, setMyRequirementsIconColor] = useState("#153E3B");
+  const [myEnquiresIconColor, setMyEnquiresIconColor] = useState("#153E3B");
 
   const renderMore = () => {
     if (isBatchSizePendingLock.current) return;
@@ -430,48 +441,9 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     }
   }
 
-  useEffect(() => {
-    if (initalLoad.current)
-      return;
-    if (activeTab === 'inventories') {
-      if (monthFilter === "") {
-        setProperties(myProperties);
-      }
-      else {
-        const filteredProps = filterPropertiesByMonth(myProperties, monthFilter);
-        setProperties(filteredProps);
-      }
-    } else if (activeTab === 'requirements') {
-      if (monthFilter === "") {
-        setRequirements(myRequirements);
-      }
-      else {
-        const filteredReqs = filterRequirementsByMonth(myRequirements, monthFilter);
-        setRequirements(filteredReqs);
-      }
-    } else if (activeTab === 'enquiries') {
-      if (monthFilter === "") {
-        setEnquiries(myEnquiries);
-      }
-      else {
-        const filteredEnqs = filterEnquiriesByMonth(myEnquiries, monthFilter);
-        setEnquiries(filteredEnqs);
-      }
-    }
-    setBuffering(false);
-  }, [monthFilter])
-
   // Use useCallback to prevent recreation of handler functions on each render
   const handlePropertyStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
-    setProperties((prevProperties) =>
-      prevProperties.map((property) =>
-        property.propertyId === id
-          ? { ...property, status: newStatus }
-          : property
-      )
-    );
-    propertyStatusUpdate(newStatus, id);
     try {
       const propertyRef = collection(db, "ACN123");
       const q = query(propertyRef, where("propertyId", "==", id));
@@ -480,24 +452,16 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        console.log("Status updated successfully in Firestore");
-      } else {
-        console.log("No document found with propertyId:", id);
       }
+      showSuccessToast('Inventory status updated Succesfully!');
     } catch (error) {
+      showErrorToast('Error updating Inventory status!');
       console.error("Error updating status in Firestore:", error);
     }
   }, []);
 
   const handleRequirementStatusChange = useCallback(async (id: string, status: string) => {
     const newStatus = status;
-    setRequirements((prevRequirements) =>
-      prevRequirements.map((requirement) =>
-        requirement.requirementId === id
-          ? { ...requirement, status: newStatus }
-          : requirement
-      )
-    );
 
     try {
       const requirementsRef = collection(db, "requirements");
@@ -507,12 +471,11 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
       if (!querySnapshot.empty) {
         const docRef = querySnapshot.docs[0].ref;
         await updateDoc(docRef, { status: newStatus });
-        console.log("Status updated successfully in Firestore");
-      } else {
-        console.log("No document found with requirementId:", id);
       }
+      showSuccessToast('Requirement status updated Succesfully!');
     } catch (error) {
-      console.error("Error updating status in Firestore:", error);
+      showErrorToast('Error updating Requirement status!');
+      //console.error("Error updating status in Firestore:", error);
     }
   }, []);
 
@@ -548,7 +511,7 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     property={property}
                     onStatusChange={handlePropertyStatusChange}
                     index={index}
-                    totalCount={batchSize}
+                    totalCount={Math.min(batchSize, properties.length)}
                   />
                 );
               })}
@@ -573,11 +536,11 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
               {requirements.slice(0, batchSize).map((requirement, index) => {
                 return (
                   <RequirementCard
-                    key={requirement.id}
+                    key={requirement.requirementId}
                     requirement={requirement}
                     onStatusChange={handleRequirementStatusChange}
                     index={index}
-                    totalCount={batchSize}
+                    totalCount={Math.min(batchSize, requirements.length)}
                   />
                 )
               })}
@@ -605,7 +568,6 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
                     key={enquiry.id}
                     index={index}
                     enquiry={enquiry}
-                  // handleGiveReview={()=>{console.log("Review")}}
                   />
                 )
               })}
@@ -616,27 +578,25 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     }
   }, [activeTab, properties, requirements, enquiries, bufferring, loading, batchSize, handlePropertyStatusChange, handleRequirementStatusChange]);
 
-
-
   const tabData = [
     {
       key: "inventories",
       label: "My Inventories",
-      icon: <MaterialCommunityIcons size={21.33} name={"home"} color={activeTab === "inventories" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyInverntoriesIcon iconColor={myInverntoriesIconColor} />,
       count: myProperties.length,
       loading: loading.propertiesLoading
     },
     {
       key: "requirements",
       label: "My Requirements",
-      icon: <MaterialCommunityIcons size={21.33} name={"layers"} color={activeTab === "requirements" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyRequirementIcon layerColor={myRequirementsIconColor} />,
       count: myRequirements.length,
       loading: loading.requirementsLoading
     },
     {
       key: "enquiries",
       label: "My Enquiries",
-      icon: <MaterialIcons name="checklist" size={21.33} color={activeTab === "enquiries" ? "#FFFFFF" : "#153E3B"} />,
+      icon: <MyEnquiriesIcon iconColor={myEnquiresIconColor} />,
       count: myEnquiries.length,
       loading: loading.enquiriesLoading
     },
@@ -658,21 +618,83 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     switch (activeTab) {
       case "inventories":
         setProperties(myProperties);
+        propertyMonthOptions.current = generatePropertyMonths(myProperties);
         setMonthFilterOptions(propertyMonthOptions.current);
+        setMyInverntoriesIconColor("white");
+        setMyRequirementsIconColor("#153E3B");
+        setMyEnquiresIconColor("#153E3B");
         break;
       case "requirements":
         setRequirements(myRequirements);
+        requirementMonthOptions.current = generateRequirementMonths(myRequirements);
         setMonthFilterOptions(requirementMonthOptions.current);
+        setMyInverntoriesIconColor("#153E3B");
+        setMyRequirementsIconColor("white");
+        setMyEnquiresIconColor("#153E3B");
         break;
       case "enquiries":
         setEnquiries(myEnquiries);
+        enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
         setMonthFilterOptions(enquiryMonthOptions.current);
+        setMyInverntoriesIconColor("#153E3B");
+        setMyRequirementsIconColor("#153E3B");
+        setMyEnquiresIconColor("white");
         break;
       default:
         break;
     }
     initalLoad.current = false;
   }, [activeTab]);
+
+  useEffect(() => {
+    if (myProperties) {
+      setProperties(myProperties);
+      propertyMonthOptions.current = generatePropertyMonths(myProperties);
+      if (activeTab === "inventories") {
+        setMonthFilterOptions(propertyMonthOptions.current);
+      }
+    }
+  }, [myProperties])
+
+  useEffect(() => {
+    if (myRequirements) {
+      setRequirements(myRequirements);
+      requirementMonthOptions.current = generateRequirementMonths(myRequirements);
+      if (activeTab === "requirements") {
+        setMonthFilterOptions(propertyMonthOptions.current);
+      }
+    }
+  }, [myRequirements])
+
+  useEffect(() => {
+    if (myEnquiries) {
+      setEnquiries(myEnquiries);
+      enquiryMonthOptions.current = generateEnquiryMonths(myEnquiries);
+      if (activeTab === "enquiries") {
+        setMonthFilterOptions(propertyMonthOptions.current);
+      }
+    }
+  }, [myEnquiries])
+
+  useEffect(() => {
+    if (initalLoad.current)
+      return;
+    switch (activeTab) {
+      case "inventories":
+        setProperties(filterPropertiesByMonth(myProperties, monthFilter));
+
+        break;
+      case "requirements":
+        setRequirements(filterRequirementsByMonth(myRequirements, monthFilter));
+        break;
+      case "enquiries":
+        setEnquiries(filterEnquiriesByMonth(myEnquiries, monthFilter));
+        break;
+      default:
+        break;
+    }
+    setBuffering(false);
+  }, [monthFilter])
 
   return (
     <StyledView className="flex bg-gray-50 h-full">
@@ -705,4 +727,21 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
     </StyledView >
 
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  shareButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 22,
+    backgroundColor: '#E3E3E3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 10,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+  },
+});

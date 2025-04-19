@@ -8,6 +8,7 @@ import { Landmark } from '../(tabs)/properties';
 import RangeMoreFilters from './RangeMoreFilters';
 import LandmarkDropdownFilters from './LandmarkDropdownFilters';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 export interface RangeState {
   start: (number | undefined)[];
@@ -156,9 +157,12 @@ const MoreFilters = ({
     );
   };
 
+  const [forceRender, setForceRender] = useState(false);
+
   return (
     <Modal
       visible={isOpen}
+      onShow={() => setForceRender(prev => !prev)}
       animationType="slide"
       transparent={true}
       onRequestClose={handleToggle}
@@ -168,10 +172,11 @@ const MoreFilters = ({
       paddingTop: Platform.OS === 'ios' ? 40 : 0,
     }}>
         {/* Header */}
+        {forceRender && <View style={{ height: 0 }} />}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle} >
-            <Ionicons name="close" size={24} color="#374151" />
+            <CloseIcon/>
           </TouchableOpacity>
         </View>
 
@@ -179,7 +184,7 @@ const MoreFilters = ({
           {/* Asset Type & Configuration - First Row */}
           <View className="flex-row flex-wrap justify-between mb-4">
             {/* Asset Type Dropdown - Now with higher z-index */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 30 }}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">
                 {outsideFilters[0].title}
               </Text>
@@ -192,7 +197,7 @@ const MoreFilters = ({
             </View>
 
             {/* Configuration Dropdown - Now with lower z-index than Asset Type */}
-            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{zIndex: 30}}>
+            <View className="p-4 border border-gray-200 rounded-xl w-[48%] mb-4" style={{ zIndex: 30 }}>
               <Text className="text-base font-semibold text-black mb-2 font-['Montserrat']">
                 {outsideFilters[1].title}
               </Text>

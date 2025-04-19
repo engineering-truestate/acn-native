@@ -18,6 +18,7 @@ import submitRequirement from '../helpers/submitRequirement';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import CustomSelectDropdown from '../components/CustomSelectDropdown';
+import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toastUtils';
 
 const UserRequirementForm = () => {
   const cpId = useSelector((state: RootState) => state?.agent?.docData?.cpId) || null;
@@ -126,6 +127,7 @@ const UserRequirementForm = () => {
 
     // Reset focus states
     setFocusedFields({});
+    showInfoToast("Form cleared successfully!");
   };
 
   const isBudgetValidRange = () => {
@@ -188,8 +190,9 @@ const UserRequirementForm = () => {
 
       await submitRequirement(userRequirement, cpId);
       clearForm();
-      console.log("requirement submitted");
+      showSuccessToast("Requirement submitted successfully!");
     } catch (error) {
+      showErrorToast("An error occurred while submitting the requirement. Please try again.");
       console.error("An error occurred:", error);
     } finally {
       setSaving(false);
@@ -486,7 +489,7 @@ const UserRequirementForm = () => {
 
           {/* Submit Button */}
           <ARPrimaryButton onPress={handleSubmit} style={styles.submitButton} disabled={saving}>
-            {saving ? <ActivityIndicator size={'small'} color={'white'} />: "Submit"}
+            {saving ? <ActivityIndicator size={'small'} color={'white'} /> : "Submit"}
           </ARPrimaryButton>
         </View>
       </View>

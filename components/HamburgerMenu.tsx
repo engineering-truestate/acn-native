@@ -7,11 +7,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { logOut } from '@/store/slices/authSlice';
 import { MaterialIcons, FontAwesome5, Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import Tooltip from 'react-native-elements/dist/tooltip/Tooltip';
 import { selectAdmin, selectName } from '@/store/slices/agentSlice';
 import { toCapitalizedWords } from '@/app/helpers/common';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HamburgerMenuButton } from './HamburgerMenuButton';
+import DashboardIcon from '@/assets/icons/svg/Sidebar/DashboardIcon';
+import PropertyIcon from '@/assets/icons/svg/Sidebar/PropertyIcon';
+import RequirementIcon from '@/assets/icons/svg/Sidebar/RequirementsIcon';
+import RupeeIcon from '@/assets/icons/svg/Sidebar/BillingIcon';
+import AnimatedTooltip from './AnimatedTooltip';
 
 
 const { width } = Dimensions.get('window');
@@ -21,7 +25,7 @@ interface MenuItem {
   title: string;
   path: string;
   icon: string;
-  iconType: 'MaterialIcons' | 'FontAwesome5' | 'Ionicons' | 'MaterialCommunityIcons' | 'Feather';
+  iconType: 'Dashboard' | 'Requirements' | 'Properties' | 'Billing' | 'Feather';
 }
 
 interface SidebarItemProps {
@@ -39,26 +43,26 @@ interface HamburgerMenuProps {
 }
 
 const menuItems: MenuItem[] = [
-  { title: 'Dashboard', path: '/dashboardTab', icon: 'dashboard', iconType: 'MaterialIcons' },
-  { title: 'Properties', path: '/properties', icon: 'home', iconType: 'MaterialIcons' },
-  { title: 'Requirements', path: '/requirements', icon: 'list-alt', iconType: 'MaterialIcons' },
+  { title: 'Dashboard', path: '/dashboardTab', icon: 'dashboard', iconType: 'Dashboard' },
+  { title: 'Properties', path: '/properties', icon: 'home', iconType: 'Properties' },
+  { title: 'Requirements', path: '/requirements', icon: 'list-alt', iconType: 'Requirements' },
 ];
 
 const bottomMenuItems: MenuItem[] = [
-  { title: 'Billing', path: '/billings', icon: 'dollar-sign', iconType: 'Feather' },
+  { title: 'Billing', path: '/billings', icon: 'dollar-sign', iconType: 'Billing' },
   { title: 'Help', path: '/help', icon: 'help-circle', iconType: 'Feather' },
 ];
 
 const getIconComponent = (type: MenuItem['iconType'], name: string, size: number = 24, color: string = '#252626') => {
   switch (type) {
-    case 'MaterialIcons':
-      return <MaterialIcons name={name as any} size={size} color={color} />;
-    case 'FontAwesome5':
-      return <FontAwesome5 name={name as any} size={size} color={color} />;
-    case 'Ionicons':
-      return <Ionicons name={name as any} size={size} color={color} />;
-    case 'MaterialCommunityIcons':
-      return <MaterialCommunityIcons name={name as any} size={size} color={color} />;
+    case 'Dashboard':
+      return <DashboardIcon />;
+    case 'Requirements':
+      return <RequirementIcon />;
+    case 'Properties':
+      return <PropertyIcon />;
+    case 'Billing':
+      return <RupeeIcon />
     case 'Feather':
       return <Feather name={name as any} size={size} color={color} />;
     default:
@@ -136,6 +140,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
       onClose();
       return;
     }
+    router.dismissAll();
     router.push(path as any);
     onClose();
   };
@@ -146,33 +151,19 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
   };
 
   const handleRequirementSubmit = () => {
+    router.dismissAll();
     router.push('/(tabs)/UserRequirementForm');
     onClose();
   };
 
   const handleHelpClick = () => {
+    router.dismissAll();
     router.push('/help' as any);
   };
 
   const isActive = (path: string) => {
     return pathname === path;
   };
-
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    if (showTooltip) {
-      timeoutId = setTimeout(() => {
-        setShowTooltip(false);
-      }, 1500);
-    }
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [showTooltip]);
 
   if (!visible) return null;
 
@@ -263,7 +254,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                 </View>
               ))}
 
-              {/* Credits Display */}
+              {/* Credits Display with Improved Tooltip */}
               <View style={styles.creditsContainer}>
                 <View style={styles.creditsInfoContainer}>
                   <MaterialIcons name="monetization-on" size={20} color="#FFD700" />
@@ -271,16 +262,7 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                     {monthlyCredits} Credits
                   </Text>
                 </View>
-                <View style={styles.tooltipContainer}>
-                  <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)}>
-                    <MaterialIcons name="info-outline" size={22} color="#5A5555" />
-                  </TouchableOpacity>
-                  {showTooltip && (
-                    <View style={styles.tooltip}>
-                      <Text style={styles.tooltipText}>1 Credit is used per enquiry.</Text>
-                    </View>
-                  )}
-                </View>
+                <AnimatedTooltip message="1 Credit is used per enquiry." />
               </View>
 
               <TouchableOpacity
@@ -291,7 +273,13 @@ export const HamburgerMenu = ({ visible, onClose, onOpenProfile }: HamburgerMenu
                   <MaterialIcons name="person" size={18} color="#fff" />
                 </View>
                 <View style={styles.profileInfoContainer}>
-                  <Text style={styles.profileName}>{toCapitalizedWords(agentName) || 'Agent Name'}</Text>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                    style={styles.profileName}
+                  >
+                    {toCapitalizedWords(agentName) || 'Agent Name'}
+                  </Text>
                   <View style={styles.profileLinkContainer}>
                     <Text style={styles.profileLinkText}>Check profile</Text>
                     <MaterialIcons name="arrow-forward" size={12} color="#205E59" />
@@ -437,28 +425,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#5A5555',
   },
-  tooltipContainer: {
-    position: 'relative',
-  },
-  tooltip: {
-    position: 'absolute',
-    top: -40,
-    right: 0,
-    backgroundColor: '#2B2928',
-    padding: 8,
-    borderRadius: 8,
-    zIndex: 50,
-    minWidth: 180,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  tooltipText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-  },
   profileButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -486,6 +452,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2B2928',
     fontWeight: 'bold',
+    marginRight: 38,
   },
   profileLinkContainer: {
     flexDirection: 'row',

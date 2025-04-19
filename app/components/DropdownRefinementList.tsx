@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useRefinementList } from 'react-instantsearch';
 import { StyleSheet } from 'react-native';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
 
 interface DropdownRefinementListProps {
   attribute: string;
@@ -46,7 +47,7 @@ export default function DropdownRefinementList({
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
               <TouchableOpacity onPress={() => setIsOpen(false)}>
-                <Text style={styles.closeButton}>×</Text>
+                <CloseIcon/>
               </TouchableOpacity>
             </View>
 

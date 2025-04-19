@@ -1,6 +1,7 @@
 import { Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, useFonts } from '@expo-google-fonts/montserrat';
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, Platform } from 'react-native';
+import HamburgerMenuIcon from '@/assets/icons/svg/HamburgerMenuIcon';
 
 interface HamburgerMenuButtonProps {
   onPress: () => void;
@@ -25,9 +26,7 @@ export const HamburgerMenuButton = ({ onPress, isOpen, showACN = false }: Hambur
     <TouchableOpacity onPress={onPress}>
       <View style={styles.container}>
         <View style={styles.hamburgerContainer}>
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
-          <View style={[styles.hamburgerLine, isOpen && styles.hamburgerLineOpen]} />
+          <HamburgerMenuIcon />
         </View>
         {showACN &&
           <Text style={styles.acnText}>
@@ -51,6 +50,7 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'space-between',
     marginLeft: 6,
+    bottom: 5,
   },
   hamburgerLine: {
     height: 3,
@@ -61,13 +61,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#153E3B',
   },
   acnText: {
+    left: 25,
     fontFamily: 'Montserrat_700Bold',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#000',
   },
   buttonLabel: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto', 
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 16,
     fontWeight: '500',
     color: '#252626',

@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
   Dimensions,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { logOut, signIn } from '@/store/slices/authSlice';
@@ -16,9 +17,9 @@ import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 import auth from '@react-native-firebase/auth';
-import Spinner from '../SpinnerComponent';
 import { OtpInput } from "react-native-otp-entry";
 import { AntDesign } from '@expo/vector-icons';
+import { showErrorToast, showInfoToast } from '@/utils/toastUtils';
 const { width, height } = Dimensions.get('window');
 
 export default function OTPage() {
@@ -60,33 +61,21 @@ export default function OTPage() {
     }
 
     try {
-      console.log('🔑 Confirming OTP code');
-
-      console.log(verificationId, "hello")
       const credential = auth.PhoneAuthProvider.credential(verificationId as string, otp.toString());
-      console.log('✅ OTP confirmed successfully');
 
       const userCredential = await auth().signInWithCredential(credential);
 
-      console.log(userCredential, "userCredential")
-
       if (userCredential?.user?.phoneNumber) {
-        console.log('👤 User authenticated:', {
-          uid: userCredential.user.uid,
-          phonenumber: userCredential.user.phoneNumber
-        });
-
         dispatch(signIn());
         router.dismissAll();
         router.replace('/(tabs)/properties');
         setIsVerifying(false);
       } else {
-        console.error('❌ No user or phone number after OTP confirmation');
+        
         setErrorMessage('Failed to sign in. Please try again.');
         setIsVerifying(false);
       }
     } catch (error: any) {
-      console.error('❌ OTP confirmation error:', error);
       setErrorMessage('Invalid OTP code.');
       setIsVerifying(false);
     }
@@ -99,10 +88,12 @@ export default function OTPage() {
       const confirmation = await auth().signInWithPhoneNumber(phonenumber || '', true);
       setResendTimer(30);
       setCanResend(false);
-      Alert.alert('Success', `OTP resent to ${phonenumber}`);
+      //Alert.alert('Success', `OTP resent to ${phonenumber}`);
+      showInfoToast('OTP resent successfully!')
     } catch (error: any) {
       console.error('Failed to resend OTP:', error);
-      Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      //Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      showErrorToast('Failed to resend OTP. Please try again.')
     }
   };
 
@@ -110,7 +101,7 @@ export default function OTPage() {
     dispatch(logOut());
     router.back();
   }
-
+ 
   return (
     <View style={styles.container}>
       <Text style={[styles.heading, { fontSize: 28 }]}>Welcome to ACN</Text>
@@ -137,6 +128,7 @@ export default function OTPage() {
         <OtpInput
           numberOfDigits={6}
           autoFocus={true}
+          blurOnFilled={true}
           onTextChange={(text) => setOtp(text)}
           theme={{
             pinCodeContainerStyle: styles.pinCodeContainer,
@@ -144,7 +136,7 @@ export default function OTPage() {
             focusedPinCodeContainerStyle: styles.activePinCodeContainer,
             pinCodeTextStyle: styles.otpText,
           }}
-          
+
         />
       </View>
       <View style={{ marginBottom: 40, minHeight: 24 }}>
@@ -181,7 +173,7 @@ export default function OTPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingHorizontal: width*0.05, backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: width * 0.05, backgroundColor: '#fff' },
   heading: { fontWeight: 'bold', marginBottom: 12, marginTop: 0, textAlign: 'left' },
   otpInfo: { color: '#888', marginBottom: 11, textAlign: 'left', marginTop: 8 },
   phone: { fontWeight: 'bold', color: '#153E3B', textDecorationLine: 'underline' },
@@ -249,7 +241,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   backText: {
-    
+
     color: '#153E3B',
     fontWeight: 'bold',
   },

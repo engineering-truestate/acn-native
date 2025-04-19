@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions, Platform, Linking, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { listenToAgentChanges, selectBlacklisted, selectVerified, setAgentDataState, setPhonenumber } from '@/store/slices/agentSlice';
+import { listenToAgentChanges, setAgentDataState, setPhonenumber } from '@/store/slices/agentSlice';
 import { useDispatch } from 'react-redux';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
-import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/app/config/firebase';
 import { getUnixDateTime } from '@/app/helpers/getUnixDateTime';
 import auth from '@react-native-firebase/auth';
-import Spinner from '../SpinnerComponent';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
+import { useDoubleBackPressExit } from '@/hooks/useDoubleBackPressExit';
+import { showErrorToast } from '@/utils/toastUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -38,7 +39,7 @@ export default function SignUp() {
       setPhoneInput(value);
       setPhoneNumber(fullPhoneNumber);
       if (value.length > 0) {
-        // `${selectedCountryCode.value}${value}`
+        
         const number = parsePhoneNumberFromString(fullPhoneNumber);
 
         if (number && number.isValid()) {
@@ -70,11 +71,13 @@ export default function SignUp() {
       const agentData = result.docData;
 
       if (agentData?.blacklisted) {
+        showErrorToast("Your account is blacklisted. Please contact support.");
         router.push('/components/Auth/BlacklistedPage');
         return;
       }
 
       if (!agentData?.verified) {
+        showErrorToast("Your account is not verified!");
         router.push('/components/Auth/VerificationPage');
         return;
       }
@@ -104,7 +107,6 @@ export default function SignUp() {
         };
 
         await addDoc(collection(db, "agents"), newAgent);
-        console.log("New user added to the database:", newAgent);
 
         setAddingNewAgent(false);
         router.push('/components/Auth/VerificationPage')
@@ -126,16 +128,16 @@ export default function SignUp() {
     setErrorMessage(""); // Reset any previous errors
 
     try {
-      console.log('📱 Attempting to send OTP to:', phoneNumber);
+     
 
       // Configure reCAPTCHA verifier if needed
-      if (!auth().settings.appVerificationDisabledForTesting) {
-        console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
-      }
+      // if (!auth().settings.appVerificationDisabledForTesting) {
+      //   console.log('⚠️ Warning: App verification is enabled. Make sure reCAPTCHA is configured.');
+      // }
 
       // Send OTP using Firebase
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber, true);
-      console.log('✅ OTP sent successfully, confirmation received');
+     
 
       router.push({
         pathname: '/components/Auth/OTPage',
@@ -144,11 +146,11 @@ export default function SignUp() {
       setIsSendingOTP(false);
 
     } catch (error: any) {
-      console.error("❌ Error during OTP send:", {
-        message: error.message,
-        code: error.code,
-        nativeErrorMessage: error.nativeErrorMessage
-      });
+      // console.error("❌ Error during OTP send:", {
+      //   message: error.message,
+      //   code: error.code,
+      //   nativeErrorMessage: error.nativeErrorMessage
+      // });
 
       // Handle specific error cases
       if (error.code === 'auth/invalid-phone-number') {
@@ -159,13 +161,27 @@ export default function SignUp() {
         setErrorMessage("Phone authentication is not enabled. Please contact support.");
       } else {
         setErrorMessage(error.message || "Failed to send OTP. Please try again.");
+        
       }
+
+     
+      // Optionally log the error for debugging
+      console.error("Error during OTP send:", error);
       setIsSendingOTP(false);
     } finally {
       setErrorMessage('');
       setIsSendingOTP(false);
     }
   };
+
+  const handleSubmitEditing = () => {
+    if (isPhoneValid && !loading && !addingNewAgent && !isSendingOTP) {
+      handleCheckUser();
+    }
+  };
+
+  useDoubleBackPressExit();
+  
 
   return (
     <View style={styles.container}>
@@ -184,6 +200,8 @@ export default function SignUp() {
           style={styles.input}
           onChangeText={handlePhoneInputChange}
           value={phoneInput}
+          onSubmitEditing={handleSubmitEditing}
+          editable={!loading && !addingNewAgent && !isSendingOTP}
         />
       </View>
       <View style={{ marginBottom: height * 0.04, minHeight: 24 }}>
@@ -212,7 +230,7 @@ export default function SignUp() {
       </TouchableOpacity>
 
       <View style={styles.whatsappRow}>
-      <FontAwesome5 name="whatsapp" size={16} color="black" />
+        <FontAwesome5 name="whatsapp" size={16} color="black" />
         <Text style={styles.whatsappText}>WhatsApp number mandatory!</Text>
       </View>
 

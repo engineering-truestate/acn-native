@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions } from 'react-native';
-import { useSearchBox } from 'react-instantsearch';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+import { useInstantSearch, useSearchBox } from 'react-instantsearch';
 import DropdownRefinementList from './DropdownRefinementList';
 import CustomCurrentRefinements from './CustomCurrentRefinements';
 import { Property } from '../types';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
+import SearchIcon from '@/assets/icons/svg/PropertiesPage/SearchIcon';
+import FilterIcon from '@/assets/icons/svg/PropertiesPage/FilterIcon';
 
 interface PropertyFiltersProps {
   handleToggleMoreFilters: () => void;
@@ -19,7 +22,9 @@ export default function PropertyFilters({
   setSelectedLandmark
 }: PropertyFiltersProps) {
   const { query, refine } = useSearchBox();
+  const { status } = useInstantSearch();
   const [searchText, setSearchText] = useState(query);
+  const [loading, setLoading] = useState(false);
 
   // Handle text input change
   const handleSearchChange = (text: string) => {
@@ -28,15 +33,30 @@ export default function PropertyFilters({
 
   // Handle search button press (refine action)
   const handleSearchPress = () => {
-    if(searchText.trim() != query) {
-      refine(searchText);  // Trigger the refine action with the updated search text
+    Keyboard.dismiss(); // Dismiss the keyboard when searching
+    if (searchText.trim() != query) {
+      setLoading(true);
+      setTimeout(() => {
+        refine(searchText.trim());  // Trigger the refine action with the updated search text
+      }, 0)
     }
   };
 
   const handleClear = () => {
-    setSearchText("");
-    refine("");
+    Keyboard.dismiss(); // Dismiss the keyboard when clearing the search
+    setSearchText("".trim());
+    if ("" !== query) {
+      setLoading(true);
+      setTimeout(() => {
+        refine("");
+      }, 0)
+    }
   }
+
+  // Update loading state based on Algolia search status
+  useEffect(() => {
+    setLoading(status === 'loading');
+  }, [status]);
 
   return (
     <View style={styles.container}>
@@ -52,6 +72,7 @@ export default function PropertyFilters({
             value={searchText}
             onChangeText={handleSearchChange}
             placeholderTextColor="#9CA3AF"
+            onSubmitEditing={handleSearchPress}
           />
         </View>
 
@@ -59,20 +80,26 @@ export default function PropertyFilters({
         <View style={styles.filters}>
           <TouchableOpacity
             onPress={handleSearchPress}
-            style={styles.searchButton}
           >
-            <Feather name="search" size={24} color="white" />
+            {
+              loading ?
+                <ActivityIndicator />
+                :
+                <SearchIcon />
+            }
           </TouchableOpacity>
         </View>
 
         {/* Clear Button */}
-        {searchText &&
+        {searchText.trim() &&
           <View style={styles.filters}>
             <TouchableOpacity
               onPress={handleClear}
               style={styles.clearButton}
+              disabled={loading}
             >
-              <MaterialCommunityIcons name="close" size={24} color="white" />
+              <CloseIcon
+              strokeColor='white'/>
             </TouchableOpacity>
           </View>
         }
@@ -81,18 +108,18 @@ export default function PropertyFilters({
         <View style={styles.filters}>
           <TouchableOpacity
             onPress={handleToggleMoreFilters}
-            style={styles.moreFiltersButton}
+            // style={styles.moreFiltersButton}
           >
-            <Feather name="filter" size={24} color="black" />
+            <FilterIcon />
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.refinements}>
-      {/* Applied Filters */}
-      <CustomCurrentRefinements
-        selectedLandmark={selectedLandmark}
-        setSelectedLandmark={setSelectedLandmark}
-      />
+        {/* Applied Filters */}
+        <CustomCurrentRefinements
+          selectedLandmark={selectedLandmark}
+          setSelectedLandmark={setSelectedLandmark}
+        />
       </View>
     </View>
   );
@@ -153,14 +180,19 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     height: 40,
-    flexDirection: 'column',
+    width: 40,
+    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#ff0000',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    backgroundColor: '#ff0000',
+    backgroundColor: '#EF4444',
   },
   moreFiltersButton: {
     height: 40,

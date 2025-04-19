@@ -15,6 +15,10 @@ import { logOut } from '@/store/slices/authSlice';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { toCapitalizedWords } from '../helpers/common';
+import { showErrorToast, toastConfig } from '@/utils/toastUtils';
+import CloseIcon from '@/assets/icons/svg/CloseIcon';
+import Toast from 'react-native-toast-message';
+
 
 // ✅ Props typing
 type ProfileModalProps = {
@@ -24,7 +28,7 @@ type ProfileModalProps = {
 
 // ✅ Avatar logic
 const getInitials = (name: string | null): string => {
-  if(!name) return "";
+  if (!name) return "";
   const names = name.trim().split(' ');
   const initials =
     names.length >= 2 ? names[0][0] + names[1][0] : names[0].slice(0, 2);
@@ -41,26 +45,33 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, AnyAction>>();
 
   const name: string | null = useSelector((state: RootState) => state?.agent?.docData?.name) || "";
-  const phonenumber : string | null = useSelector((state: RootState) => state?.agent?.docData?.phonenumber) || "";
-
-  // const {name, phonenumber} = useSelector((state: RootState) => state.agent.docData)
-  // const name = 'John Doe';
-  // const phoneNumber = '+919876543210';
+  const phonenumber: string | null = useSelector((state: RootState) => state?.agent?.docData?.phonenumber) || "";
   const initials = getInitials(name);
   const avatarColor = getRandomColor();
 
-  const handleLogOut = () => {
-    setVisible(false);
-    dispatch(logOut());
-    router.dismissAll();
-    router.replace('/');
-    // router.push('/');
+  const handleLogOut = async () => {
+
+    try {
+      await dispatch(logOut());
+
+      setTimeout(() => {
+        router.dismissAll();
+        router.replace('/');
+      }, 300)
+    } catch (error) {
+      console.error('Error during logout:', error);
+      showErrorToast("Some error occured. Please try again.", { isInModal: true });
+    } finally {
+      setVisible(false);
+    }
   }
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <TouchableWithoutFeedback onPress={() => setVisible(false)}>
         <View style={styles.overlay}>
+          <Toast config={toastConfig} />
+
           <TouchableWithoutFeedback>
             <View style={styles.container}>
               {/* ❌ Close Button */}
@@ -68,7 +79,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, setVisible }) => {
                 style={styles.closeIcon}
                 onPress={() => setVisible(false)}
               >
-                <Ionicons name="close" size={24} color="#000" />
+                <CloseIcon />
               </TouchableOpacity>
 
               {/* ✅ Header */}
@@ -180,6 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#726C6C',
     marginLeft: 8,
+    marginRight: 15,
   },
   logoutButton: {
     flexDirection: 'row',

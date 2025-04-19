@@ -19,6 +19,7 @@ interface DashboardDropdownProps {
   setValue: (value: string) => void;
   type?: 'requirement' | 'inventory';
   openDropdownUp: boolean,
+  parent?: string,
 }
 
 const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
@@ -27,6 +28,7 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
   setValue,
   type,
   openDropdownUp,
+  parent,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string | null>("");
@@ -73,7 +75,7 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
     <View style={{ ...styles.container }}>
       <TouchableOpacity
         style={[
-          styles.button,
+          parent === "dashboardInventory" ? styles.dashboardInventoryButton : styles.button,
           getButtonStyle(),
           type === "requirement" ? styles.requirementButton : styles.inventoryButton
         ]}
@@ -91,7 +93,7 @@ const DashboardDropdown: React.FC<DashboardDropdownProps> = ({
         )}
       </TouchableOpacity>
       {isOpen && (
-        <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-9999 min-w-[120px]"
+        <StyledView className="absolute top-9 right-0 p-1 bg-white border border-gray-200 rounded-lg shadow-md z-2 min-w-[120px]"
           style={openDropdownUp ? { top: dropdownTop, opacity: dropdownTop ? 1 : 0 } : {}}
           onLayout={(e) => { handleDropdownLayout(e) }}>
           {options.map((option, index) => (
@@ -127,6 +129,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     gap: 6,
+  },
+  // New style for dashboardInventory parent
+  dashboardInventoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderRadius: 8,  // Using 8 instead of 6
+    paddingHorizontal: 16,
+    paddingVertical: 12, // Using 12 instead of 6
+    gap: 8, // Using 8 instead of 6
   },
   requirementButton: {
     width: 100,
