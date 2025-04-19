@@ -58,14 +58,17 @@ function MobileHits() {
   if (hits?.length === 0 && query?.length !== 0) {
     return (
       <View className="flex items-center justify-center h-64">
-        <Text style={styles.text}>No results found for "{query}"</Text>
+        <Text style={{ ...styles.text, fontFamily: 'Montserrat_400Regular' }}>No results found for "{query}"</Text>
       </View>
     );
   } else if (hits.length === 0) {
     return (
-      <View className="flex items-center justify-center h-64">
+      <View className="flex items-center justify-center h-64 gap-10 mt-20">
         <ActivityIndicator size={'large'} color={'#153E3B'} />
-        <Text style={styles.text}>“The best investment on Earth is earth.” - Louis Glickman, Real Estate Investor</Text>
+        <View className="flex flex-col items-center">
+          <Text style={{ ...styles.text, fontWeight: 'bold', fontFamily: 'Montserrat_400Regular', color: 'black', fontSize: 17 }}>“The best investment on Earth is earth.”</Text>
+          <Text style={{ ...styles.text, fontStyle: 'italic', fontFamily: 'Lato' }}>- Louis Glickman</Text>
+        </View>
       </View>
     );
   }
@@ -229,7 +232,7 @@ export default function PropertiesScreen() {
 
 const styles = StyleSheet.create({
   text: {
-    fontFamily: 'Montserrat_400Regular',
+    // fontFamily: 'Montserrat_400Regular',
     color: '#6B7280',
     fontSize: 16,
   },
