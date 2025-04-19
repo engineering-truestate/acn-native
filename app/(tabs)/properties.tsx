@@ -11,6 +11,9 @@ import PropertyCard from "../components/property/PropertyCard";
 import MoreFilters from "../components/MoreFilters";
 import { useDoubleBackPressExit } from "@/hooks/useDoubleBackPressExit";
 import Animated from "react-native-reanimated";
+import Offline from "../components/Offline";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 // Initialize Algolia search client
 const searchClient = algoliasearch(
@@ -30,7 +33,7 @@ export interface Landmark {
 // SearchRefresher component that accesses the refresh method
 function SearchRefresher({ onRefreshAvailable }: { onRefreshAvailable: (refresh: Function) => void }) {
   const { refresh } = useInstantSearch();
-  
+
   useEffect(() => {
     if (refresh && onRefreshAvailable) {
       onRefreshAvailable(refresh);
@@ -96,6 +99,8 @@ export default function PropertiesScreen() {
   const [refreshFunction, setRefreshFunction] = useState<Function | null>(null);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
 
+  const isConnectedToInternet = useSelector((state: RootState) => state.app.isConnectedToInternet);
+
   useEffect(() => {
     // Measure the height of the filters component
     if (filtersRef.current) {
@@ -121,7 +126,7 @@ export default function PropertiesScreen() {
   const windowHeight = Dimensions.get('window').height;
 
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Handle when refresh function becomes available
   const handleRefreshAvailable = useCallback((refresh: Function) => {
     setRefreshFunction(() => refresh);
@@ -143,12 +148,15 @@ export default function PropertiesScreen() {
 
   useDoubleBackPressExit();
 
+  if (!isConnectedToInternet)
+    return (<Offline />)
+
   return (
     <View className="flex-1 bg-[#F5F6F7]">
       <InstantSearch searchClient={searchClient} indexName={indexName}>
         {/* This component gets the refresh function and passes it up */}
         <SearchRefresher onRefreshAvailable={handleRefreshAvailable} />
-        
+
         <Configure
           analytics={true}
           hitsPerPage={20}

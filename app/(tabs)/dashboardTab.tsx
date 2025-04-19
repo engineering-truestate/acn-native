@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Property, Requirement, Enquiry, EnquiryWithProperty } from '../types';
 import Dashboard from '../components/dashboard/Dashboard';
 import { RootState } from '@/store/store';
+import Offline from '../components/Offline';
 interface UsePropertiesResult {
   properties: Property[];
   loading: boolean;
@@ -246,6 +247,11 @@ export default function DashboardTab() {
   const { myEnquiries, loading: enquiriesLoading, error: enquiriesError, handleGiveReview: handleGiveReview } = useEnquiries();
   const { properties, loading: propertiesLoading, error: propertiesError, handlePropertyStatusChange } = useProperties();
   const { requirements, loading: requirementsLoading, error: requirementsError, hanldeRequirementsStatusChange: hanldeRequirementsStatusChange } = useRequirements();
+
+  const isConnectedToInternet = useSelector((state: RootState) => state.app.isConnectedToInternet);
+
+  if (!isConnectedToInternet)
+    return (<Offline />)
 
   return (
     <View style={{ flex: 1 }}>

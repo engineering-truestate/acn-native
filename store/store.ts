@@ -9,13 +9,15 @@ import agentReducer from './slices/agentSlice';
 // import requirementFormReducer from './slices/requirementSlice';
 import kamReducer from './slices/kamSlice';
 import listenerReducer from './slices/listenerSlice';
+import appReducer from './slices/appSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   agent: agentReducer,
-//   requirementForm: requirementFormReducer,
+  //   requirementForm: requirementFormReducer,
   kam: kamReducer,
   listeners: listenerReducer,
+  app: appReducer,
 });
 
 const persistConfig = {
