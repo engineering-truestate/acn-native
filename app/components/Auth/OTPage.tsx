@@ -71,7 +71,7 @@ export default function OTPage() {
         router.replace('/(tabs)/properties');
         setIsVerifying(false);
       } else {
-        
+
         setErrorMessage('Failed to sign in. Please try again.');
         setIsVerifying(false);
       }
@@ -101,7 +101,7 @@ export default function OTPage() {
     dispatch(logOut());
     router.back();
   }
- 
+
   return (
     <View style={styles.container}>
       <Text style={[styles.heading, { fontSize: 28 }]}>Welcome to ACN</Text>

@@ -156,6 +156,63 @@ const MoreFilters = ({
     );
   };
 
+  const SearchableRefinementList = ({
+    items,
+    refine,
+    attribute
+  }: {
+    items: any[];
+    refine: (value: string) => void;
+    attribute: string;
+  }) => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredItems = items.filter(item =>
+      item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <View className="w-full">
+        {attribute === 'micromarket' && (
+          <View className="mb-3">
+            <TextInput
+              className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm"
+              placeholder="Search categories..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        )}
+
+        <View className="flex-row flex-wrap gap-2">
+          {filteredItems?.slice(0, searchQuery === '' ? 10 : filteredItems.length)?.map((item) => (
+            <TouchableOpacity
+              key={item.value}
+              className={`py-2 px-3 border border-gray-300 rounded-md bg-white ${item.isRefined
+                  ? 'bg-[#DFF4F3] border-[#153E3B]'
+                  : ''
+                }`}
+              onPress={() => refine(item.value)}
+            >
+              <View className="flex-row justify-between items-center">
+                <Text
+                  className={`text-sm ${item.isRefined
+                      ? 'text-[#153E3B] font-medium'
+                      : 'text-gray-700'
+                    }`}
+                >
+                  {item.label}
+                </Text>
+                <Text className="text-xs ml-2 px-1 py-0.5 bg-gray-200 rounded text-gray-600 font-bold">
+                  {item.count}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   const [forceRender, setForceRender] = useState(false);
 
   return (
@@ -172,7 +229,7 @@ const MoreFilters = ({
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="font-semibold text-lg text-gray-800">Filters</Text>
           <TouchableOpacity onPress={handleToggle} >
-            <CloseIcon/>
+            <CloseIcon />
           </TouchableOpacity>
         </View>
 
@@ -275,8 +332,15 @@ const MoreFilters = ({
                 </View>
               )}
 
-              {selectedLocationFilter === 'micromarket' && (
+              {/* {selectedLocationFilter === 'micromarket' && (
                 renderRefinementList(micromarketItems, refineMicromarket)
+              )} */}
+              {selectedLocationFilter === 'micromarket' && (
+                <SearchableRefinementList
+                  items={micromarketItems}
+                  refine={refineMicromarket}
+                  attribute="micromarket"
+                />
               )}
             </View>
           </View>
