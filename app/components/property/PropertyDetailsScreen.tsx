@@ -579,11 +579,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#FAFBFC',
+    fontFamily:'Lato',
   },
   propertyName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2B2928',
+    fontFamily:'montserrat-700bold',
   },
   closeButton: {
     width: 36,
@@ -604,11 +606,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     gap: 6,
-    width: '48%'
+    width: '48%', 
   },
   infoText: {
     fontSize: 12,
     color: '#2B2928',
+    fontFamily:'Lato'
   },
   content: {
     flex: 1,
@@ -666,6 +669,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingHorizontal: 16,
     gap: 12,
+    
   },
   infoRow: {
     flexDirection: 'row',
@@ -676,6 +680,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#5A5555',
+    fontFamily: 'Montserrat_600SemiBold',
   },
   infoSeparator: {
     flex: 1,
@@ -708,6 +713,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#5A5555',
+    fontFamily: 'Montserrat_600SemiBold',
   },
   locationValue: {
     fontSize: 14,
@@ -717,12 +723,13 @@ const styles = StyleSheet.create({
   mapButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderWidth: 2,
     borderColor: '#153E3B',
     borderRadius: 8,
+    gap: 8,
   },
   mapButtonText: {
     fontSize: 12,
@@ -742,6 +749,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#5A5555',
+    fontFamily: 'Montserrat_600SemiBold',
   },
   extraDetailsContent: {
     backgroundColor: 'white',
@@ -773,7 +781,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     gap: 12,
-    marginHorizontal: 16
+    paddingHorizontal: 16,
+    
+  },
+  additionalInfolable: {
+    fontSize: 12,
+    fontFamily: 'Montserrat_600SemiBold'
   },
   shareButton: {
     position: 'absolute',

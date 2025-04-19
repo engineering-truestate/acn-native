@@ -37,22 +37,24 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
   // Format property type and configuration
   const formatPropertyInfo = () => {
     const assetType = requirement.assetType;
+    const capitalizedAssetType = assetType ? assetType.charAt(0).toUpperCase() + assetType.slice(1) : assetType;
+
     const config = requirement.configuration;
     const area = requirement.area ? `${requirement.area} sqft` : '';
 
     if (config && area) {
-      return `${assetType} - ${config} / ${area}`;
+      return `${capitalizedAssetType} - ${config} / ${area}`;
     }
 
     if (config) {
-      return `${assetType} - ${config}`;
+      return `${capitalizedAssetType} - ${config}`;
     }
 
     if (area) {
-      return `${assetType} - ${area}`;
+      return `${capitalizedAssetType} - ${area}`;
     }
 
-    return assetType;
+    return capitalizedAssetType;
   };
 
   // Handle card click to show details
@@ -80,13 +82,13 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
         <View className="flex-col gap-2 mb-4">
           {/* Requirement ID */}
           <View className="flex-row">
-            <Text className="text-gray-600 text-xs font-semibold border-b border-[#E3E3E3]">
+            <Text className="text-[#4B5563] text-xs text-[14px] border-b border-[#E3E3E3]" style={{ fontFamily: 'Montserrat_600SemiBold' }}>
               {requirement.requirementId}
             </Text>
           </View>
 
           {/* Project Name */}
-          <Text className="text-black font-bold text-base">
+          <Text className="text-black text-base" style={{ fontFamily: 'Montserrat_700Bold' }}>
             {(requirement.propertyName || requirement.title || '').charAt(0).toUpperCase() + (requirement.propertyName || requirement.title || '').slice(1)}
           </Text>
         </View>
@@ -109,7 +111,7 @@ const RequirementCard = React.memo(({ requirement, onCardClick }: RequirementCar
           {/* Configuration and Area Section */}
           <View className="flex-row items-center gap-2">
             <Ionicons name="home-outline" size={20} color="#4B5563" />
-            <Text className="text-neutral-600 text-sm font-medium">
+            <Text className="text-neutral-600 text-sm font-medium mr-2">
               {formatPropertyInfo()}
             </Text>
           </View>
