@@ -391,6 +391,8 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
   const initalLoad = useRef(true);
 
   useEffect(() => {
+
+    console.log("rajanuix")
     if (myProperties) {
       setProperties(myProperties);
       propertyMonthOptions.current = generatePropertyMonths(myProperties);
@@ -523,6 +525,8 @@ export default function Dashboard({ myEnquiries, myProperties, myRequirements, p
 
   // Memoize the tab rendering to prevent unnecessary re-renders
   const renderTabContent = useMemo(() => {
+
+    console.log(properties)
     if (activeTab === 'inventories') {
       return (
         <>
